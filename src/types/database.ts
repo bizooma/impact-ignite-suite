@@ -206,3 +206,27 @@ export interface Task {
   created_at: string;
   updated_at: string;
 }
+
+export interface ContentTemplate {
+  id: string;
+  organization_id: string;
+  name: string;
+  category?: string;
+  template_data: any;
+  is_public?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Integration {
+  id: string;
+  organization_id: string;
+  name: string;
+  provider: string;
+  config?: any;
+  encrypted_tokens?: any;
+  status?: string;
+  last_synced_at?: string;
+  created_at: string;
+  updated_at: string;
+}
