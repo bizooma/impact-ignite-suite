@@ -14,6 +14,535 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_issues: {
+        Row: {
+          audit_id: string
+          category: string
+          code_snippet: string | null
+          created_at: string
+          id: string
+          is_fixed: boolean | null
+          issue: string
+          page_url: string
+          recommendation: string
+          severity: Database["public"]["Enums"]["audit_severity"]
+        }
+        Insert: {
+          audit_id: string
+          category: string
+          code_snippet?: string | null
+          created_at?: string
+          id?: string
+          is_fixed?: boolean | null
+          issue: string
+          page_url: string
+          recommendation: string
+          severity: Database["public"]["Enums"]["audit_severity"]
+        }
+        Update: {
+          audit_id?: string
+          category?: string
+          code_snippet?: string | null
+          created_at?: string
+          id?: string
+          is_fixed?: boolean | null
+          issue?: string
+          page_url?: string
+          recommendation?: string
+          severity?: Database["public"]["Enums"]["audit_severity"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_issues_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "seo_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          goals: Json | null
+          id: string
+          name: string
+          organization_id: string
+          start_date: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          goals?: Json | null
+          id?: string
+          name: string
+          organization_id: string
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          goals?: Json | null
+          id?: string
+          name?: string
+          organization_id?: string
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_leads: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          interest_type: string | null
+          metadata: Json | null
+          name: string | null
+          phone: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest_type?: string | null
+          metadata?: Json | null
+          name?: string | null
+          phone?: string | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest_type?: string | null
+          metadata?: Json | null
+          name?: string | null
+          phone?: string | null
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_leads_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          role: string
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          role: string
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          role?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          chatbot_id: string
+          created_at: string
+          id: string
+          status: string | null
+          updated_at: string
+          visitor_id: string | null
+          visitor_metadata: Json | null
+        }
+        Insert: {
+          chatbot_id: string
+          created_at?: string
+          id?: string
+          status?: string | null
+          updated_at?: string
+          visitor_id?: string | null
+          visitor_metadata?: Json | null
+        }
+        Update: {
+          chatbot_id?: string
+          created_at?: string
+          id?: string
+          status?: string | null
+          updated_at?: string
+          visitor_id?: string | null
+          visitor_metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_sessions_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chatbots: {
+        Row: {
+          brand_settings: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          status: Database["public"]["Enums"]["chatbot_status"] | null
+          updated_at: string
+          web_widget_config: Json | null
+        }
+        Insert: {
+          brand_settings?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          status?: Database["public"]["Enums"]["chatbot_status"] | null
+          updated_at?: string
+          web_widget_config?: Json | null
+        }
+        Update: {
+          brand_settings?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          status?: Database["public"]["Enums"]["chatbot_status"] | null
+          updated_at?: string
+          web_widget_config?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_templates: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_public: boolean | null
+          name: string
+          organization_id: string
+          template_data: Json
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          name: string
+          organization_id: string
+          template_data: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          organization_id?: string
+          template_data?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gbp_profiles: {
+        Row: {
+          business_name: string
+          categories: string[] | null
+          completeness_score: number | null
+          created_at: string
+          description: string | null
+          id: string
+          last_synced_at: string | null
+          organization_id: string
+          profile_data: Json | null
+          updated_at: string
+        }
+        Insert: {
+          business_name: string
+          categories?: string[] | null
+          completeness_score?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_synced_at?: string | null
+          organization_id: string
+          profile_data?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          business_name?: string
+          categories?: string[] | null
+          completeness_score?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_synced_at?: string | null
+          organization_id?: string
+          profile_data?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gbp_profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gbp_tasks: {
+        Row: {
+          created_at: string
+          description: string
+          due_date: string | null
+          gbp_profile_id: string | null
+          id: string
+          organization_id: string
+          priority: number | null
+          status: Database["public"]["Enums"]["task_status"] | null
+          task_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          due_date?: string | null
+          gbp_profile_id?: string | null
+          id?: string
+          organization_id: string
+          priority?: number | null
+          status?: Database["public"]["Enums"]["task_status"] | null
+          task_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          gbp_profile_id?: string | null
+          id?: string
+          organization_id?: string
+          priority?: number | null
+          status?: Database["public"]["Enums"]["task_status"] | null
+          task_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gbp_tasks_gbp_profile_id_fkey"
+            columns: ["gbp_profile_id"]
+            isOneToOne: false
+            referencedRelation: "gbp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gbp_tasks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integrations: {
+        Row: {
+          config: Json | null
+          created_at: string
+          encrypted_tokens: Json | null
+          id: string
+          last_synced_at: string | null
+          name: string
+          organization_id: string
+          provider: Database["public"]["Enums"]["integration_provider"]
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          encrypted_tokens?: Json | null
+          id?: string
+          last_synced_at?: string | null
+          name: string
+          organization_id: string
+          provider: Database["public"]["Enums"]["integration_provider"]
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          encrypted_tokens?: Json | null
+          id?: string
+          last_synced_at?: string | null
+          name?: string
+          organization_id?: string
+          provider?: Database["public"]["Enums"]["integration_provider"]
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_embeddings: {
+        Row: {
+          content_chunk: string
+          created_at: string
+          embedding: string | null
+          id: string
+          knowledge_source_id: string
+          metadata: Json | null
+        }
+        Insert: {
+          content_chunk: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          knowledge_source_id: string
+          metadata?: Json | null
+        }
+        Update: {
+          content_chunk?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          knowledge_source_id?: string
+          metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_embeddings_knowledge_source_id_fkey"
+            columns: ["knowledge_source_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_sources: {
+        Row: {
+          chatbot_id: string
+          content: string | null
+          created_at: string
+          file_path: string | null
+          file_url: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          status: Database["public"]["Enums"]["knowledge_source_status"] | null
+          type: Database["public"]["Enums"]["knowledge_source_type"]
+          updated_at: string
+        }
+        Insert: {
+          chatbot_id: string
+          content?: string | null
+          created_at?: string
+          file_path?: string | null
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          status?: Database["public"]["Enums"]["knowledge_source_status"] | null
+          type: Database["public"]["Enums"]["knowledge_source_type"]
+          updated_at?: string
+        }
+        Update: {
+          chatbot_id?: string
+          content?: string | null
+          created_at?: string
+          file_path?: string | null
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          status?: Database["public"]["Enums"]["knowledge_source_status"] | null
+          type?: Database["public"]["Enums"]["knowledge_source_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_sources_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           created_at: string
@@ -109,11 +638,357 @@ export type Database = {
         }
         Relationships: []
       }
+      qr_codes: {
+        Row: {
+          brand_config: Json | null
+          created_at: string
+          destination_url: string
+          id: string
+          is_active: boolean | null
+          name: string
+          organization_id: string
+          short_url: string | null
+          type: Database["public"]["Enums"]["qr_code_type"] | null
+          updated_at: string
+          utm_params: Json | null
+        }
+        Insert: {
+          brand_config?: Json | null
+          created_at?: string
+          destination_url: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          organization_id: string
+          short_url?: string | null
+          type?: Database["public"]["Enums"]["qr_code_type"] | null
+          updated_at?: string
+          utm_params?: Json | null
+        }
+        Update: {
+          brand_config?: Json | null
+          created_at?: string
+          destination_url?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          organization_id?: string
+          short_url?: string | null
+          type?: Database["public"]["Enums"]["qr_code_type"] | null
+          updated_at?: string
+          utm_params?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_codes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qr_scans: {
+        Row: {
+          device_info: Json | null
+          id: string
+          ip_address: unknown | null
+          location_data: Json | null
+          qr_code_id: string
+          referrer: string | null
+          scanned_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          device_info?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          location_data?: Json | null
+          qr_code_id: string
+          referrer?: string | null
+          scanned_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          device_info?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          location_data?: Json | null
+          qr_code_id?: string
+          referrer?: string | null
+          scanned_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_scans_qr_code_id_fkey"
+            columns: ["qr_code_id"]
+            isOneToOne: false
+            referencedRelation: "qr_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_audits: {
+        Row: {
+          aeo_score: number | null
+          content_score: number | null
+          created_at: string
+          domain: string
+          id: string
+          organization_id: string
+          overall_score: number | null
+          pages_crawled: number | null
+          results: Json | null
+          schema_score: number | null
+          status: string | null
+          technical_score: number | null
+          updated_at: string
+          voice_seo_score: number | null
+        }
+        Insert: {
+          aeo_score?: number | null
+          content_score?: number | null
+          created_at?: string
+          domain: string
+          id?: string
+          organization_id: string
+          overall_score?: number | null
+          pages_crawled?: number | null
+          results?: Json | null
+          schema_score?: number | null
+          status?: string | null
+          technical_score?: number | null
+          updated_at?: string
+          voice_seo_score?: number | null
+        }
+        Update: {
+          aeo_score?: number | null
+          content_score?: number | null
+          created_at?: string
+          domain?: string
+          id?: string
+          organization_id?: string
+          overall_score?: number | null
+          pages_crawled?: number | null
+          results?: Json | null
+          schema_score?: number | null
+          status?: string | null
+          technical_score?: number | null
+          updated_at?: string
+          voice_seo_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_audits_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_posts: {
+        Row: {
+          campaign_id: string | null
+          content: string
+          created_at: string
+          external_post_id: string | null
+          id: string
+          media_urls: string[] | null
+          metadata: Json | null
+          organization_id: string
+          platform: Database["public"]["Enums"]["social_platform"]
+          published_at: string | null
+          scheduled_for: string | null
+          status: Database["public"]["Enums"]["post_status"] | null
+          updated_at: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          content: string
+          created_at?: string
+          external_post_id?: string | null
+          id?: string
+          media_urls?: string[] | null
+          metadata?: Json | null
+          organization_id: string
+          platform: Database["public"]["Enums"]["social_platform"]
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["post_status"] | null
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string | null
+          content?: string
+          created_at?: string
+          external_post_id?: string | null
+          id?: string
+          media_urls?: string[] | null
+          metadata?: Json | null
+          organization_id?: string
+          platform?: Database["public"]["Enums"]["social_platform"]
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["post_status"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_posts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assignee_id: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          metadata: Json | null
+          organization_id: string
+          priority: number | null
+          source_id: string | null
+          source_module: string
+          status: Database["public"]["Enums"]["task_status"] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id: string
+          priority?: number | null
+          source_id?: string | null
+          source_module: string
+          status?: Database["public"]["Enums"]["task_status"] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id?: string
+          priority?: number | null
+          source_id?: string | null
+          source_module?: string
+          status?: Database["public"]["Enums"]["task_status"] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "tasks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhooks: {
+        Row: {
+          created_at: string
+          events: string[]
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          name: string
+          organization_id: string
+          secret: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          events: string[]
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          name: string
+          organization_id: string
+          secret?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          name?: string
+          organization_id?: string
+          secret?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhooks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      binary_quantize: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
+      halfvec_avg: {
+        Args: { "": number[] }
+        Returns: unknown
+      }
+      halfvec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      halfvec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      halfvec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
       has_org_role: {
         Args: {
           _org_id: string
@@ -122,13 +997,102 @@ export type Database = {
         }
         Returns: boolean
       }
+      hnsw_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_sparsevec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnswhandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       is_org_member: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      ivfflat_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflat_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflathandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      l2_norm: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: number
+      }
+      l2_normalize: {
+        Args: { "": string } | { "": unknown } | { "": unknown }
+        Returns: unknown
+      }
+      sparsevec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      sparsevec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      sparsevec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
+      vector_avg: {
+        Args: { "": number[] }
+        Returns: string
+      }
+      vector_dims: {
+        Args: { "": string } | { "": unknown }
+        Returns: number
+      }
+      vector_norm: {
+        Args: { "": string }
+        Returns: number
+      }
+      vector_out: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      vector_send: {
+        Args: { "": string }
+        Returns: string
+      }
+      vector_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "owner" | "admin" | "editor" | "viewer"
+      audit_severity: "low" | "medium" | "high" | "critical"
+      chatbot_status: "draft" | "active" | "paused"
+      integration_provider:
+        | "facebook"
+        | "instagram"
+        | "linkedin"
+        | "twitter"
+        | "google_business"
+        | "openai"
+        | "postmark"
+        | "twilio"
+      knowledge_source_status: "pending" | "processing" | "completed" | "error"
+      knowledge_source_type: "pdf" | "docx" | "url" | "text"
+      post_status: "draft" | "scheduled" | "published" | "failed"
+      qr_code_type: "static" | "dynamic"
+      social_platform: "facebook" | "instagram" | "linkedin" | "twitter"
+      task_status: "todo" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -257,6 +1221,24 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "admin", "editor", "viewer"],
+      audit_severity: ["low", "medium", "high", "critical"],
+      chatbot_status: ["draft", "active", "paused"],
+      integration_provider: [
+        "facebook",
+        "instagram",
+        "linkedin",
+        "twitter",
+        "google_business",
+        "openai",
+        "postmark",
+        "twilio",
+      ],
+      knowledge_source_status: ["pending", "processing", "completed", "error"],
+      knowledge_source_type: ["pdf", "docx", "url", "text"],
+      post_status: ["draft", "scheduled", "published", "failed"],
+      qr_code_type: ["static", "dynamic"],
+      social_platform: ["facebook", "instagram", "linkedin", "twitter"],
+      task_status: ["todo", "in_progress", "completed", "cancelled"],
     },
   },
 } as const
