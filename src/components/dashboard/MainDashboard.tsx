@@ -49,7 +49,7 @@ const moduleCards = [
     description: 'Optimize your website for search engines and AI assistants',
     icon: BarChart3,
     route: '/seo',
-    status: 'coming-soon',
+    status: 'active',
     color: 'primary'
   },
   {
@@ -57,7 +57,7 @@ const moduleCards = [
     description: 'Optimize your Google Business Profile for community visibility',
     icon: Building,
     route: '/gbp',
-    status: 'coming-soon',
+    status: 'active',
     color: 'success'
   },
   {
@@ -65,7 +65,7 @@ const moduleCards = [
     description: 'Create and manage reusable content templates',
     icon: FileText,
     route: '/content',
-    status: 'coming-soon',
+    status: 'active',
     color: 'warning'
   },
   {
@@ -73,7 +73,7 @@ const moduleCards = [
     description: 'Manage your organization tasks and workflows',
     icon: CheckSquare,
     route: '/tasks',
-    status: 'coming-soon',
+    status: 'active',
     color: 'primary'
   },
   {
@@ -81,7 +81,7 @@ const moduleCards = [
     description: 'Track performance across all your digital initiatives',
     icon: TrendingUp,
     route: '/analytics',
-    status: 'coming-soon',
+    status: 'active',
     color: 'success'
   },
   {
@@ -89,7 +89,7 @@ const moduleCards = [
     description: 'Connect with external tools and services',
     icon: Settings,
     route: '/integrations',
-    status: 'coming-soon',
+    status: 'active',
     color: 'warning'
   }
 ];
@@ -118,7 +118,7 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
           <div className="w-3 h-3 bg-success rounded-full animate-pulse" />
         </div>
         
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {activeModules.map((module) => (
             <Card key={module.route} className="border-2 border-border/50 hover:border-primary/50 transition-all duration-200 hover:shadow-lg">
               <CardHeader className="pb-4">
@@ -148,35 +148,37 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
       </div>
 
       {/* Coming Soon Modules */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-semibold text-foreground">Coming Soon</h2>
-          <div className="w-3 h-3 bg-warning rounded-full" />
-        </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {comingSoonModules.map((module) => (
-            <Card key={module.route} className="border-2 border-border/20 opacity-75">
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 bg-${module.color}/10 rounded-lg flex items-center justify-center`}>
-                    <module.icon className={`w-5 h-5 text-${module.color}`} />
+      {comingSoonModules.length > 0 && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-semibold text-foreground">Coming Soon</h2>
+            <div className="w-3 h-3 bg-warning rounded-full" />
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {comingSoonModules.map((module) => (
+              <Card key={module.route} className="border-2 border-border/20 opacity-75">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 bg-${module.color}/10 rounded-lg flex items-center justify-center`}>
+                      <module.icon className={`w-5 h-5 text-${module.color}`} />
+                    </div>
+                    <CardTitle className="text-lg">{module.title}</CardTitle>
                   </div>
-                  <CardTitle className="text-lg">{module.title}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-sm mb-4">
-                  {module.description}
-                </p>
-                <Button variant="outline" size="sm" disabled>
-                  Coming Soon
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    {module.description}
+                  </p>
+                  <Button variant="outline" size="sm" disabled>
+                    Coming Soon
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Call to Action */}
       <Card className="bg-accent border-2 border-accent-foreground/20">
@@ -185,10 +187,9 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
             Ready to amplify your impact?
           </h3>
           <p className="text-accent-foreground/80 mb-6 max-w-md mx-auto">
-            Start with our Chatbot Builder to create meaningful connections with your community, 
-            or generate QR codes for your next campaign.
+            Your complete nonprofit technology platform is now live! Start with any module to begin amplifying your mission and connecting with your community.
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center flex-wrap">
             <Button asChild>
               <Link to="/chatbots">
                 <MessageCircle className="w-4 h-4 mr-2" />
@@ -205,6 +206,18 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
               <Link to="/qr-codes">
                 <QrCode className="w-4 h-4 mr-2" />
                 Generate QR Code
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/seo">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                SEO Audit
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/gbp">
+                <Building className="w-4 h-4 mr-2" />
+                Google Business
               </Link>
             </Button>
           </div>
