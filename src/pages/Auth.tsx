@@ -48,7 +48,7 @@ export default function Auth() {
 
   // Redirect to dashboard if already authenticated
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handleSignUp = async (data: SignUpFormData) => {
