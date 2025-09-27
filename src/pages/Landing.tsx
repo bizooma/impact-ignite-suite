@@ -4,10 +4,21 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, Users, Check, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
 import heroBackground from "@/assets/hero-background.jpg";
 
 const Landing = () => {
   const { user, loading } = useAuth();
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -42,7 +53,14 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="w-full py-20 px-6 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${heroBackground})` }}>
+      <section className="w-full py-20 px-6 relative overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat will-change-transform"
+          style={{ 
+            backgroundImage: `url(${heroBackground})`,
+            transform: `translateY(${scrollY * 0.5}px) scale(1.1)`
+          }}
+        ></div>
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="w-full max-w-5xl mx-auto text-center relative z-10">
           <Badge variant="secondary" className="mb-4">
