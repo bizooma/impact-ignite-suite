@@ -27,7 +27,7 @@ const Landing = () => {
       <nav className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-8" />
+            <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-12" />
           </div>
           <div className="flex items-center space-x-4">
             <Link to="/pricing">
