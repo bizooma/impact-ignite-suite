@@ -14,7 +14,7 @@ import {
 import { usePlatformAdmin } from '@/hooks/usePlatformAdmin';
 
 const navigationItems = [
-  { title: 'Dashboard', url: '/', icon: Heart },
+  { title: 'Dashboard', url: '/dashboard', icon: Heart },
   { title: 'Chatbots', url: '/chatbots', icon: MessageCircle },
   { title: 'QR Codes', url: '/qr-codes', icon: QrCode },
   { title: 'Social Media', url: '/social', icon: Calendar },
@@ -56,7 +56,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url} 
-                      end={item.url === '/'}
+                      end={item.url === '/dashboard'}
                       className={getNavCls}
                     >
                       <item.icon className="w-4 h-4" />
