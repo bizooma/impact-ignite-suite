@@ -6,19 +6,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/hooks/useAuth";
 import { OrganizationProvider } from "@/hooks/useOrganization";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { ChatbotBuilder } from "./components/chatbot/ChatbotBuilder";
-import { QrCodeDashboard } from "./components/qr/QrCodeDashboard";
-import { SocialMediaDashboard } from "./components/social/SocialMediaDashboard";
-import { SeoAuditDashboard } from "./components/seo/SeoAuditDashboard";
-import { GbpDashboard } from "./components/gbp/GbpDashboard";
-import { ContentTemplatesDashboard } from "./components/content/ContentTemplatesDashboard";
-import { TaskDashboard } from "./components/tasks/TaskDashboard";
-import { AnalyticsDashboard } from "./components/analytics/AnalyticsDashboard";
-import { IntegrationsDashboard } from "./components/integrations/IntegrationsDashboard";
+import QrCodeDashboard from "./components/qr/QrCodeDashboard";
+import SocialMediaDashboard from "./components/social/SocialMediaDashboard";
+import SeoAuditDashboard from "./components/seo/SeoAuditDashboard";
+import GbpDashboard from "./components/gbp/GbpDashboard";
+import ContentTemplatesDashboard from "./components/content/ContentTemplatesDashboard";
+import TaskDashboard from "./components/tasks/TaskDashboard";
+import AnalyticsDashboard from "./components/analytics/AnalyticsDashboard";
+import IntegrationsDashboard from "./components/integrations/IntegrationsDashboard";
 
 const queryClient = new QueryClient();
 
@@ -42,19 +43,23 @@ const App = () => (
                           <SidebarTrigger />
                         </header>
                         <div className="p-6">
-                          <Routes>
-                            <Route path="/" element={<Index />} />
-                            <Route path="/chatbots" element={<ChatbotBuilder />} />
-                            <Route path="/qr-codes" element={<QrCodeDashboard />} />
-                            <Route path="/social" element={<SocialMediaDashboard />} />
-                            <Route path="/seo" element={<SeoAuditDashboard />} />
-                            <Route path="/gbp" element={<GbpDashboard />} />
-                            <Route path="/content" element={<ContentTemplatesDashboard />} />
-                            <Route path="/tasks" element={<TaskDashboard />} />
-                            <Route path="/analytics" element={<AnalyticsDashboard />} />
-                            <Route path="/integrations" element={<IntegrationsDashboard />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
+                          <DashboardLayout>
+                            {(organizationId) => (
+                              <Routes>
+                                <Route path="/" element={<Index />} />
+                                <Route path="/chatbots" element={<ChatbotBuilder organizationId={organizationId} />} />
+                                <Route path="/qr-codes" element={<QrCodeDashboard organizationId={organizationId} />} />
+                                <Route path="/social" element={<SocialMediaDashboard organizationId={organizationId} />} />
+                                <Route path="/seo" element={<SeoAuditDashboard organizationId={organizationId} />} />
+                                <Route path="/gbp" element={<GbpDashboard organizationId={organizationId} />} />
+                                <Route path="/content" element={<ContentTemplatesDashboard organizationId={organizationId} />} />
+                                <Route path="/tasks" element={<TaskDashboard organizationId={organizationId} />} />
+                                <Route path="/analytics" element={<AnalyticsDashboard organizationId={organizationId} />} />
+                                <Route path="/integrations" element={<IntegrationsDashboard organizationId={organizationId} />} />
+                                <Route path="*" element={<NotFound />} />
+                              </Routes>
+                            )}
+                          </DashboardLayout>
                         </div>
                       </main>
                     </>
