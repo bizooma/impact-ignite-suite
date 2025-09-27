@@ -119,4 +119,16 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Ensure inputs are always interactive */
+  input {
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+
+  /* Fix any potential overlay issues */
+  input:focus {
+    z-index: 9999 !important;
+  }
 }

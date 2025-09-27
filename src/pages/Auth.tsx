@@ -153,12 +153,13 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="email" 
-                            placeholder="Enter your email address" 
-                            {...field} 
-                            disabled={loading}
-                          />
+                           <Input 
+                             type="email" 
+                             placeholder="Enter your email address" 
+                             autoComplete="email"
+                             {...field} 
+                             disabled={loading}
+                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -172,12 +173,13 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder="Create a secure password" 
-                            {...field} 
-                            disabled={loading}
-                          />
+                           <Input 
+                             type="password" 
+                             placeholder="Create a secure password" 
+                             autoComplete="new-password"
+                             {...field} 
+                             disabled={loading}
+                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -203,12 +205,13 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="email" 
-                            placeholder="Enter your email address" 
-                            {...field} 
-                            disabled={loading}
-                          />
+                           <Input 
+                             type="email" 
+                             placeholder="Enter your email address" 
+                             autoComplete="email"
+                             {...field} 
+                             disabled={loading}
+                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -222,12 +225,13 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder="Enter your password" 
-                            {...field} 
-                            disabled={loading}
-                          />
+                           <Input 
+                             type="password" 
+                             placeholder="Enter your password" 
+                             autoComplete="current-password"
+                             {...field} 
+                             disabled={loading}
+                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
