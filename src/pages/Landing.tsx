@@ -326,7 +326,7 @@ const Landing = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-6" />
+                <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-10" />
               </div>
               <p className="text-muted-foreground">
                 Empowering businesses with intelligent automation and growth tools.
