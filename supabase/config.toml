@@ -14,3 +14,7 @@ verify_jwt = false
 
 [functions.social-publisher]
 verify_jwt = false
+
+[functions.create-checkout]
+
+[functions.check-subscription]
