@@ -62,7 +62,7 @@ const Landing = () => {
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="w-full max-w-5xl mx-auto text-center relative z-10">
           <Badge variant="secondary" className="mb-4">
-            🚀 New: AI-Powered Business Tools
+            🚀 New: AI-Powered Marketing Tools
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
             Ignite Your Impact with Smart Business Tools
