@@ -45,36 +45,30 @@ export const useQrCodes = (organizationId?: string) => {
     if (!organizationId) return null;
 
     try {
-      // Generate QR code using edge function
-      const { data: qrResponse, error: qrError } = await supabase.functions.invoke('generate-qr-code', {
+      // Call edge function to generate QR code
+      const { data, error } = await supabase.functions.invoke('generate-qr', {
         body: {
-          url: qrData.destination_url,
-          brandConfig: qrData.brand_config || {}
+          name: qrData.name,
+          destinationUrl: qrData.destination_url,
+          type: qrData.type || 'dynamic',
+          organizationId,
+          brandConfig: qrData.brand_config || {},
+          utmParams: qrData.utm_params || {}
         }
       });
 
-      if (qrError) throw qrError;
-
-      const { data, error } = await supabase
-        .from('qr_codes')
-        .insert({
-          organization_id: organizationId,
-          ...qrData,
-          short_url: qrResponse?.shortUrl
-        })
-        .select()
-        .single();
-
       if (error) throw error;
 
-      setQrCodes(prev => [data, ...prev]);
+      // The edge function already creates the QR code record
+      const newQrCode = data.qrCode;
+      setQrCodes(prev => [newQrCode, ...prev]);
       
       toast({
         title: "Success",
         description: "QR code created successfully",
       });
 
-      return data;
+      return { qrCode: newQrCode, qrCodeSvg: data.qrCodeSvg };
     } catch (error) {
       console.error('Error creating QR code:', error);
       toast({

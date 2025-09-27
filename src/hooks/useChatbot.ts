@@ -1,0 +1,123 @@
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: string;
+}
+
+interface ChatSession {
+  id: string;
+  chatbot_id: string;
+  visitor_id?: string;
+  status: string;
+  created_at: string;
+}
+
+export function useChatbot(chatbotId: string) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const sendMessage = async (message: string) => {
+    if (!message.trim()) return;
+
+    setLoading(true);
+    
+    // Add user message to UI immediately
+    const userMessage: ChatMessage = {
+      id: `temp-${Date.now()}`,
+      role: 'user',
+      content: message,
+      created_at: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, userMessage]);
+
+    try {
+      // Call the chat handler edge function
+      const { data, error } = await supabase.functions.invoke('chat-handler', {
+        body: {
+          message,
+          sessionId,
+          chatbotId
+        }
+      });
+
+      if (error) {
+        console.error('Chat error:', error);
+        throw error;
+      }
+
+      // Update session ID if new
+      if (data.sessionId && !sessionId) {
+        setSessionId(data.sessionId);
+      }
+
+      // Add assistant response to messages
+      const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: data.message,
+        created_at: new Date().toISOString()
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+      
+      // Remove the user message if it failed
+      setMessages(prev => prev.filter(m => m.id !== userMessage.id));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadChatHistory = async (sessionId: string) => {
+    try {
+      const { data: messages, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error loading chat history:', error);
+        return;
+      }
+
+      setMessages((messages || []).map(msg => ({
+        id: msg.id,
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        created_at: msg.created_at
+      })));
+      setSessionId(sessionId);
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    }
+  };
+
+  const startNewSession = () => {
+    setMessages([]);
+    setSessionId(null);
+  };
+
+  return {
+    messages,
+    sessionId,
+    loading,
+    sendMessage,
+    loadChatHistory,
+    startNewSession
+  };
+}
