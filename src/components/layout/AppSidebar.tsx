@@ -39,12 +39,12 @@ export function AppSidebar() {
     <Sidebar className={collapsed ? 'w-14' : 'w-60'} collapsible="icon">
       <SidebarContent>
         <div className="p-4">
-          <div className="flex items-center gap-3">
+          <NavLink to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
               <Heart className="w-5 h-5 text-sidebar-primary-foreground" />
             </div>
             {!collapsed && <h1 className="text-xl font-semibold text-sidebar-foreground">Causeio</h1>}
-          </div>
+          </NavLink>
         </div>
 
         <SidebarGroup>
