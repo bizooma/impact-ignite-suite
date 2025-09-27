@@ -128,26 +128,60 @@ export const useSocialPosts = (organizationId?: string) => {
 
   const publishPost = async (postId: string) => {
     try {
-      // Call edge function to publish to platform
-      const { data, error } = await supabase.functions.invoke('publish-social-post', {
-        body: { postId }
+      setLoading(true);
+      
+      // Get the post data first to know which platform to publish to
+      const { data: post, error: fetchError } = await supabase
+        .from('social_posts')
+        .select('platform')
+        .eq('id', postId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching post:', fetchError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch post details",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Call the social publisher edge function
+      const { data, error } = await supabase.functions.invoke('social-publisher', {
+        body: { 
+          postId,
+          platform: post.platform
+        }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error publishing post:', error);
+        toast({
+          title: "Error",
+          description: "Failed to publish post",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      await updatePost(postId, { 
-        status: 'published',
-        published_at: new Date().toISOString(),
-        external_post_id: data?.externalId
+      console.log('Published post successfully:', data);
+      toast({
+        title: "Success",
+        description: `Post published successfully to ${post.platform}`,
       });
-
+      
+      // Refresh the posts list
+      fetchPosts();
     } catch (error) {
-      console.error('Error publishing post:', error);
+      console.error('Error in publishPost:', error);
       toast({
         title: "Error",
         description: "Failed to publish post",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 

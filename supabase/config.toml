@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.process-knowledge]
 verify_jwt = false
+
+[functions.social-publisher]
+verify_jwt = false

@@ -11,7 +11,8 @@ import { AppSidebar } from "@/components/layout/AppSidebar";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import { ChatbotBuilder } from "./components/chatbot/ChatbotBuilder";
+import { MainDashboard } from "./components/dashboard/MainDashboard";
+import ChatbotDashboard from "./components/chatbot/ChatbotDashboard";
 import QrCodeDashboard from "./components/qr/QrCodeDashboard";
 import SocialMediaDashboard from "./components/social/SocialMediaDashboard";
 import SeoAuditDashboard from "./components/seo/SeoAuditDashboard";
@@ -46,8 +47,8 @@ const App = () => (
                           <DashboardLayout>
                             {(organizationId) => (
                               <Routes>
-                                <Route path="/" element={<Index />} />
-                                <Route path="/chatbots" element={<ChatbotBuilder organizationId={organizationId} />} />
+                                <Route path="/" element={<MainDashboard organizationId={organizationId} />} />
+                                <Route path="/chatbots" element={<ChatbotDashboard organizationId={organizationId} />} />
                                 <Route path="/qr-codes" element={<QrCodeDashboard organizationId={organizationId} />} />
                                 <Route path="/social" element={<SocialMediaDashboard organizationId={organizationId} />} />
                                 <Route path="/seo" element={<SeoAuditDashboard organizationId={organizationId} />} />
