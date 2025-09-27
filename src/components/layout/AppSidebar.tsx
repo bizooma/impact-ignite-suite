@@ -15,15 +15,15 @@ import { usePlatformAdmin } from '@/hooks/usePlatformAdmin';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Heart },
-  { title: 'Chatbots', url: '/chatbots', icon: MessageCircle },
-  { title: 'QR Codes', url: '/qr-codes', icon: QrCode },
-  { title: 'Social Media', url: '/social', icon: Calendar },
-  { title: 'SEO Audits', url: '/seo', icon: BarChart3 },
-  { title: 'Google Business', url: '/gbp', icon: Building },
-  { title: 'Content Templates', url: '/content', icon: FileText },
-  { title: 'Tasks', url: '/tasks', icon: CheckSquare },
-  { title: 'Analytics', url: '/analytics', icon: TrendingUp },
-  { title: 'Integrations', url: '/integrations', icon: Settings },
+  { title: 'Chatbots', url: '/dashboard/chatbots', icon: MessageCircle },
+  { title: 'QR Codes', url: '/dashboard/qr-codes', icon: QrCode },
+  { title: 'Social Media', url: '/dashboard/social', icon: Calendar },
+  { title: 'SEO Audits', url: '/dashboard/seo', icon: BarChart3 },
+  { title: 'Google Business', url: '/dashboard/gbp', icon: Building },
+  { title: 'Content Templates', url: '/dashboard/content', icon: FileText },
+  { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare },
+  { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp },
+  { title: 'Integrations', url: '/dashboard/integrations', icon: Settings },
 ];
 
 export function AppSidebar() {
