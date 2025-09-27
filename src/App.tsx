@@ -41,13 +41,19 @@ const App = () => (
               <SidebarProvider>
               <div className="min-h-screen flex w-full">
                 <Routes>
-                  {/* Marketing and public pages */}
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/payment-success" element={<PaymentSuccess />} />
-                  <Route path="/payment-cancel" element={<PaymentCancel />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
+                {/* Marketing and public pages */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-cancel" element={<PaymentCancel />} />
+                <Route path="/auth" element={<Auth />} />
+                
+                {/* Admin route with full-width layout */}
+                <Route path="/admin" element={
+                  <div className="min-h-screen w-full">
+                    <AdminDashboard />
+                  </div>
+                } />
                 
                 {/* Dashboard routes (protected) */}
                 <Route path="/dashboard/*" element={

@@ -8,7 +8,8 @@ import { Shield, Users, Building2, BarChart3, FileText } from 'lucide-react';
 
 export function AdminDashboard() {
   return (
-    <div className="space-y-6 p-6">
+    <div className="min-h-screen w-full bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       <div className="flex items-center gap-3">
         <Shield className="h-8 w-8 text-primary" />
         <div>
@@ -109,6 +110,7 @@ export function AdminDashboard() {
           <AdminAuditLogs />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
