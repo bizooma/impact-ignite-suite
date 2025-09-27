@@ -48,11 +48,17 @@ const App = () => (
                 <Route path="/payment-cancel" element={<PaymentCancel />} />
                 <Route path="/auth" element={<Auth />} />
                 
-                {/* Admin route with full-width layout */}
+                {/* Admin route with sidebar */}
                 <Route path="/admin" element={
-                  <div className="min-h-screen w-full">
-                    <AdminDashboard />
-                  </div>
+                  <>
+                    <AppSidebar />
+                    <main className="flex-1">
+                      <header className="h-12 flex items-center border-b bg-card px-4">
+                        <SidebarTrigger />
+                      </header>
+                      <AdminDashboard />
+                    </main>
+                  </>
                 } />
                 
                 {/* Dashboard routes (protected) */}
