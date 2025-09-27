@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, Users, Check, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import heroBackground from "@/assets/hero-background.jpg";
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -41,15 +42,16 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="w-full py-20 px-6">
-        <div className="w-full max-w-5xl mx-auto text-center">
+      <section className="w-full py-20 px-6 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${heroBackground})` }}>
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="w-full max-w-5xl mx-auto text-center relative z-10">
           <Badge variant="secondary" className="mb-4">
             🚀 New: AI-Powered Business Tools
           </Badge>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
             Ignite Your Impact with Smart Business Tools
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+          <p className="text-xl text-white/90 mb-8 leading-relaxed">
             Transform your business with AI chatbots, dynamic QR codes, social media automation, and SEO optimization. 
             Everything you need to grow your digital presence in one powerful platform.
           </p>
