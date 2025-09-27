@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import heroBackground from "@/assets/hero-background.jpg";
+import causeioLogo from "@/assets/causeio-logo.png";
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -25,11 +26,8 @@ const Landing = () => {
       {/* Navigation */}
       <nav className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-2xl font-bold">Causeio</span>
+          <div className="flex items-center">
+            <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-8" />
           </div>
           <div className="flex items-center space-x-4">
             <Link to="/pricing">
@@ -327,11 +325,8 @@ const Landing = () => {
         <div className="w-full max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <span className="text-xl font-bold">Causeio</span>
+              <div className="flex items-center mb-4">
+                <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-6" />
               </div>
               <p className="text-muted-foreground">
                 Empowering businesses with intelligent automation and growth tools.
