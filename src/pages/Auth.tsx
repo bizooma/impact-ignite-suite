@@ -137,7 +137,8 @@ export default function Auth() {
                         <FormControl>
                           <Input 
                             placeholder="Enter your full name" 
-                            {...field} 
+                            {...field}
+                            value={field.value ?? ''}
                             disabled={loading}
                           />
                         </FormControl>
@@ -153,13 +154,14 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                           <Input 
-                             type="email" 
-                             placeholder="Enter your email address" 
-                             autoComplete="email"
-                             {...field} 
-                             disabled={loading}
-                           />
+                          <Input 
+                            type="email" 
+                            placeholder="Enter your email address" 
+                            autoComplete="email"
+                            {...field}
+                            value={field.value ?? ''}
+                            disabled={loading}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -173,13 +175,14 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                           <Input 
-                             type="password" 
-                             placeholder="Create a secure password" 
-                             autoComplete="new-password"
-                             {...field} 
-                             disabled={loading}
-                           />
+                          <Input 
+                            type="password" 
+                            placeholder="Create a secure password" 
+                            autoComplete="new-password"
+                            {...field}
+                            value={field.value ?? ''}
+                            disabled={loading}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -205,13 +208,14 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                           <Input 
-                             type="email" 
-                             placeholder="Enter your email address" 
-                             autoComplete="email"
-                             {...field} 
-                             disabled={loading}
-                           />
+                          <Input 
+                            type="email" 
+                            placeholder="Enter your email address" 
+                            autoComplete="email"
+                            {...field}
+                            value={field.value ?? ''}
+                            disabled={loading}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -225,13 +229,14 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                           <Input 
-                             type="password" 
-                             placeholder="Enter your password" 
-                             autoComplete="current-password"
-                             {...field} 
-                             disabled={loading}
-                           />
+                          <Input 
+                            type="password" 
+                            placeholder="Enter your password" 
+                            autoComplete="current-password"
+                            {...field}
+                            value={field.value ?? ''}
+                            disabled={loading}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
