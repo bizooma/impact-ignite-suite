@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_logs: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          target_id: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       audit_issues: {
         Row: {
           audit_id: string
@@ -611,12 +647,43 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_roles: {
+        Row: {
+          created_at: string
+          granted_at: string
+          granted_by: string | null
+          id: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           display_name: string | null
           id: string
+          is_platform_admin: boolean | null
           updated_at: string
           user_id: string
         }
@@ -625,6 +692,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_platform_admin?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -633,6 +701,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_platform_admin?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -969,6 +1038,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      grant_platform_admin: {
+        Args: { _email: string }
+        Returns: boolean
+      }
       has_org_role: {
         Args: {
           _org_id: string
@@ -979,6 +1052,10 @@ export type Database = {
       }
       is_org_member: {
         Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_platform_admin: {
+        Args: { _user_id: string }
         Returns: boolean
       }
     }

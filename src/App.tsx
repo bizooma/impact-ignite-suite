@@ -6,8 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/hooks/useAuth";
 import { OrganizationProvider } from "@/hooks/useOrganization";
+import { PlatformAdminProvider } from "@/hooks/usePlatformAdmin";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import Landing from "./pages/Landing";
 import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -30,20 +32,22 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <OrganizationProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <SidebarProvider>
-            <div className="min-h-screen flex w-full">
-              <Routes>
-                {/* Marketing and public pages */}
-                <Route path="/" element={<Landing />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/payment-success" element={<PaymentSuccess />} />
-                <Route path="/payment-cancel" element={<PaymentCancel />} />
-                <Route path="/auth" element={<Auth />} />
+      <PlatformAdminProvider>
+        <OrganizationProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <SidebarProvider>
+              <div className="min-h-screen flex w-full">
+                <Routes>
+                  {/* Marketing and public pages */}
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/payment-success" element={<PaymentSuccess />} />
+                  <Route path="/payment-cancel" element={<PaymentCancel />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
                 
                 {/* Dashboard routes (protected) */}
                 <Route path="/dashboard/*" element={
@@ -78,11 +82,12 @@ const App = () => (
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </div>
-            </SidebarProvider>
-          </BrowserRouter>
-        </TooltipProvider>
-      </OrganizationProvider>
+              </div>
+              </SidebarProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </OrganizationProvider>
+      </PlatformAdminProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

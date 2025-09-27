@@ -29,3 +29,6 @@ verify_jwt = true
 
 [functions.analytics-collector]
 verify_jwt = true
+
+[functions.admin-actions]
+verify_jwt = true
