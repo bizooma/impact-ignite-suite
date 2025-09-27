@@ -9,10 +9,10 @@ const Landing = () => {
   const { user, loading } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen w-full bg-background">
       {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+      <nav className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Zap className="w-5 h-5 text-primary-foreground" />
@@ -41,8 +41,8 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-20 px-6">
-        <div className="container mx-auto text-center max-w-4xl">
+      <section className="w-full py-20 px-6">
+        <div className="w-full max-w-5xl mx-auto text-center">
           <Badge variant="secondary" className="mb-4">
             🚀 New: AI-Powered Business Tools
           </Badge>
@@ -68,8 +68,8 @@ const Landing = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 px-6 bg-muted/30">
-        <div className="container mx-auto max-w-6xl">
+      <section className="w-full py-20 px-6 bg-muted/30">
+        <div className="w-full max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Everything You Need to Scale</h2>
             <p className="text-xl text-muted-foreground">
@@ -150,8 +150,8 @@ const Landing = () => {
       </section>
 
       {/* Social Proof */}
-      <section className="py-20 px-6">
-        <div className="container mx-auto max-w-4xl">
+      <section className="w-full py-20 px-6">
+        <div className="w-full max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Trusted by Growing Businesses</h2>
             <p className="text-xl text-muted-foreground">
@@ -230,8 +230,8 @@ const Landing = () => {
       </section>
 
       {/* Benefits */}
-      <section className="py-20 px-6 bg-muted/30">
-        <div className="container mx-auto max-w-6xl">
+      <section className="w-full py-20 px-6 bg-muted/30">
+        <div className="w-full max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl font-bold mb-6">Why Choose Causeio?</h2>
@@ -279,8 +279,8 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6">
-        <div className="container mx-auto max-w-4xl text-center">
+      <section className="w-full py-20 px-6">
+        <div className="w-full max-w-5xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-4">Ready to Ignite Your Impact?</h2>
           <p className="text-xl text-muted-foreground mb-8">
             Join thousands of businesses already using Causeio to transform their operations.
@@ -303,8 +303,8 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/50 py-12 px-6">
-        <div className="container mx-auto max-w-6xl">
+      <footer className="w-full border-t bg-muted/50 py-12 px-6">
+        <div className="w-full max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
