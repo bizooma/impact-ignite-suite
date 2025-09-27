@@ -3,8 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, Users, Check, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Landing = () => {
+  const { user, loading } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -20,9 +23,19 @@ const Landing = () => {
             <Link to="/pricing">
               <Button variant="ghost">Pricing</Button>
             </Link>
-            <Link to="/auth">
-              <Button variant="outline">Sign In</Button>
-            </Link>
+            {loading ? (
+              <Button variant="outline" disabled>
+                Loading...
+              </Button>
+            ) : user ? (
+              <Link to="/dashboard">
+                <Button variant="default">Go to Dashboard</Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline">Sign In</Button>
+              </Link>
+            )}
           </div>
         </div>
       </nav>
