@@ -44,6 +44,64 @@ serve(async (req) => {
     let result;
 
     switch (action) {
+      case 'list_users':
+        // Fetch users from auth.users with profile data
+        const { data: authUsers, error: listUsersError } = await supabaseClient.auth.admin.listUsers();
+        
+        if (listUsersError) throw listUsersError;
+
+        // Get profile data for all users
+        const userIds = authUsers.users.map(u => u.id);
+        const { data: profiles, error: profilesError } = await supabaseClient
+          .from('profiles')
+          .select('user_id, display_name, is_platform_admin')
+          .in('user_id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        // Get memberships for all users
+        const { data: memberships, error: membershipsError } = await supabaseClient
+          .from('memberships')
+          .select(`
+            user_id,
+            role,
+            organizations (
+              id,
+              name,
+              slug
+            )
+          `)
+          .in('user_id', userIds);
+
+        if (membershipsError) throw membershipsError;
+
+        // Combine all data
+        result = authUsers.users.map(authUser => {
+          const profile = profiles?.find(p => p.user_id === authUser.id);
+          const userMemberships = memberships?.filter(m => m.user_id === authUser.id) || [];
+          
+          return {
+            id: authUser.id,
+            email: authUser.email,
+            display_name: profile?.display_name || authUser.user_metadata?.display_name,
+            is_platform_admin: profile?.is_platform_admin || false,
+            created_at: authUser.created_at,
+            organizations: userMemberships.map(m => ({
+              id: (m.organizations as any)?.id,
+              name: (m.organizations as any)?.name,
+              slug: (m.organizations as any)?.slug,
+              role: m.role
+            }))
+          };
+        });
+
+        await supabaseClient.from('admin_audit_logs').insert({
+          admin_user_id: user.id,
+          action: 'list_users',
+          target_type: 'system'
+        });
+        break;
+
       case 'grant_admin':
         result = await supabaseClient.rpc('grant_platform_admin', {
           _email: actionData.email
@@ -81,7 +139,7 @@ serve(async (req) => {
         if (userError) throw userError;
 
         // Get user's organizations
-        const { data: memberships, error: membershipsError } = await supabaseClient
+        const { data: userMemberships, error: userMembershipsError } = await supabaseClient
           .from('memberships')
           .select(`
             role,
@@ -93,7 +151,7 @@ serve(async (req) => {
           `)
           .eq('user_id', targetUserId);
 
-        if (membershipsError) throw membershipsError;
+        if (userMembershipsError) throw userMembershipsError;
 
         await supabaseClient.from('admin_audit_logs').insert({
           admin_user_id: user.id,
@@ -104,7 +162,7 @@ serve(async (req) => {
 
         result = {
           user: userDetails,
-          organizations: memberships
+          organizations: userMemberships
         };
         break;
 
