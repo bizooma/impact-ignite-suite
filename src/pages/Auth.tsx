@@ -126,132 +126,96 @@ export default function Auth() {
           
           <CardContent className="space-y-6">
             {isSignUp ? (
-              <Form {...signUpForm}>
-                <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
-                  <FormField
-                    control={signUpForm.control}
-                    name="displayName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full name</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Enter your full name" 
-                            {...field}
-                            value={field.value ?? ''}
-                            disabled={loading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={signUpForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="email" 
-                            placeholder="Enter your email address" 
-                            autoComplete="email"
-                            {...field}
-                            value={field.value ?? ''}
-                            disabled={loading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={signUpForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder="Create a secure password" 
-                            autoComplete="new-password"
-                            {...field}
-                            value={field.value ?? ''}
-                            disabled={loading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
+              <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Full name</label>
+                  <Input
+                    placeholder="Enter your full name"
+                    autoComplete="name"
                     disabled={loading}
-                  >
-                    {loading ? 'Creating account...' : 'Create account'}
-                  </Button>
-                </form>
-              </Form>
+                    {...signUpForm.register('displayName')}
+                  />
+                  {signUpForm.formState.errors.displayName && (
+                    <p className="text-sm text-destructive">
+                      {signUpForm.formState.errors.displayName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Email</label>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email address"
+                    autoComplete="email"
+                    disabled={loading}
+                    {...signUpForm.register('email')}
+                  />
+                  {signUpForm.formState.errors.email && (
+                    <p className="text-sm text-destructive">
+                      {signUpForm.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Password</label>
+                  <Input
+                    type="password"
+                    placeholder="Create a secure password"
+                    autoComplete="new-password"
+                    disabled={loading}
+                    {...signUpForm.register('password')}
+                  />
+                  {signUpForm.formState.errors.password && (
+                    <p className="text-sm text-destructive">
+                      {signUpForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Creating account...' : 'Create account'}
+                </Button>
+              </form>
             ) : (
-              <Form {...signInForm}>
-                <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">
-                  <FormField
-                    control={signInForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="email" 
-                            placeholder="Enter your email address" 
-                            autoComplete="email"
-                            {...field}
-                            value={field.value ?? ''}
-                            disabled={loading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={signInForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="password" 
-                            placeholder="Enter your password" 
-                            autoComplete="current-password"
-                            {...field}
-                            value={field.value ?? ''}
-                            disabled={loading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
+              <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Email</label>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email address"
+                    autoComplete="email"
                     disabled={loading}
-                  >
-                    {loading ? 'Signing in...' : 'Sign in'}
-                  </Button>
-                </form>
-              </Form>
+                    {...signInForm.register('email')}
+                  />
+                  {signInForm.formState.errors.email && (
+                    <p className="text-sm text-destructive">
+                      {signInForm.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Password</label>
+                  <Input
+                    type="password"
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    disabled={loading}
+                    {...signInForm.register('password')}
+                  />
+                  {signInForm.formState.errors.password && (
+                    <p className="text-sm text-destructive">
+                      {signInForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Signing in...' : 'Sign in'}
+                </Button>
+              </form>
             )}
 
             <div className="text-center">
