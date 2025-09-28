@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, Users, Check, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -293,6 +294,90 @@ const Landing = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="w-full py-20 px-6">
+        <div className="w-full max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-muted-foreground">
+              Everything you need to know about our nonprofit marketing platform
+            </p>
+          </div>
+          
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>What is a nonprofit marketing platform and how can it help my organization?</AccordionTrigger>
+              <AccordionContent>
+                A nonprofit marketing platform is an all-in-one system that helps charities, foundations, and community organizations manage their digital presence. Our platform includes tools for custom chatbots, QR codes, social media scheduling, SEO/AEO/VoiceSEO analysis, and Google Business Profile optimization — everything your nonprofit needs to attract donors, volunteers, and community support.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-2">
+              <AccordionTrigger>How can a custom chatbot increase donations and volunteer sign-ups?</AccordionTrigger>
+              <AccordionContent>
+                Our chatbot builder allows nonprofits to create warm, mission-driven conversations that answer questions, share stories, collect contact information, and even direct users to donation or volunteer forms. Optimized for voice and AI search, these bots improve engagement 24/7 and turn website visitors into active supporters.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-3">
+              <AccordionTrigger>What makes the QR code generator useful for nonprofit campaigns?</AccordionTrigger>
+              <AccordionContent>
+                The built-in QR code generator lets you create branded, trackable QR codes for fundraising flyers, event posters, and volunteer sign-ups. Each code includes scan analytics and UTM tracking so you know exactly which campaigns are driving the most engagement and donations.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-4">
+              <AccordionTrigger>How does the social media marketing calendar work for nonprofits?</AccordionTrigger>
+              <AccordionContent>
+                The social media calendar provides drag-and-drop scheduling across platforms like Facebook, Instagram, LinkedIn, and X. It includes AI-generated content ideas tailored to Giving Tuesday, year-end appeals, and volunteer drives, making it easier to stay consistent and maximize awareness for your nonprofit.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-5">
+              <AccordionTrigger>What is an SEO/AEO/VoiceSEO analyzer and why does my nonprofit need it?</AccordionTrigger>
+              <AccordionContent>
+                Our analyzer reviews your website for search engine optimization (SEO), ask engine optimization (AEO), and voice search readiness (VoiceSEO). It checks metadata, schema markup, FAQ coverage, and "speakable" answers so your nonprofit can rank higher in Google, Siri, Alexa, and AI-powered search results.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-6">
+              <AccordionTrigger>How does the Google Business Profile optimizer improve local visibility?</AccordionTrigger>
+              <AccordionContent>
+                The GBP optimizer checks your organization's name, address, phone number (NAP), categories, services, reviews, and photos for accuracy and completeness. It suggests compliant category choices, creates donor-friendly descriptions, and generates review prompts — boosting your nonprofit's chances of appearing in the local map pack and AI overviews.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-7">
+              <AccordionTrigger>Can the platform generate AI-ready FAQs and schema for my nonprofit's website?</AccordionTrigger>
+              <AccordionContent>
+                Yes. The platform automatically creates JSON-LD FAQ schema and natural-language Q&A that improve your nonprofit's chances of being featured in Google's AI Overviews, rich snippets, and voice assistant results. This means more donors and volunteers can find answers directly from your site.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-8">
+              <AccordionTrigger>Is the platform beginner-friendly for nonprofits with small teams?</AccordionTrigger>
+              <AccordionContent>
+                Absolutely. The interface is built with a technical yet compassionate design — plain-language guidance, tooltips, and pre-built templates make it easy for staff and volunteers to manage digital marketing without advanced technical knowledge.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-9">
+              <AccordionTrigger>How can nonprofits measure the success of campaigns inside the platform?</AccordionTrigger>
+              <AccordionContent>
+                The dashboard shows key performance indicators like chatbot conversions, QR code scans, social media engagement, SEO/AEO scores, and GBP completeness. Nonprofits can download reports or share embeddable widgets with their board or donors to demonstrate impact.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-10">
+              <AccordionTrigger>Does the platform support nonprofit discounts and accessibility standards?</AccordionTrigger>
+              <AccordionContent>
+                Yes. The system offers nonprofit pricing and follows WCAG 2.2 AA accessibility guidelines, ensuring that all digital tools are inclusive for diverse communities. This helps nonprofits serve broader audiences while saving on costs.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
 
