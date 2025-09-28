@@ -22,6 +22,105 @@ const Landing = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Add FAQ structured data
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is a nonprofit marketing platform and how can it help my organization?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A nonprofit marketing platform is an all-in-one system for charities, foundations, and community groups. It combines custom chatbots, QR codes, a social media calendar, an SEO/AEO/VoiceSEO analyzer, and a Google Business Profile optimizer to attract donors, recruit volunteers, and grow community support."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How can a custom chatbot increase donations and volunteer sign-ups?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The chatbot builder enables warm, mission-aligned conversations that answer questions, share impact stories, capture contact info, and route visitors to donation or volunteer forms. Optimized for voice and AI search, it engages supporters 24/7 and improves conversions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What makes the QR code generator useful for nonprofit campaigns?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can create branded, trackable QR codes for events, fundraising, and outreach. Each code supports UTM parameters and scan analytics (time, device, approximate location), so you can see which flyers, posters, or mailers drive the most engagement and donations."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the social media marketing calendar work for nonprofits?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The calendar offers drag-and-drop scheduling across Facebook, Instagram, LinkedIn, and X, with AI ideas for Giving Tuesday, year-end appeals, and volunteer drives. Approval workflows and a content library help teams stay consistent and grow awareness."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is an SEO/AEO/VoiceSEO analyzer and why does my nonprofit need it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The analyzer reviews technical SEO, structured data, and question–answer coverage to prepare your site for search engines, AI overviews, and voice assistants. It checks metadata, schema (FAQPage, Organization, Event), and speakable summaries to win rich and voice results."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the Google Business Profile optimizer improve local visibility?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It audits name, address, phone (NAP), categories, hours, links, photos, reviews, and Q&A. The tool suggests compliant categories, donor-friendly descriptions, review prompts, and fixes for NAP mismatches—helping your nonprofit appear in the local map pack and AI overviews."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can the platform generate AI-ready FAQs and schema for my nonprofit's website?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It generates natural-language Q&As and JSON-LD FAQ schema so your answers are eligible for rich results and voice responses, increasing visibility to donors and volunteers searching by question."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the platform beginner-friendly for nonprofits with small teams?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The UI is technical yet compassionate, with plain-language guidance, templates, and tooltips. Staff and volunteers can manage chatbots, social posts, QR codes, and audits without advanced technical skills."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How can nonprofits measure the success of campaigns inside the platform?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A dashboard tracks chatbot conversions, QR scans, social engagement, SEO/AEO scores, and GBP completeness. You can export PDFs/CSVs or share embeddable widgets with boards and stakeholders to show impact."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does the platform support nonprofit discounts and accessibility standards?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Nonprofit pricing is available, and the product follows WCAG 2.2 AA accessibility guidelines to ensure inclusive, equitable experiences for diverse communities."
+          }
+        }
+      ]
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(faqSchema);
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen w-full bg-background">
       {/* Navigation */}
