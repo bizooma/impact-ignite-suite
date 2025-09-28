@@ -350,7 +350,7 @@ const Landing = () => {
 
       {/* Pricing Section */}
       <section 
-        className="w-full py-20 px-6 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+        className="w-full py-20 px-6 relative overflow-hidden bg-cover bg-center bg-no-repeat bg-fixed"
         style={{ backgroundImage: `url(${communityBackground})` }}
       >
         {/* Background overlay */}
