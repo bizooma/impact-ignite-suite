@@ -367,7 +367,7 @@ const Landing = () => {
             {/* Starter Plan */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              <div className="relative bg-background/60 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="relative bg-background/40 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold mb-2">Starter</h3>
                   <p className="text-muted-foreground mb-4">Essential tools for small teams</p>
@@ -405,7 +405,7 @@ const Landing = () => {
             {/* Professional Plan */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              <div className="relative bg-background/60 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="relative bg-background/40 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold mb-2">Professional</h3>
                   <p className="text-muted-foreground mb-4">Enhanced tools with automation</p>
@@ -446,7 +446,7 @@ const Landing = () => {
                 Most Popular
               </Badge>
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              <div className="relative bg-background/70 backdrop-blur-xl border border-primary/30 rounded-2xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1 ring-2 ring-primary/20">
+              <div className="relative bg-background/50 backdrop-blur-xl border border-primary/30 rounded-2xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1 ring-2 ring-primary/20">
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold mb-2">Growth</h3>
                   <p className="text-muted-foreground mb-4">Advanced tools with voice optimization</p>
@@ -484,7 +484,7 @@ const Landing = () => {
             {/* Enterprise Plan */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              <div className="relative bg-background/60 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="relative bg-background/40 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
                   <p className="text-muted-foreground mb-4">Complete solution with dedicated support</p>
