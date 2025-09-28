@@ -521,9 +521,6 @@ const Landing = () => {
           </div>
           
           <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-4">
-              All plans include 14-day free trial • No credit card required • Cancel anytime
-            </p>
             <p className="text-sm text-muted-foreground">
               Need something custom? <a href="#" className="text-primary hover:underline">Contact our sales team</a>
             </p>
