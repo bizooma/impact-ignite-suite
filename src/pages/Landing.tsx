@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import heroBackground from "@/assets/hero-background.jpg";
 import causeioLogo from "@/assets/causeio-logo.png";
+import communityBackground from "@/assets/community-background.jpg";
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -348,13 +349,16 @@ const Landing = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="w-full py-20 px-6 relative overflow-hidden">
-        {/* Background with gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/10"></div>
+      <section 
+        className="w-full py-20 px-6 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${communityBackground})` }}
+      >
+        {/* Background overlay */}
+        <div className="absolute inset-0 bg-slate-900/80"></div>
         <div className="w-full max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Choose Your Plan</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4 text-white">Choose Your Plan</h2>
+            <p className="text-xl text-slate-200 max-w-3xl mx-auto">
               Flexible pricing designed to fit the needs of any organization. Start free and scale as you grow.
             </p>
           </div>
