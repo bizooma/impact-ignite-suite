@@ -665,10 +665,10 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="w-full py-20 px-6">
+      <section className="w-full py-20 px-6 bg-slate-900">
         <div className="w-full max-w-5xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to Ignite Your Impact?</h2>
-          <p className="text-xl text-muted-foreground mb-8">
+          <h2 className="text-4xl font-bold mb-4 text-white">Ready to Ignite Your Impact?</h2>
+          <p className="text-xl text-slate-300 mb-8">
             Join thousands of businesses already using Causeio to transform their operations.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -678,11 +678,11 @@ const Landing = () => {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8">
+            <Button size="lg" variant="outline" className="text-lg px-8 border-white text-white hover:bg-white hover:text-slate-900">
               Schedule Demo
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground mt-4">
+          <p className="text-sm text-slate-400 mt-4">
             No credit card required • 14-day free trial • Cancel anytime
           </p>
         </div>
