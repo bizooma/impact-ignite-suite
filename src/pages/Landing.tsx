@@ -682,9 +682,6 @@ const Landing = () => {
               Schedule Demo
             </Button>
           </div>
-          <p className="text-sm text-slate-400 mt-4">
-            No credit card required • 14-day free trial • Cancel anytime
-          </p>
         </div>
       </section>
 
