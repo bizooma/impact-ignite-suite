@@ -1,5 +1,8 @@
 project_id = "svuxuhrsrawdqqkepeye"
 
+[functions.mobile-app-proxy]
+verify_jwt = true
+
 [functions.create-checkout]
 verify_jwt = true
 

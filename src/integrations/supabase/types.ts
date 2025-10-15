@@ -614,12 +614,108 @@ export type Database = {
           },
         ]
       }
+      mobile_app_audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          operation_type: string | null
+          organization_id: string
+          table_name: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          operation_type?: string | null
+          organization_id: string
+          table_name?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          operation_type?: string | null
+          organization_id?: string
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobile_app_audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mobile_app_databases: {
+        Row: {
+          created_at: string | null
+          database_name: string
+          id: string
+          is_active: boolean | null
+          last_synced_at: string | null
+          metadata: Json | null
+          organization_code: string
+          organization_id: string
+          supabase_url: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          database_name: string
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          metadata?: Json | null
+          organization_code: string
+          organization_id: string
+          supabase_url: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          database_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          metadata?: Json | null
+          organization_code?: string
+          organization_id?: string
+          supabase_url?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobile_app_databases_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
           description: string | null
+          has_mobile_app: boolean | null
           id: string
           logo_url: string | null
+          mobile_app_code: string | null
           name: string
           slug: string
           updated_at: string
@@ -628,8 +724,10 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          has_mobile_app?: boolean | null
           id?: string
           logo_url?: string | null
+          mobile_app_code?: string | null
           name: string
           slug: string
           updated_at?: string
@@ -638,8 +736,10 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          has_mobile_app?: boolean | null
           id?: string
           logo_url?: string | null
+          mobile_app_code?: string | null
           name?: string
           slug?: string
           updated_at?: string
