@@ -40,7 +40,6 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <SidebarProvider>
-              <div className="min-h-screen flex w-full">
                 <Routes>
                 {/* Marketing and public pages */}
                 <Route path="/" element={<Landing />} />
@@ -51,7 +50,7 @@ const App = () => (
                 
                 {/* Admin route with sidebar */}
                 <Route path="/admin" element={
-                  <>
+                  <div className="min-h-screen flex w-full">
                     <AppSidebar />
                     <main className="flex-1">
                       <header className="h-12 flex items-center border-b bg-card px-4">
@@ -59,12 +58,12 @@ const App = () => (
                       </header>
                       <AdminDashboard />
                     </main>
-                  </>
+                  </div>
                 } />
                 
                 {/* Dashboard routes (protected) */}
                 <Route path="/dashboard/*" element={
-                  <>
+                  <div className="min-h-screen flex w-full">
                     <AppSidebar />
                     <main className="flex-1">
                       <header className="h-12 flex items-center border-b bg-card px-4">
@@ -91,12 +90,11 @@ const App = () => (
                         </DashboardLayout>
                       </div>
                     </main>
-                  </>
+                  </div>
                 } />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              </div>
               </SidebarProvider>
             </BrowserRouter>
           </TooltipProvider>
