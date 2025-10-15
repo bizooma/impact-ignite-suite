@@ -6,13 +6,17 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Smartphone, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Smartphone, CheckCircle, XCircle, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function MobileAppSeeding() {
   const [addDialog, setAddDialog] = useState(false);
+  const [assignDialog, setAssignDialog] = useState(false);
+  const [selectedDb, setSelectedDb] = useState<any>(null);
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('');
   const [formData, setFormData] = useState({
     orgCode: '',
     databaseName: '',
@@ -22,6 +26,20 @@ export function MobileAppSeeding() {
   });
 
   const queryClient = useQueryClient();
+
+  // Fetch all organizations
+  const { data: organizations } = useQuery({
+    queryKey: ['admin-organizations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('id, name, slug, mobile_app_code')
+        .order('name');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Fetch all mobile app databases
   const { data: databases, isLoading } = useQuery({
@@ -94,6 +112,55 @@ export function MobileAppSeeding() {
     addMutation.mutate(formData);
   };
 
+  // Assign organization mutation
+  const assignMutation = useMutation({
+    mutationFn: async ({ dbId, orgId, orgCode }: { dbId: string; orgId: string; orgCode: string }) => {
+      // Update mobile_app_databases
+      const { error: dbError } = await supabase
+        .from('mobile_app_databases')
+        .update({ organization_id: orgId })
+        .eq('id', dbId);
+
+      if (dbError) throw dbError;
+
+      // Update organization with mobile app code
+      const { error: orgError } = await supabase
+        .from('organizations')
+        .update({ mobile_app_code: orgCode })
+        .eq('id', orgId);
+
+      if (orgError) throw orgError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-mobile-app-databases'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-organizations'] });
+      setAssignDialog(false);
+      setSelectedDb(null);
+      setSelectedOrgId('');
+      toast.success('Organization assigned successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to assign organization');
+    },
+  });
+
+  const handleAssignClick = (db: any) => {
+    setSelectedDb(db);
+    setAssignDialog(true);
+  };
+
+  const handleAssign = () => {
+    if (!selectedOrgId) {
+      toast.error('Please select an organization');
+      return;
+    }
+    assignMutation.mutate({
+      dbId: selectedDb.id,
+      orgId: selectedOrgId,
+      orgCode: selectedDb.organization_code,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -132,6 +199,7 @@ export function MobileAppSeeding() {
                   <TableHead>Status</TableHead>
                   <TableHead>Last Synced</TableHead>
                   <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -164,6 +232,18 @@ export function MobileAppSeeding() {
                         : 'Never'}
                     </TableCell>
                     <TableCell>{new Date(db.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {!db.organization_id && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAssignClick(db)}
+                        >
+                          <Link2 className="h-4 w-4 mr-2" />
+                          Assign
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -241,6 +321,55 @@ export function MobileAppSeeding() {
             </Button>
             <Button onClick={handleSubmit} disabled={addMutation.isPending}>
               Create Configuration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Organization Dialog */}
+      <Dialog open={assignDialog} onOpenChange={setAssignDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign to Organization</DialogTitle>
+            <DialogDescription>
+              Link this mobile app database to an organization
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {selectedDb && (
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-sm font-medium">Database Configuration</p>
+                <p className="text-xs text-muted-foreground">Code: {selectedDb.organization_code}</p>
+                <p className="text-xs text-muted-foreground">Name: {selectedDb.database_name}</p>
+              </div>
+            )}
+            <div className="grid gap-2">
+              <Label htmlFor="organization">Select Organization</Label>
+              <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {organizations?.filter(org => !org.mobile_app_code).map((org) => (
+                    <SelectItem key={org.id} value={org.id}>
+                      {org.name} (@{org.slug})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {organizations?.filter(org => !org.mobile_app_code).length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  All organizations already have mobile apps assigned
+                </p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAssign} disabled={assignMutation.isPending || !selectedOrgId}>
+              Assign Organization
             </Button>
           </DialogFooter>
         </DialogContent>
