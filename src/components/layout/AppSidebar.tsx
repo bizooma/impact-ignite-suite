@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Heart, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, FileText, CheckSquare, TrendingUp, Settings, Shield, Smartphone } from 'lucide-react';
 import {
   Sidebar,
@@ -12,7 +12,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { usePlatformAdmin } from '@/hooks/usePlatformAdmin';
-import { useOrganization } from '@/hooks/useOrganization';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Heart },
@@ -29,15 +28,11 @@ const navigationItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const location = useLocation();
   const collapsed = state === 'collapsed';
   const { isPlatformAdmin } = usePlatformAdmin();
-  const { organization } = useOrganization();
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'hover:bg-sidebar-accent/50';
-  
-  const hasMobileApp = organization?.has_mobile_app;
 
   return (
     <Sidebar className={collapsed ? 'w-14' : 'w-60'} collapsible="icon">
@@ -69,6 +64,17 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink 
+                    to="/dashboard/mobile-app" 
+                    className={getNavCls}
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    {!collapsed && <span>Mobile App</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -86,27 +92,6 @@ export function AppSidebar() {
                     >
                       <Shield className="w-4 h-4" />
                       {!collapsed && <span>Platform Admin</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {hasMobileApp && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Mobile App</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to="/dashboard/mobile-app" 
-                      className={getNavCls}
-                    >
-                      <Smartphone className="w-4 h-4" />
-                      {!collapsed && <span>Mobile App</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
