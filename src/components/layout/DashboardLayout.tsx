@@ -16,6 +16,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newOrgName, setNewOrgName] = useState('');
   const [newOrgSlug, setNewOrgSlug] = useState('');
+  const [mobileAppCode, setMobileAppCode] = useState('');
 
   if (loading) {
     return (
@@ -75,12 +76,26 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       placeholder="my-nonprofit-org"
                     />
                   </div>
+                  <div>
+                    <Label htmlFor="mobileAppCode">Mobile App Code (Optional)</Label>
+                    <Input
+                      id="mobileAppCode"
+                      value={mobileAppCode}
+                      onChange={(e) => setMobileAppCode(e.target.value.toUpperCase())}
+                      placeholder="MA123ABC"
+                      className="font-mono"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      If you have a mobile app, enter your organization code to enable mobile app management
+                    </p>
+                  </div>
                   <Button 
                     onClick={async () => {
-                      await createOrganization(newOrgName, newOrgSlug);
+                      await createOrganization(newOrgName, newOrgSlug, mobileAppCode || undefined);
                       setShowCreateDialog(false);
                       setNewOrgName('');
                       setNewOrgSlug('');
+                      setMobileAppCode('');
                     }}
                     className="w-full"
                     disabled={!newOrgName || !newOrgSlug}

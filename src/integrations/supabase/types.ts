@@ -670,7 +670,7 @@ export type Database = {
           last_synced_at: string | null
           metadata: Json | null
           organization_code: string
-          organization_id: string
+          organization_id: string | null
           supabase_url: string
           updated_at: string | null
         }
@@ -682,7 +682,7 @@ export type Database = {
           last_synced_at?: string | null
           metadata?: Json | null
           organization_code: string
-          organization_id: string
+          organization_id?: string | null
           supabase_url: string
           updated_at?: string | null
         }
@@ -694,7 +694,7 @@ export type Database = {
           last_synced_at?: string | null
           metadata?: Json | null
           organization_code?: string
-          organization_id?: string
+          organization_id?: string | null
           supabase_url?: string
           updated_at?: string | null
         }

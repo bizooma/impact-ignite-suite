@@ -63,15 +63,16 @@ export function MobileAppSeeding() {
       // Create the database configuration record
       const { error } = await supabase
         .from('mobile_app_databases')
-        .insert({
+        .insert([{
           organization_code: data.orgCode,
           database_name: data.databaseName,
           supabase_url: data.supabaseUrl,
-          is_active: false, // Will be activated once secrets are added
+          is_active: false,
+          organization_id: null as any,
           metadata: {
             configured_at: new Date().toISOString(),
           }
-        });
+        }]);
 
       if (error) throw error;
       return data;

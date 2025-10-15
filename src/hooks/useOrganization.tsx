@@ -10,13 +10,15 @@ interface Organization {
   description?: string;
   logo_url?: string;
   website?: string;
+  has_mobile_app?: boolean;
+  mobile_app_code?: string;
 }
 
 interface OrganizationContextType {
   organization: Organization | null;
   organizations: Organization[];
   loading: boolean;
-  createOrganization: (name: string, slug: string) => Promise<void>;
+  createOrganization: (name: string, slug: string, mobileAppCode?: string) => Promise<void>;
   switchOrganization: (orgId: string) => void;
 }
 
@@ -50,7 +52,9 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
             slug,
             description,
             logo_url,
-            website
+            website,
+            has_mobile_app,
+            mobile_app_code
           )
         `)
         .eq('user_id', user?.id);
@@ -74,18 +78,42 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
     }
   };
 
-  const createOrganization = async (name: string, slug: string) => {
+  const createOrganization = async (name: string, slug: string, mobileAppCode?: string) => {
     if (!user) return;
 
     try {
       // Create organization
+      const orgData: any = { name, slug };
+      
+      // If mobile app code is provided, add it
+      if (mobileAppCode) {
+        orgData.mobile_app_code = mobileAppCode;
+        orgData.has_mobile_app = true;
+      }
+      
       const { data: org, error: orgError } = await supabase
         .from('organizations')
-        .insert([{ name, slug }])
+        .insert([orgData])
         .select()
         .single();
 
       if (orgError) throw orgError;
+
+      // If mobile app code provided, link to mobile_app_databases
+      if (mobileAppCode && org) {
+        const { error: linkError } = await supabase
+          .from('mobile_app_databases')
+          .update({ organization_id: org.id })
+          .eq('organization_code', mobileAppCode)
+          .eq('organization_id', null as any);
+        
+        if (linkError) {
+          console.error('Failed to link mobile app:', linkError);
+          toast.error('Organization created but failed to link mobile app. Contact support.');
+        } else {
+          toast.success('Organization created with mobile app access!');
+        }
+      }
 
       // Create membership
       const { error: membershipError } = await supabase
@@ -98,7 +126,9 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
 
       if (membershipError) throw membershipError;
 
-      toast.success('Organization created successfully');
+      if (!mobileAppCode) {
+        toast.success('Organization created successfully');
+      }
       await fetchOrganizations();
       setOrganization(org);
     } catch (error: any) {

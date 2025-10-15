@@ -4,7 +4,8 @@ import { UserManagement } from './UserManagement';
 import { OrganizationManagement } from './OrganizationManagement';
 import { PlatformAnalytics } from './PlatformAnalytics';
 import { AdminAuditLogs } from './AdminAuditLogs';
-import { Shield, Users, Building2, BarChart3, FileText } from 'lucide-react';
+import { MobileAppSeeding } from './MobileAppSeeding';
+import { Shield, Users, Building2, BarChart3, FileText, Smartphone } from 'lucide-react';
 
 export function AdminDashboard() {
   return (
@@ -74,7 +75,7 @@ export function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
@@ -82,6 +83,10 @@ export function AdminDashboard() {
           <TabsTrigger value="organizations" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             Organizations
+          </TabsTrigger>
+          <TabsTrigger value="mobile-apps" className="flex items-center gap-2">
+            <Smartphone className="h-4 w-4" />
+            Mobile Apps
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
@@ -99,6 +104,10 @@ export function AdminDashboard() {
 
         <TabsContent value="organizations" className="space-y-4">
           <OrganizationManagement />
+        </TabsContent>
+
+        <TabsContent value="mobile-apps" className="space-y-4">
+          <MobileAppSeeding />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
