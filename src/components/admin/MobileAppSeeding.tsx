@@ -47,19 +47,6 @@ export function MobileAppSeeding() {
   // Add new mobile app database
   const addMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      // Note: In a real implementation, you'd want to:
-      // 1. Create an edge function to securely store the credentials in Supabase Secrets
-      // 2. Then create the mobile_app_databases record
-      // For now, we'll just show a placeholder message
-      
-      toast.info('To complete this setup:', {
-        description: 'Add the following secrets to Supabase:\n' +
-          `MOBILE_DB_${data.orgCode}_URL\n` +
-          `MOBILE_DB_${data.orgCode}_ANON_KEY\n` +
-          `MOBILE_DB_${data.orgCode}_SERVICE_KEY`,
-        duration: 10000,
-      });
-
       // Create the database configuration record
       const { error } = await supabase
         .from('mobile_app_databases')
@@ -67,7 +54,7 @@ export function MobileAppSeeding() {
           organization_code: data.orgCode,
           database_name: data.databaseName,
           supabase_url: data.supabaseUrl,
-          is_active: false,
+          is_active: true,
           organization_id: null as any,
           metadata: {
             configured_at: new Date().toISOString(),

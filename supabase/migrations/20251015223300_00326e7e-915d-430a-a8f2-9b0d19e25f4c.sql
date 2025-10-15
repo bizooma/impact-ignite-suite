@@ -1,0 +1,1 @@
+update public.mobile_app_databases set is_active = true where organization_code = 'MA1MNQR8D';
