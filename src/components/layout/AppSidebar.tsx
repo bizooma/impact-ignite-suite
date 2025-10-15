@@ -29,6 +29,7 @@ const navigationItems = [
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp },
   { title: 'Integrations', url: '/dashboard/integrations', icon: Settings },
+  { title: 'Team Members', url: '/dashboard/members', icon: Users },
 ];
 
 export function AppSidebar() {

@@ -82,22 +82,72 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
     if (!user) return;
 
     try {
-      // Create organization
+      let org: Organization;
+      let isNewOrg = true;
+
+      // If mobile app code is provided, check if organization already exists
+      if (mobileAppCode) {
+        const { data: existingOrg, error: lookupError } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('mobile_app_code', mobileAppCode)
+          .maybeSingle();
+
+        if (lookupError) throw lookupError;
+
+        if (existingOrg) {
+          // Organization exists, check if user is already a member
+          const { data: existingMembership } = await supabase
+            .from('memberships')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('organization_id', existingOrg.id)
+            .maybeSingle();
+
+          if (existingMembership) {
+            toast.error(`You're already a member of ${existingOrg.name}`);
+            await fetchOrganizations();
+            setOrganization(existingOrg);
+            return;
+          }
+
+          // Join existing organization as admin
+          org = existingOrg;
+          isNewOrg = false;
+
+          const { error: membershipError } = await supabase
+            .from('memberships')
+            .insert([{
+              user_id: user.id,
+              organization_id: org.id,
+              role: 'admin' // Subsequent users are admins
+            }]);
+
+          if (membershipError) throw membershipError;
+
+          toast.success(`Joined ${org.name} as admin!`);
+          await fetchOrganizations();
+          setOrganization(org);
+          return;
+        }
+      }
+
+      // Create new organization
       const orgData: any = { name, slug };
       
-      // If mobile app code is provided, add it
       if (mobileAppCode) {
         orgData.mobile_app_code = mobileAppCode;
         orgData.has_mobile_app = true;
       }
       
-      const { data: org, error: orgError } = await supabase
+      const { data: newOrg, error: orgError } = await supabase
         .from('organizations')
         .insert([orgData])
         .select()
         .single();
 
       if (orgError) throw orgError;
+      org = newOrg;
 
       // If mobile app code provided, link to mobile_app_databases
       if (mobileAppCode && org) {
@@ -115,13 +165,13 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
         }
       }
 
-      // Create membership
+      // Create membership - first user is owner
       const { error: membershipError } = await supabase
         .from('memberships')
         .insert([{
           user_id: user.id,
           organization_id: org.id,
-          role: 'owner'
+          role: 'owner' // First user is owner
         }]);
 
       if (membershipError) throw membershipError;
