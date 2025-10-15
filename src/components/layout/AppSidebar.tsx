@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Heart, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, FileText, CheckSquare, TrendingUp, Settings, Shield, Smartphone } from 'lucide-react';
+import { Heart, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, FileText, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,7 +11,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
 import { usePlatformAdmin } from '@/hooks/usePlatformAdmin';
+import { useAuth } from '@/hooks/useAuth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useProfile } from '@/hooks/useProfile';
+import { Separator } from '@/components/ui/separator';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Heart },
@@ -30,6 +35,15 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
   const { isPlatformAdmin } = usePlatformAdmin();
+  const { user, signOut } = useAuth();
+  const { profile } = useProfile();
+
+  const initials = (profile?.display_name || user?.email || 'U')
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'hover:bg-sidebar-accent/50';
@@ -99,6 +113,49 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+
+        <div className="mt-auto">
+          <Separator className="mb-4" />
+          <div className="px-3 pb-4">
+            <div className="flex items-center gap-3 mb-3">
+              <Avatar className="h-9 w-9 border-2 border-sidebar-border">
+                <AvatarImage src={profile?.avatar_url || ''} alt={profile?.display_name || ''} />
+                <AvatarFallback className="text-xs font-semibold bg-sidebar-primary/10 text-sidebar-primary">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              {!collapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">
+                    {profile?.display_name || 'User'}
+                  </p>
+                  <p className="text-xs text-sidebar-foreground/60 truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              )}
+            </div>
+            {!collapsed && (
+              <div className="space-y-1">
+                <NavLink to="/dashboard/profile">
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    <User className="w-4 h-4 mr-2" />
+                    Profile Settings
+                  </Button>
+                </NavLink>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={signOut}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
       </SidebarContent>
     </Sidebar>
   );

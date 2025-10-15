@@ -27,6 +27,7 @@ import TaskDashboard from "./components/tasks/TaskDashboard";
 import AnalyticsDashboard from "./components/analytics/AnalyticsDashboard";
 import IntegrationsDashboard from "./components/integrations/IntegrationsDashboard";
 import { MobileAppDashboard } from "./components/mobile/MobileAppDashboard";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const App = () => (
                               <Route path="/analytics" element={<AnalyticsDashboard organizationId={organizationId} />} />
                               <Route path="/integrations" element={<IntegrationsDashboard organizationId={organizationId} />} />
                               <Route path="/mobile-app" element={<MobileAppDashboard organizationId={organizationId} />} />
+                              <Route path="/profile" element={<Profile />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           )}
