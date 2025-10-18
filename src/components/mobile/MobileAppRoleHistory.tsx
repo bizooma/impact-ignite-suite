@@ -57,7 +57,7 @@ export function MobileAppRoleHistory({ organizationId }: MobileAppRoleHistoryPro
     queryKey: ['mobile-app-users-for-history', organizationId],
     queryFn: async () => {
       const result = await fetchTableData('users', {
-        columns: 'id,full_name,username,avatar_url',
+        columns: 'id,full_name,username',
       });
       return result.data as User[];
     },

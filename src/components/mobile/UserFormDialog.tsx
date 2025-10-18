@@ -182,7 +182,6 @@ export function UserFormDialog({
         phone_number: values.phone_number || null,
         role: values.role,
         is_active: values.is_active,
-        avatar_url: avatarUrl || null,
         updated_at: new Date().toISOString(),
       };
 
@@ -204,8 +203,6 @@ export function UserFormDialog({
             data: {
               ...userData,
               password: values.password,
-              assigned_resident_ids: [],
-              assigned_staff_ids: [],
             },
             organizationId,
           },

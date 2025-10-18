@@ -81,7 +81,7 @@ export function UserChatHistory({ open, onOpenChange, user, organizationId }: Us
     queryKey: ['all-users', organizationId],
     queryFn: async () => {
       const result = await fetchTableData('users', {
-        columns: 'id,full_name,avatar_url,username',
+        columns: 'id,full_name,username',
       });
       return result.data as any[];
     },
