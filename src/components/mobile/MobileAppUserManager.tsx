@@ -43,7 +43,9 @@ import {
   Upload,
   Download,
   CheckSquare,
-  Activity
+  Activity,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Papa from 'papaparse';
@@ -74,7 +76,7 @@ interface MobileAppUserManagerProps {
 }
 
 export function MobileAppUserManager({ organizationId }: MobileAppUserManagerProps) {
-  const { fetchTableData, deleteData, updateData, isExecuting } = useMobileAppData(organizationId);
+  const { fetchTableData, deleteData, updateData, isExecuting, getCount } = useMobileAppData(organizationId);
   const { isConnected } = useMobileAppRealtime(organizationId, true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -85,14 +87,28 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
   const [showCSVImport, setShowCSVImport] = useState(false);
   const [showRoleManager, setShowRoleManager] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
-  // Fetch users with real-time updates
-  const { data: usersData, isLoading, refetch } = useQuery({
-    queryKey: ['mobile-app-users', organizationId],
+  // Fetch total count
+  const { data: totalCount } = useQuery({
+    queryKey: ['mobile-app-users-count', organizationId],
     queryFn: async () => {
+      const result = await getCount('users');
+      return result.data?.count || 0;
+    },
+  });
+
+  // Fetch users with pagination
+  const { data: usersData, isLoading, refetch } = useQuery({
+    queryKey: ['mobile-app-users', organizationId, currentPage],
+    queryFn: async () => {
+      const offset = (currentPage - 1) * itemsPerPage;
       const result = await fetchTableData('users', {
         columns: '*',
         orderBy: { column: 'created_at', ascending: false },
+        limit: itemsPerPage,
+        offset: offset,
       });
       return result.data as User[];
     },
@@ -100,6 +116,8 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
   });
 
   const users = usersData || [];
+  const total = totalCount || 0;
+  const totalPages = Math.ceil(total / itemsPerPage);
 
   // Filter users based on search
   const filteredUsers = users.filter(user => 
@@ -108,6 +126,16 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setSelectedUsers(new Set()); // Clear selections when changing pages
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
 
   const handleToggleActive = async (user: User) => {
     try {
@@ -340,7 +368,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
               <Input
                 placeholder="Search by name, username, email, or role..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-10"
               />
             </div>
@@ -354,7 +382,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
               Export Users
             </Button>
             <div className="text-sm text-muted-foreground">
-              {filteredUsers.length} of {users.length} users
+              Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, total)} of {total} users
             </div>
           </div>
 
@@ -482,6 +510,64 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                
+                {/* Page numbers */}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(pageNum)}
+                        className="w-10"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
