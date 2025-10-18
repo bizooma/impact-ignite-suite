@@ -1,28 +1,77 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMobileAppData } from '@/hooks/useMobileAppData';
-import { Smartphone, Database, Activity, Settings } from 'lucide-react';
-import { MobileAppDataManager } from './MobileAppDataManager';
+import { Smartphone, Users, Shield, MessageSquare, Settings, ShieldAlert } from 'lucide-react';
+import { MobileAppUserManager } from './MobileAppUserManager';
 import { MobileAppSettings } from './MobileAppSettings';
-import { MobileAppAnalytics } from './MobileAppAnalytics';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface MobileAppDashboardProps {
   organizationId: string;
 }
 
 export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) {
+  const { user } = useAuth();
   const { dbConfig, configLoading, hasMobileApp, isActive } = useMobileAppData(organizationId);
-  const [activeTab, setActiveTab] = useState('data');
+  const [activeTab, setActiveTab] = useState('users');
 
-  if (configLoading) {
+  // Check if user is admin for this organization
+  const { data: membership, isLoading: membershipLoading } = useQuery({
+    queryKey: ['org-membership', user?.id, organizationId],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('memberships')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('organization_id', organizationId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user?.id && !!organizationId,
+  });
+
+  if (configLoading || membershipLoading) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading mobile app configuration...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Check admin access
+  if (!membership || (membership.role !== 'admin' && membership.role !== 'owner')) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-destructive" />
+              Access Denied
+            </CardTitle>
+            <CardDescription>
+              You need administrator access to manage the mobile app.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="destructive">
+              <ShieldAlert className="h-4 w-4" />
+              <AlertTitle>Admin Access Required</AlertTitle>
+              <AlertDescription>
+                Only organization administrators and owners can access mobile app management.
+                Please contact your organization owner for access.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -99,14 +148,10 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="data" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Data Manager
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Analytics
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Users
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
@@ -114,12 +159,8 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="data" className="mt-6">
-          <MobileAppDataManager organizationId={organizationId} />
-        </TabsContent>
-
-        <TabsContent value="analytics" className="mt-6">
-          <MobileAppAnalytics organizationId={organizationId} />
+        <TabsContent value="users" className="mt-6">
+          <MobileAppUserManager organizationId={organizationId} />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">

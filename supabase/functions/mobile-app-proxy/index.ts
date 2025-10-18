@@ -49,16 +49,26 @@ Deno.serve(async (req) => {
 
     console.log('Mobile app proxy request:', { userId: user.id, organizationId, operation, table });
 
-    // Verify user has admin role for the organization
-    const { data: membership } = await supabase
+    // Verify user has admin role for the Causeio organization
+    const { data: membership, error: membershipError } = await supabase
       .from('memberships')
       .select('role')
       .eq('user_id', user.id)
       .eq('organization_id', organizationId)
-      .single();
+      .maybeSingle();
+
+    if (membershipError) {
+      console.error('Error checking membership:', membershipError);
+      throw new Error('Failed to verify permissions');
+    }
 
     if (!membership || (membership.role !== 'admin' && membership.role !== 'owner')) {
-      throw new Error('Insufficient permissions: Admin role required');
+      console.warn('Unauthorized access attempt:', { 
+        userId: user.id, 
+        organizationId, 
+        role: membership?.role 
+      });
+      throw new Error('Access denied: Administrator privileges required for this organization');
     }
 
     // Get mobile app database configuration
@@ -178,8 +188,8 @@ Deno.serve(async (req) => {
       throw result.error;
     }
 
-    // Log the operation to audit logs
-    await supabase.from('mobile_app_audit_logs').insert({
+    // Log the operation to audit logs with detailed information
+    const auditLogData = {
       organization_id: organizationId,
       user_id: user.id,
       action: `mobile_app_${operation}`,
@@ -188,11 +198,22 @@ Deno.serve(async (req) => {
       details: {
         filters,
         columns,
-        recordsAffected: Array.isArray(result.data) ? result.data.length : result.count || 0
+        recordsAffected: Array.isArray(result.data) ? result.data.length : result.count || 0,
+        ...(operation === 'update' && data ? { changes: Object.keys(data) } : {}),
+        ...(operation === 'delete' ? { deletedRecords: result.data?.length || 0 } : {}),
       },
       ip_address: req.headers.get('x-forwarded-for')?.split(',')[0] || null,
       user_agent: req.headers.get('user-agent')
-    });
+    };
+
+    const { error: auditError } = await supabase
+      .from('mobile_app_audit_logs')
+      .insert(auditLogData);
+
+    if (auditError) {
+      console.error('Failed to log audit:', auditError);
+      // Don't fail the request if audit logging fails
+    }
 
     // Update last_synced_at timestamp
     await supabase
