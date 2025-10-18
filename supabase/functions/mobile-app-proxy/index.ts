@@ -176,7 +176,16 @@ Deno.serve(async (req) => {
       }
 
       case 'update': {
-        query = mobileClient.from(table).update(data);
+        // Filter update fields for known-safe columns in mobile DB
+        let updatePayload = data;
+        if (table === 'users' && data && typeof data === 'object') {
+          const allowed = ['full_name', 'username', 'role', 'is_active'] as const;
+          updatePayload = Object.fromEntries(
+            Object.entries(data).filter(([k]) => (allowed as readonly string[]).includes(k))
+          );
+        }
+
+        query = mobileClient.from(table).update(updatePayload);
         
         if (filters) {
           Object.entries(filters).forEach(([key, value]) => {
@@ -225,14 +234,6 @@ Deno.serve(async (req) => {
           }
         }
 
-        if (data.email && typeof data.email === 'string') {
-          data.email = data.email.trim().toLowerCase();
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(data.email)) {
-            throw new Error('Invalid email format');
-          }
-        }
-
         if (data.full_name && typeof data.full_name === 'string') {
           data.full_name = data.full_name.trim();
           if (data.full_name.length > 100) {
@@ -240,18 +241,23 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Hash password with bcrypt
+        // Hash password with bcryptjs (edge-compatible)
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(data.password, salt);
         
-        // Create user with hashed password
-        const userData = {
-          ...data,
-          password_hash: passwordHash,
-        };
-        delete userData.password; // Remove plain text password
+        // Whitelist payload to columns known to exist in RanchVoice DB
+        const allowedBase = ['full_name', 'username', 'role', 'is_active'] as const;
+        const basePayload = Object.fromEntries(
+          Object.entries(data || {}).filter(([k]) => (allowedBase as readonly string[]).includes(k))
+        );
 
-        result = await mobileClient.from(table).insert(userData).select();
+        // Create user with hashed password
+        const insertPayload = {
+          ...basePayload,
+          password_hash: passwordHash,
+        } as Record<string, any>;
+
+        result = await mobileClient.from(table).insert(insertPayload).select();
         break;
       }
 
