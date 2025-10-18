@@ -60,25 +60,28 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
     queryKey: ['mobile-app-users-for-roles', organizationId],
     queryFn: async () => {
       const result = await fetchTableData('users', {
-        columns: 'id,full_name,username,avatar_url'
+        columns: 'id,full_name,username'
       });
       return result.data;
     },
   });
 
+  const rolesArray = Array.isArray(userRoles) ? (userRoles as UserRole[]) : [];
+  const usersArray = Array.isArray(users) ? (users as User[]) : [];
+
   const getUserById = (userId: string): User | undefined => {
-    return users?.find((u: User) => u.id === userId);
+    return usersArray.find((u: User) => u.id === userId);
   };
 
-  const filteredRoles = roleFilter === "all" 
-    ? userRoles 
-    : userRoles?.filter((ur: UserRole) => ur.role === roleFilter);
+  const filteredRoles: UserRole[] = roleFilter === "all" 
+    ? rolesArray 
+    : rolesArray.filter((ur: UserRole) => ur.role === roleFilter);
 
   // Calculate role statistics
-  const roleStats = userRoles?.reduce((acc: Record<string, number>, ur: UserRole) => {
+  const roleStats = rolesArray.reduce((acc: Record<string, number>, ur: UserRole) => {
     acc[ur.role] = (acc[ur.role] || 0) + 1;
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
 
   if (rolesLoading) {
     return (
@@ -99,7 +102,7 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userRoles?.length || 0}</div>
+            <div className="text-2xl font-bold">{rolesArray.length}</div>
           </CardContent>
         </Card>
 
@@ -110,7 +113,7 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {new Set(userRoles?.map((ur: UserRole) => ur.user_id)).size || 0}
+              {new Set(rolesArray.map((ur: UserRole) => ur.user_id)).size}
             </div>
           </CardContent>
         </Card>
@@ -175,7 +178,7 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRoles?.map((userRole: UserRole) => {
+              {filteredRoles.map((userRole: UserRole) => {
                 const user = getUserById(userRole.user_id);
                 const grantedBy = userRole.granted_by ? getUserById(userRole.granted_by) : null;
 
