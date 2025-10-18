@@ -47,32 +47,46 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
 
   const { data: conversations, isLoading: conversationsLoading } = useQuery({
     queryKey: ['mobile-app-conversations', organizationId],
-    queryFn: () => fetchTableData('conversations', {
-      columns: '*',
-      orderBy: { column: 'last_message_timestamp', ascending: false },
-      limit: 100
-    }),
+    queryFn: async () => {
+      const result = await fetchTableData('conversations', {
+        columns: '*',
+        orderBy: { column: 'last_message_timestamp', ascending: false },
+        limit: 100
+      });
+      return result.data;
+    },
   });
 
   const { data: users } = useQuery({
     queryKey: ['mobile-app-users-for-chats', organizationId],
-    queryFn: () => fetchTableData('users', {
-      columns: 'id,full_name,username,avatar_url'
-    }),
+    queryFn: async () => {
+      const result = await fetchTableData('users', {
+        columns: 'id,full_name,username'
+      });
+      return result.data;
+    },
   });
 
   const { data: messages } = useQuery({
     queryKey: ['mobile-app-messages', organizationId, selectedConversation],
-    queryFn: () => selectedConversation ? fetchTableData('messages', {
-      filters: { conversation_id: selectedConversation },
-      orderBy: { column: 'timestamp', ascending: true },
-      limit: 500
-    }) : Promise.resolve([]),
+    queryFn: async () => {
+      if (!selectedConversation) return [];
+      const result = await fetchTableData('messages', {
+        filters: { conversation_id: selectedConversation },
+        orderBy: { column: 'timestamp', ascending: true },
+        limit: 500
+      });
+      return result.data;
+    },
     enabled: !!selectedConversation,
   });
 
+  const conversationsArray = Array.isArray(conversations) ? (conversations as Conversation[]) : [];
+  const usersArray = Array.isArray(users) ? (users as User[]) : [];
+  const messagesArray = Array.isArray(messages) ? (messages as Message[]) : [];
+
   const getUserById = (userId: string): User | undefined => {
-    return users?.find((u: User) => u.id === userId);
+    return usersArray.find((u: User) => u.id === userId);
   };
 
   const getParticipantNames = (participantIds: string[]): string => {
@@ -81,7 +95,7 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
       .join(', ');
   };
 
-  const filteredConversations = conversations?.filter((conv: Conversation) => {
+  const filteredConversations = conversationsArray.filter((conv: Conversation) => {
     if (!searchTerm) return true;
     const participantNames = getParticipantNames(conv.participant_ids).toLowerCase();
     const preview = conv.last_message_preview?.toLowerCase() || '';
@@ -103,7 +117,7 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{conversations?.length || 0}</div>
+            <div className="text-2xl font-bold">{conversationsArray.length}</div>
           </CardContent>
         </Card>
 
@@ -114,11 +128,11 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {conversations?.filter((c: Conversation) => {
+              {conversationsArray.filter((c: Conversation) => {
                 const lastMsg = c.last_message_timestamp ? new Date(c.last_message_timestamp) : null;
                 const today = new Date();
                 return lastMsg && lastMsg.toDateString() === today.toDateString();
-              }).length || 0}
+              }).length}
             </div>
           </CardContent>
         </Card>
@@ -155,7 +169,7 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredConversations?.map((conversation: Conversation) => {
+              {filteredConversations.map((conversation: Conversation) => {
                 const participantIds = conversation.participant_ids || [];
                 const firstParticipant = getUserById(participantIds[0]);
 
@@ -217,7 +231,7 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
             <DialogTitle>Conversation Messages</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {messages?.map((message: Message) => {
+            {messagesArray.map((message: Message) => {
               const sender = getUserById(message.sender_id);
               return (
                 <div key={message.id} className="flex items-start gap-3">
