@@ -47,17 +47,23 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
 
   const { data: userRoles, isLoading: rolesLoading } = useQuery({
     queryKey: ['mobile-app-user-roles', organizationId],
-    queryFn: () => fetchTableData('user_roles', {
-      columns: '*',
-      orderBy: { column: 'granted_at', ascending: false }
-    }),
+    queryFn: async () => {
+      const result = await fetchTableData('user_roles', {
+        columns: '*',
+        orderBy: { column: 'granted_at', ascending: false }
+      });
+      return result.data;
+    },
   });
 
   const { data: users } = useQuery({
     queryKey: ['mobile-app-users-for-roles', organizationId],
-    queryFn: () => fetchTableData('users', {
-      columns: 'id,full_name,username,avatar_url'
-    }),
+    queryFn: async () => {
+      const result = await fetchTableData('users', {
+        columns: 'id,full_name,username,avatar_url'
+      });
+      return result.data;
+    },
   });
 
   const getUserById = (userId: string): User | undefined => {
