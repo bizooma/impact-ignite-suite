@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMobileAppData } from "@/hooks/useMobileAppData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,8 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { format } from "date-fns";
-import { Search, MessageSquare, Calendar } from "lucide-react";
+import { Search, MessageSquare, Calendar, AlertTriangle, UserX } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface MobileAppChatsViewerProps {
   organizationId: string;
@@ -38,12 +40,18 @@ interface User {
   full_name: string;
   username: string;
   avatar_url?: string;
+  role?: string;
+  is_active?: boolean;
 }
 
 export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerProps) {
-  const { fetchTableData } = useMobileAppData(organizationId);
+  const { fetchTableData, updateData } = useMobileAppData(organizationId);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [deactivateUser, setDeactivateUser] = useState<User | null>(null);
+  const [deactivateAll, setDeactivateAll] = useState(false);
+  const [isDeactivating, setIsDeactivating] = useState(false);
 
   const { data: conversations, isLoading: conversationsLoading } = useQuery({
     queryKey: ['mobile-app-conversations', organizationId],
@@ -61,7 +69,7 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
     queryKey: ['mobile-app-users-for-chats', organizationId],
     queryFn: async () => {
       const result = await fetchTableData('users', {
-        columns: 'id,full_name,username'
+        columns: 'id,full_name,username,avatar_url,role,is_active'
       });
       return result.data;
     },
@@ -102,6 +110,57 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
     return participantNames.includes(searchTerm.toLowerCase()) || 
            preview.includes(searchTerm.toLowerCase());
   });
+
+  const handleDeactivateUser = async (user: User) => {
+    setIsDeactivating(true);
+    try {
+      await updateData('users', { is_active: false }, { id: user.id });
+      toast.success(`${user.full_name} has been deactivated`);
+      queryClient.invalidateQueries({ queryKey: ['mobile-app-users-for-chats', organizationId] });
+      setDeactivateUser(null);
+    } catch (error) {
+      console.error('Failed to deactivate user:', error);
+      toast.error('Failed to deactivate user');
+    } finally {
+      setIsDeactivating(false);
+    }
+  };
+
+  const handleDeactivateAllParticipants = async () => {
+    if (!selectedConversation) return;
+    
+    const conversation = conversationsArray.find(c => c.id === selectedConversation);
+    if (!conversation) return;
+
+    setIsDeactivating(true);
+    try {
+      const activeParticipants = conversation.participant_ids
+        .map(id => getUserById(id))
+        .filter((user): user is User => user !== undefined && user.is_active !== false);
+
+      for (const user of activeParticipants) {
+        await updateData('users', { is_active: false }, { id: user.id });
+      }
+
+      toast.success(`Deactivated ${activeParticipants.length} user(s)`);
+      queryClient.invalidateQueries({ queryKey: ['mobile-app-users-for-chats', organizationId] });
+      setDeactivateAll(false);
+    } catch (error) {
+      console.error('Failed to deactivate users:', error);
+      toast.error('Failed to deactivate all users');
+    } finally {
+      setIsDeactivating(false);
+    }
+  };
+
+  const getConversationParticipants = (): User[] => {
+    if (!selectedConversation) return [];
+    const conversation = conversationsArray.find(c => c.id === selectedConversation);
+    if (!conversation) return [];
+    return conversation.participant_ids
+      .map(id => getUserById(id))
+      .filter((user): user is User => user !== undefined);
+  };
 
   if (conversationsLoading) {
     return <Skeleton className="h-96 w-full" />;
@@ -230,11 +289,73 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
           <DialogHeader>
             <DialogTitle>Conversation Messages</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+
+          {/* Participants Section */}
+          <div className="border rounded-lg p-4 bg-muted/50 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-sm">Participants</h4>
+              {getConversationParticipants().some(p => p.is_active !== false) && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setDeactivateAll(true)}
+                  disabled={isDeactivating}
+                >
+                  <UserX className="h-4 w-4 mr-2" />
+                  Deactivate All
+                </Button>
+              )}
+            </div>
+            <div className="space-y-2">
+              {getConversationParticipants().map(participant => (
+                <div key={participant.id} className="flex items-center justify-between bg-background p-2 rounded">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={participant.avatar_url} />
+                      <AvatarFallback>
+                        {participant.full_name?.charAt(0).toUpperCase() || '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{participant.full_name}</span>
+                        {participant.role && (
+                          <Badge variant="outline" className="text-xs">
+                            {participant.role}
+                          </Badge>
+                        )}
+                        {participant.is_active === false && (
+                          <Badge variant="secondary" className="text-xs">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Inactive
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{participant.username}</span>
+                    </div>
+                  </div>
+                  {participant.is_active !== false && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setDeactivateUser(participant)}
+                      disabled={isDeactivating}
+                    >
+                      Deactivate
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="space-y-4 pt-4">
             {messagesArray.map((message: Message) => {
               const sender = getUserById(message.sender_id);
+              const isInactive = sender?.is_active === false;
               return (
-                <div key={message.id} className="flex items-start gap-3">
+                <div key={message.id} className={`flex items-start gap-3 ${isInactive ? 'opacity-60' : ''}`}>
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={sender?.avatar_url} />
                     <AvatarFallback>
@@ -247,6 +368,9 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(message.timestamp), 'MMM d, h:mm a')}
                       </span>
+                      {isInactive && (
+                        <Badge variant="secondary" className="text-xs">Inactive</Badge>
+                      )}
                     </div>
                     <p className="text-sm mt-1">{message.content}</p>
                   </div>
@@ -256,6 +380,56 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Single User Deactivation Confirmation */}
+      <AlertDialog open={!!deactivateUser} onOpenChange={() => setDeactivateUser(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deactivate User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to deactivate <strong>{deactivateUser?.full_name}</strong> ({deactivateUser?.role || 'unknown role'})?
+              <br /><br />
+              <span className="text-destructive font-medium">This will immediately prevent them from accessing the mobile app.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeactivating}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deactivateUser && handleDeactivateUser(deactivateUser)}
+              disabled={isDeactivating}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeactivating ? 'Deactivating...' : 'Deactivate User'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Batch Deactivation Confirmation */}
+      <AlertDialog open={deactivateAll} onOpenChange={setDeactivateAll}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deactivate All Participants</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to deactivate all active participants in this conversation?
+              <br /><br />
+              <span className="text-destructive font-medium">
+                This will deactivate {getConversationParticipants().filter(p => p.is_active !== false).length} user(s) and immediately prevent them from accessing the mobile app.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeactivating}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeactivateAllParticipants}
+              disabled={isDeactivating}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeactivating ? 'Deactivating...' : 'Deactivate All'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
