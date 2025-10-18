@@ -253,8 +253,11 @@ Deno.serve(async (req) => {
 
         // Create user with hashed password
         const insertPayload = {
+          id: crypto.randomUUID(),
           ...basePayload,
           password_hash: passwordHash,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         } as Record<string, any>;
 
         result = await mobileClient.from(table).insert(insertPayload).select();
