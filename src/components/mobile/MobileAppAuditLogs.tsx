@@ -42,7 +42,7 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState<string>("all");
 
-  const { data: auditLogs, isLoading } = useQuery({
+  const { data: auditLogs, isLoading, error } = useQuery({
     queryKey: ['mobile-app-audit-logs', organizationId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -60,13 +60,15 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
     },
   });
 
+  const auditLogsArray = Array.isArray(auditLogs) ? (auditLogs as AuditLog[]) : [];
+
   const exportToCSV = () => {
-    if (!auditLogs || auditLogs.length === 0) {
+    if (auditLogsArray.length === 0) {
       toast.error('No logs to export');
       return;
     }
 
-    const csvData = auditLogs.map((log: any) => ({
+    const csvData = auditLogsArray.map((log: any) => ({
       Timestamp: format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss'),
       Admin: log.profiles?.display_name || 'Unknown',
       Action: log.action,
@@ -86,7 +88,7 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
     toast.success('Audit logs exported successfully');
   };
 
-  const filteredLogs = auditLogs?.filter((log: any) => {
+  const filteredLogs = auditLogsArray.filter((log: any) => {
     const matchesSearch = searchTerm === "" || 
       log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.table_name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -96,10 +98,21 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
     return matchesSearch && matchesAction;
   });
 
-  const uniqueActions = [...new Set(auditLogs?.map((log: any) => log.action) || [])];
+  const uniqueActions = [...new Set(auditLogsArray.map((log: any) => log.action))];
 
   if (isLoading) {
     return <Skeleton className="h-96 w-full" />;
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Error Loading Audit Logs</CardTitle>
+          <CardDescription>Failed to load audit logs. Please try again.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
   }
 
   return (
@@ -112,7 +125,7 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{auditLogs?.length || 0}</div>
+            <div className="text-2xl font-bold">{auditLogsArray.length}</div>
           </CardContent>
         </Card>
 
@@ -123,11 +136,11 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {auditLogs?.filter((log: AuditLog) => {
+              {auditLogsArray.filter((log: AuditLog) => {
                 const logDate = new Date(log.created_at);
                 const today = new Date();
                 return logDate.toDateString() === today.toDateString();
-              }).length || 0}
+              }).length}
             </div>
           </CardContent>
         </Card>
@@ -189,41 +202,51 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLogs?.map((log: any) => (
-                <TableRow key={log.id}>
-                  <TableCell>
-                    <div className="text-sm">
-                      {format(new Date(log.created_at), 'MMM d, yyyy')}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {format(new Date(log.created_at), 'h:mm:ss a')}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm font-medium">
-                      {log.profiles?.display_name || 'Unknown'}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={ACTION_COLORS[log.action] || 'bg-gray-500'}>
-                      {log.action}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm font-mono">{log.table_name || 'N/A'}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm">
-                      {log.details?.recordsAffected || 0}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-xs text-muted-foreground font-mono">
-                      {log.ip_address || 'N/A'}
-                    </span>
+              {filteredLogs.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    {auditLogsArray.length === 0 
+                      ? "No audit logs available yet." 
+                      : "No logs match your filters."}
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredLogs.map((log: any) => (
+                  <TableRow key={log.id}>
+                    <TableCell>
+                      <div className="text-sm">
+                        {format(new Date(log.created_at), 'MMM d, yyyy')}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {format(new Date(log.created_at), 'h:mm:ss a')}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm font-medium">
+                        {log.profiles?.display_name || 'Unknown'}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={ACTION_COLORS[log.action] || 'bg-gray-500'}>
+                        {log.action}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm font-mono">{log.table_name || 'N/A'}</span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm">
+                        {log.details?.recordsAffected || 0}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground font-mono">
+                        {log.ip_address || 'N/A'}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
