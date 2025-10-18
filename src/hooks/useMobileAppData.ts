@@ -17,7 +17,7 @@ interface MobileAppDatabase {
 }
 
 interface ProxyOperation {
-  operation: 'select' | 'insert' | 'update' | 'delete' | 'count' | 'upsert';
+  operation: 'select' | 'insert' | 'update' | 'delete' | 'count' | 'upsert' | 'create_user_with_hash';
   table: string;
   data?: any;
   filters?: Record<string, any>;

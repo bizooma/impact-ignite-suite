@@ -221,7 +221,7 @@ Deno.serve(async (req) => {
       }
 
       case 'create_user_with_hash': {
-        // Secure user creation with password hashing
+        // Secure user creation with password hashing + Supabase Auth
         if (!data.password) {
           throw new Error('Password is required');
         }
@@ -241,26 +241,68 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Hash password with bcryptjs (edge-compatible)
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(data.password, salt);
-        
-        // Whitelist payload to columns known to exist in RanchVoice DB
-        const allowedBase = ['full_name', 'username', 'role', 'is_active'] as const;
-        const basePayload = Object.fromEntries(
-          Object.entries(data || {}).filter(([k]) => (allowedBase as readonly string[]).includes(k))
-        );
+        // Determine email for auth (required by Supabase Auth)
+        const email = data.email || `${data.username}@${orgCode}.internal`;
 
-        // Create user with hashed password
-        const insertPayload = {
-          id: crypto.randomUUID(),
-          ...basePayload,
-          password_hash: passwordHash,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        } as Record<string, any>;
+        console.log('Creating auth user in RanchVoice Supabase:', { email, username: data.username });
 
-        result = await mobileClient.from(table).insert(insertPayload).select();
+        // STEP 1: Create Supabase Auth user in RanchVoice
+        const { data: authUser, error: authError } = await mobileClient.auth.admin.createUser({
+          email: email,
+          password: data.password,
+          email_confirm: true, // Auto-confirm, skip email verification
+          user_metadata: {
+            full_name: data.full_name,
+            username: data.username,
+            role: data.role,
+          }
+        });
+
+        if (authError || !authUser.user) {
+          console.error('Failed to create auth user:', authError);
+          throw new Error(`Failed to create auth user: ${authError?.message || 'Unknown error'}`);
+        }
+
+        console.log('Auth user created successfully:', authUser.user.id);
+
+        try {
+          // STEP 2: Hash password for database storage
+          const salt = await bcrypt.genSalt(10);
+          const passwordHash = await bcrypt.hash(data.password, salt);
+          
+          // Whitelist payload to columns known to exist in RanchVoice DB
+          const allowedBase = ['full_name', 'username', 'email', 'phone_number', 'role', 'is_active', 'avatar_url'] as const;
+          const basePayload = Object.fromEntries(
+            Object.entries(data || {}).filter(([k]) => (allowedBase as readonly string[]).includes(k))
+          );
+
+          // STEP 3: Create database user with auth UUID
+          const insertPayload = {
+            id: authUser.user.id, // Use auth user's UUID
+            ...basePayload,
+            email: email, // Ensure email is included
+            password_hash: passwordHash,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          } as Record<string, any>;
+
+          console.log('Inserting user into database with auth UUID:', authUser.user.id);
+          result = await mobileClient.from(table).insert(insertPayload).select();
+
+          if (result.error) {
+            console.error('Database insert failed, rolling back auth user:', result.error);
+            // Rollback: Delete auth user if database insert fails
+            await mobileClient.auth.admin.deleteUser(authUser.user.id);
+            throw new Error(`Failed to create database user: ${result.error.message}`);
+          }
+
+          console.log('User created successfully in both auth and database');
+        } catch (dbError: any) {
+          console.error('Error during database operations, rolling back auth user:', dbError);
+          // Rollback: Delete auth user if any error occurs
+          await mobileClient.auth.admin.deleteUser(authUser.user.id);
+          throw dbError;
+        }
         break;
       }
 
