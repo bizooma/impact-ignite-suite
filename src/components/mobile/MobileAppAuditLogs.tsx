@@ -47,10 +47,7 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
     queryFn: async () => {
       const { data, error } = await supabase
         .from('mobile_app_audit_logs')
-        .select(`
-          *,
-          profiles:user_id (display_name)
-        `)
+        .select('*')
         .eq('organization_id', organizationId)
         .order('created_at', { ascending: false })
         .limit(500);
@@ -62,6 +59,25 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
 
   const auditLogsArray = Array.isArray(auditLogs) ? (auditLogs as AuditLog[]) : [];
 
+  const userIds = Array.from(new Set(auditLogsArray.map((l) => l.user_id).filter(Boolean)));
+
+  const { data: profilesData } = useQuery({
+    queryKey: ['audit-log-profiles', organizationId, userIds.join(',')],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .in('user_id', userIds as string[]);
+      if (error) throw error;
+      return data as { user_id: string; display_name: string | null }[];
+    },
+    enabled: userIds.length > 0,
+  });
+
+  const profileMap: Record<string, string> = Object.fromEntries(
+    (profilesData || []).map((p) => [p.user_id, p.display_name || 'Unknown'])
+  );
+
   const exportToCSV = () => {
     if (auditLogsArray.length === 0) {
       toast.error('No logs to export');
@@ -70,7 +86,7 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
 
     const csvData = auditLogsArray.map((log: any) => ({
       Timestamp: format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss'),
-      Admin: log.profiles?.display_name || 'Unknown',
+      Admin: profileMap[log.user_id] || 'Unknown',
       Action: log.action,
       Table: log.table_name || 'N/A',
       'Operation Type': log.operation_type || 'N/A',
@@ -223,7 +239,7 @@ export function MobileAppAuditLogs({ organizationId }: MobileAppAuditLogsProps) 
                     </TableCell>
                     <TableCell>
                       <div className="text-sm font-medium">
-                        {log.profiles?.display_name || 'Unknown'}
+                        {profileMap[log.user_id] || log.user_id?.slice(0, 8) || 'Unknown'}
                       </div>
                     </TableCell>
                     <TableCell>
