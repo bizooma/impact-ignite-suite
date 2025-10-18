@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMobileAppData } from "@/hooks/useMobileAppData";
+import { useMobileAppRealtime } from "@/hooks/useMobileAppRealtime";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { format } from "date-fns";
-import { Users, Shield } from "lucide-react";
+import { Users, Shield, Activity } from "lucide-react";
 
 interface MobileAppRolesManagerProps {
   organizationId: string;
@@ -43,6 +44,7 @@ const ROLE_COLORS: Record<string, string> = {
 
 export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerProps) {
   const { fetchTableData } = useMobileAppData(organizationId);
+  const { isConnected } = useMobileAppRealtime(organizationId, true);
   const [roleFilter, setRoleFilter] = useState<string>("all");
 
   const { data: userRoles, isLoading: rolesLoading } = useQuery({
@@ -54,6 +56,7 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
       });
       return result.data;
     },
+    refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
   });
 
   const { data: users } = useQuery({
@@ -151,7 +154,15 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Role Assignments</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                Role Assignments
+                {isConnected && (
+                  <Badge variant="outline" className="gap-1">
+                    <Activity className="h-3 w-3 animate-pulse" />
+                    Live
+                  </Badge>
+                )}
+              </CardTitle>
               <CardDescription>View all user role assignments</CardDescription>
             </div>
             <Select value={roleFilter} onValueChange={setRoleFilter}>

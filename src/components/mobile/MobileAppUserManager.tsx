@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useMobileAppData } from '@/hooks/useMobileAppData';
+import { useMobileAppRealtime } from '@/hooks/useMobileAppRealtime';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,7 +42,8 @@ import {
   UserX,
   Upload,
   Download,
-  CheckSquare
+  CheckSquare,
+  Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Papa from 'papaparse';
@@ -73,6 +75,7 @@ interface MobileAppUserManagerProps {
 
 export function MobileAppUserManager({ organizationId }: MobileAppUserManagerProps) {
   const { fetchTableData, deleteData, updateData, isExecuting } = useMobileAppData(organizationId);
+  const { isConnected } = useMobileAppRealtime(organizationId, true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
@@ -83,7 +86,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
   const [showRoleManager, setShowRoleManager] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Fetch users
+  // Fetch users with real-time updates
   const { data: usersData, isLoading, refetch } = useQuery({
     queryKey: ['mobile-app-users', organizationId],
     queryFn: async () => {
@@ -93,6 +96,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
       });
       return result.data as User[];
     },
+    refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
   });
 
   const users = usersData || [];
@@ -265,7 +269,15 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>User Management</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                User Management
+                {isConnected && (
+                  <Badge variant="outline" className="gap-1">
+                    <Activity className="h-3 w-3 animate-pulse" />
+                    Live
+                  </Badge>
+                )}
+              </CardTitle>
               <CardDescription>
                 Manage users for your mobile app
               </CardDescription>

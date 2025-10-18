@@ -47,7 +47,7 @@ export function UserRoleManager({
   organizationId,
   onSuccess 
 }: UserRoleManagerProps) {
-  const { updateData, isExecuting } = useMobileAppData(organizationId);
+  const { updateData, insertData, isExecuting } = useMobileAppData(organizationId);
   const [selectedRole, setSelectedRole] = useState<string>(user.role);
 
   const handleRoleChange = async () => {
@@ -57,7 +57,17 @@ export function UserRoleManager({
     }
 
     try {
+      // Update user's role
       await updateData('users', { role: selectedRole }, { id: user.id });
+      
+      // Insert role change record for audit trail
+      await insertData('user_roles', {
+        user_id: user.id,
+        role: selectedRole,
+        granted_by: null, // Set by the proxy/backend based on current user
+        granted_at: new Date().toISOString(),
+      });
+
       toast.success('Role updated successfully');
       onSuccess();
       onOpenChange(false);

@@ -5,12 +5,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMobileAppData } from '@/hooks/useMobileAppData';
-import { Smartphone, Users, Shield, MessageSquare, Settings, ShieldAlert, FileText } from 'lucide-react';
+import { Smartphone, Users, Shield, MessageSquare, Settings, ShieldAlert, FileText, History } from 'lucide-react';
 import { MobileAppUserManager } from './MobileAppUserManager';
 import { MobileAppSettings } from './MobileAppSettings';
 import { MobileAppRolesManager } from './MobileAppRolesManager';
 import { MobileAppChatsViewer } from './MobileAppChatsViewer';
 import { MobileAppAuditLogs } from './MobileAppAuditLogs';
+import { MobileAppRoleHistory } from './MobileAppRoleHistory';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -151,7 +152,7 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
@@ -159,6 +160,10 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
           <TabsTrigger value="roles" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Roles
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Role History
           </TabsTrigger>
           <TabsTrigger value="chats" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
@@ -180,6 +185,10 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
 
         <TabsContent value="roles" className="mt-6">
           <MobileAppRolesManager organizationId={organizationId} />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-6">
+          <MobileAppRoleHistory organizationId={organizationId} />
         </TabsContent>
 
         <TabsContent value="chats" className="mt-6">
