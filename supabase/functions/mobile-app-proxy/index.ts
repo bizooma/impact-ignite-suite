@@ -1,12 +1,18 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import * as bcrypt from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting map: userId -> { count, resetAt }
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const RATE_LIMIT_MAX = 100; // max requests per window
+
 interface ProxyRequest {
-  operation: 'select' | 'insert' | 'update' | 'delete' | 'count' | 'upsert';
+  operation: 'select' | 'insert' | 'update' | 'delete' | 'count' | 'upsert' | 'create_user_with_hash';
   table: string;
   data?: any;
   filters?: Record<string, any>;
@@ -41,6 +47,32 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       throw new Error('Unauthorized');
+    }
+
+    // Rate limiting check
+    const now = Date.now();
+    const userLimit = rateLimitMap.get(user.id);
+    
+    if (userLimit) {
+      if (now < userLimit.resetAt) {
+        if (userLimit.count >= RATE_LIMIT_MAX) {
+          throw new Error('Rate limit exceeded. Please wait before making more requests.');
+        }
+        userLimit.count++;
+      } else {
+        rateLimitMap.set(user.id, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+      }
+    } else {
+      rateLimitMap.set(user.id, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    }
+
+    // Clean up old entries (every 100 requests)
+    if (Math.random() < 0.01) {
+      for (const [userId, limit] of rateLimitMap.entries()) {
+        if (now > limit.resetAt) {
+          rateLimitMap.delete(userId);
+        }
+      }
     }
 
     // Parse request body
@@ -176,6 +208,50 @@ Deno.serve(async (req) => {
 
       case 'count': {
         result = await mobileClient.from(table).select('*', { count: 'exact', head: true });
+        break;
+      }
+
+      case 'create_user_with_hash': {
+        // Secure user creation with password hashing
+        if (!data.password) {
+          throw new Error('Password is required');
+        }
+
+        // Input validation
+        if (data.username && typeof data.username === 'string') {
+          data.username = data.username.trim();
+          if (data.username.length < 3 || data.username.length > 50) {
+            throw new Error('Username must be between 3 and 50 characters');
+          }
+        }
+
+        if (data.email && typeof data.email === 'string') {
+          data.email = data.email.trim().toLowerCase();
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(data.email)) {
+            throw new Error('Invalid email format');
+          }
+        }
+
+        if (data.full_name && typeof data.full_name === 'string') {
+          data.full_name = data.full_name.trim();
+          if (data.full_name.length > 100) {
+            throw new Error('Full name must be less than 100 characters');
+          }
+        }
+
+        // Hash password with bcrypt
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(data.password, salt);
+        
+        // Create user with hashed password
+        const userData = {
+          ...data,
+          password_hash: passwordHash,
+        };
+        delete userData.password; // Remove plain text password
+
+        result = await mobileClient.from(table).insert(userData).select();
         break;
       }
 

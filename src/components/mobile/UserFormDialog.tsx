@@ -191,23 +191,30 @@ export function UserFormDialog({
         await updateData('users', userData, { id: user.id });
         toast.success('User updated successfully');
       } else {
-        // Create new user - need to hash password
+        // Create new user with secure password hashing via edge function
         if (!values.password) {
           toast.error('Password is required for new users');
           return;
         }
 
-        // Note: Password hashing should be done server-side via mobile-app-proxy
-        // For now, we'll store as-is (NOT SECURE - implement bcrypt in edge function)
-        const newUser = {
-          ...userData,
-          password_hash: values.password, // TODO: Hash via edge function
-          assigned_resident_ids: [],
-          assigned_staff_ids: [],
-          created_at: new Date().toISOString(),
-        };
+        const { data, error } = await supabase.functions.invoke('mobile-app-proxy', {
+          body: {
+            operation: 'create_user_with_hash',
+            table: 'users',
+            data: {
+              ...userData,
+              password: values.password,
+              assigned_resident_ids: [],
+              assigned_staff_ids: [],
+            },
+            organizationId,
+          },
+        });
 
-        await insertData('users', newUser);
+        if (error || data?.error) {
+          throw new Error(data?.error || error?.message || 'Failed to create user');
+        }
+
         toast.success('User created successfully');
       }
 

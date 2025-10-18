@@ -39,9 +39,14 @@ import {
   Shield,
   UserCheck,
   UserX,
-  Upload
+  Upload,
+  Download,
+  CheckSquare
 } from 'lucide-react';
 import { toast } from 'sonner';
+import Papa from 'papaparse';
+import { format } from 'date-fns';
+import { Checkbox } from '@/components/ui/checkbox';
 import { UserFormDialog } from './UserFormDialog';
 import { UserChatHistory } from './UserChatHistory';
 import { UserCSVImport } from './UserCSVImport';
@@ -70,6 +75,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
   const { fetchTableData, deleteData, updateData, isExecuting } = useMobileAppData(organizationId);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [showUserForm, setShowUserForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showChatHistory, setShowChatHistory] = useState(false);
@@ -144,6 +150,104 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
     return 'outline';
   };
 
+  const exportUsersToCSV = () => {
+    const csvData = users.map(user => ({
+      'Full Name': user.full_name,
+      'Username': user.username,
+      'Email': user.email || '',
+      'Phone': user.phone_number || '',
+      'Role': user.role,
+      'Status': user.is_active ? 'Active' : 'Inactive',
+      'Created': format(new Date(user.created_at), 'yyyy-MM-dd'),
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `users-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    link.click();
+
+    toast.success(`Exported ${users.length} users to CSV`);
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    setSelectedUsers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllUsers = () => {
+    setSelectedUsers(new Set(filteredUsers.map(u => u.id)));
+  };
+
+  const deselectAllUsers = () => {
+    setSelectedUsers(new Set());
+  };
+
+  const handleBulkRoleChange = async (newRole: string) => {
+    if (selectedUsers.size === 0) {
+      toast.error('No users selected');
+      return;
+    }
+
+    try {
+      for (const userId of selectedUsers) {
+        await updateData('users', { role: newRole }, { id: userId });
+      }
+      toast.success(`Updated ${selectedUsers.size} users to role: ${newRole}`);
+      setSelectedUsers(new Set());
+      refetch();
+    } catch (error) {
+      console.error('Error updating roles:', error);
+      toast.error('Failed to update roles');
+    }
+  };
+
+  const handleBulkActivate = async () => {
+    if (selectedUsers.size === 0) {
+      toast.error('No users selected');
+      return;
+    }
+
+    try {
+      for (const userId of selectedUsers) {
+        await updateData('users', { is_active: true }, { id: userId });
+      }
+      toast.success(`Activated ${selectedUsers.size} users`);
+      setSelectedUsers(new Set());
+      refetch();
+    } catch (error) {
+      console.error('Error activating users:', error);
+      toast.error('Failed to activate users');
+    }
+  };
+
+  const handleBulkDeactivate = async () => {
+    if (selectedUsers.size === 0) {
+      toast.error('No users selected');
+      return;
+    }
+
+    try {
+      for (const userId of selectedUsers) {
+        await updateData('users', { is_active: false }, { id: userId });
+      }
+      toast.success(`Deactivated ${selectedUsers.size} users`);
+      setSelectedUsers(new Set());
+      refetch();
+    } catch (error) {
+      console.error('Error deactivating users:', error);
+      toast.error('Failed to deactivate users');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -175,6 +279,35 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
                 <Upload className="h-4 w-4 mr-2" />
                 Import CSV
               </Button>
+              {selectedUsers.size > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <CheckSquare className="h-4 w-4 mr-2" />
+                      Bulk Actions ({selectedUsers.size})
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Change Role</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => handleBulkRoleChange('admin')}>
+                      Set as Admin
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleBulkRoleChange('staff')}>
+                      Set as Staff
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleBulkRoleChange('resident')}>
+                      Set as Resident
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleBulkActivate}>
+                      Activate All
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleBulkDeactivate}>
+                      Deactivate All
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               <Button
                 size="sm"
                 onClick={() => {
@@ -189,7 +322,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-2 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -199,6 +332,15 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
                 className="pl-10"
               />
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportUsersToCSV()}
+              disabled={users.length === 0}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export Users
+            </Button>
             <div className="text-sm text-muted-foreground">
               {filteredUsers.length} of {users.length} users
             </div>
@@ -207,26 +349,44 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
           <div className="rounded-md border">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
+              <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        selectAllUsers();
+                      } else {
+                        deselectAllUsers();
+                      }
+                    }}
+                  />
+                </TableHead>
+                <TableHead>User</TableHead>
+                <TableHead>Username</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center text-muted-foreground">
                       {searchTerm ? 'No users found matching your search' : 'No users yet'}
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredUsers.map((user) => (
                     <TableRow key={user.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedUsers.has(user.id)}
+                          onCheckedChange={() => toggleUserSelection(user.id)}
+                        />
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
