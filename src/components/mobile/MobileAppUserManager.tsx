@@ -382,7 +382,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
               Export Users
             </Button>
             <div className="text-sm text-muted-foreground">
-              Showing {filteredUsers.length} users
+              Showing {total > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}-{Math.min(currentPage * itemsPerPage, total)} of {total} users
             </div>
           </div>
 
