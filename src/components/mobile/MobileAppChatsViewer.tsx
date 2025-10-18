@@ -69,7 +69,7 @@ export function MobileAppChatsViewer({ organizationId }: MobileAppChatsViewerPro
     queryKey: ['mobile-app-users-for-chats', organizationId],
     queryFn: async () => {
       const result = await fetchTableData('users', {
-        columns: 'id,full_name,username,avatar_url,role,is_active'
+        columns: 'id,full_name,username,role,is_active'
       });
       return result.data;
     },
