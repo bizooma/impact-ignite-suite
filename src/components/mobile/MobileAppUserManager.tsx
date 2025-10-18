@@ -95,7 +95,8 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
     queryKey: ['mobile-app-users-count', organizationId],
     queryFn: async () => {
       const result = await getCount('users');
-      return result.data?.count || 0;
+      const count = (result?.count ?? result?.data?.count ?? (typeof result?.data === 'number' ? result.data : undefined) ?? (typeof result === 'number' ? result : 0));
+      return count;
     },
   });
 
@@ -384,7 +385,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
             <div className="text-sm text-muted-foreground">
               {filteredUsers.length === 0
                 ? 'Showing 0 users'
-                : <>Showing {((currentPage - 1) * itemsPerPage) + 1}-{((currentPage - 1) * itemsPerPage) + filteredUsers.length} of {total} users</>}
+                : <>Showing {((currentPage - 1) * itemsPerPage) + 1}-{((currentPage - 1) * itemsPerPage) + filteredUsers.length} of {total > 0 ? total : users.length} users</>}
             </div>
           </div>
 
