@@ -22,10 +22,25 @@ export interface ChatbotBrandSettings {
 }
 
 export interface ChatbotWidgetConfig {
-  position?: 'bottom-right' | 'bottom-left';
+  position?: 'bottom-right' | 'bottom-left' | 'middle-right' | 'middle-left';
   size?: 'compact' | 'expanded';
   theme?: 'light' | 'dark';
   show_branding?: boolean;
+  // Video Settings
+  video_source?: string;
+  video_type?: 'youtube' | 'vimeo' | 'direct';
+  launcher_text?: string;
+  video_cta_text?: string;
+  // Branding
+  logo_url?: string;
+  bot_name?: string;
+  // Contact Info
+  email_contact?: string;
+  phone_contact?: string;
+  // Donations
+  show_donations?: boolean;
+  donation_button_1?: { label: string; url: string };
+  donation_button_2?: { label: string; url: string };
 }
 
 export interface Chatbot {
@@ -259,37 +274,8 @@ export interface ChatbotEvent {
   chatbot_id: string;
   session_id?: string;
   event_type: string;
-  event_data: {
-    button_label?: string;
-    url?: string;
-    position?: string;
-    [key: string]: any;
-  };
+  event_data: any;
   ip_address?: string;
   user_agent?: string;
   created_at: string;
-}
-
-export interface EnhancedChatbotWidgetConfig extends ChatbotWidgetConfig {
-  // Video Settings
-  video_source?: string;
-  video_type?: 'youtube' | 'vimeo' | 'direct';
-  launcher_text?: string;
-  video_cta_text?: string;
-  
-  // Position
-  position?: 'bottom-right' | 'bottom-left' | 'middle-right' | 'middle-left';
-  
-  // Branding
-  logo_url?: string;
-  bot_name?: string;
-  
-  // Contact Info
-  email_contact?: string;
-  phone_contact?: string;
-  
-  // Donations
-  show_donations?: boolean;
-  donation_button_1?: { label: string; url: string };
-  donation_button_2?: { label: string; url: string };
 }
