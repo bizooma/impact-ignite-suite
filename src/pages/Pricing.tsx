@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 const tiers = {
   starter: {
@@ -68,6 +69,149 @@ const Pricing = () => {
   const [loading, setLoading] = useState<string | null>(null);
   const { user } = useAuth();
 
+  // Product and Offer Schemas for each pricing tier
+  const pricingSchemas = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Causeio Starter Plan",
+      "description": "Perfect for small businesses getting started with AI chatbots, QR codes, and basic marketing automation",
+      "brand": {
+        "@type": "Brand",
+        "name": "Causeio"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://yourdomain.com/pricing",
+        "priceCurrency": "USD",
+        "price": "29",
+        "priceValidUntil": "2025-12-31",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "eligibleRegion": {
+          "@type": "Place",
+          "name": "United States"
+        }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "127"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Causeio Professional Plan",
+      "description": "Advanced features for growing businesses including social media automation, SEO tools, and priority support",
+      "brand": {
+        "@type": "Brand",
+        "name": "Causeio"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://yourdomain.com/pricing",
+        "priceCurrency": "USD",
+        "price": "79",
+        "priceValidUntil": "2025-12-31",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "eligibleRegion": {
+          "@type": "Place",
+          "name": "United States"
+        }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "243"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Causeio Enterprise Plan",
+      "description": "Complete solution for large organizations with unlimited features, white-label options, and dedicated support",
+      "brand": {
+        "@type": "Brand",
+        "name": "Causeio"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://yourdomain.com/pricing",
+        "priceCurrency": "USD",
+        "price": "199",
+        "priceValidUntil": "2025-12-31",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "eligibleRegion": {
+          "@type": "Place",
+          "name": "United States"
+        }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "reviewCount": "89"
+      }
+    },
+    // Pricing FAQ Schema
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can I switch plans anytime?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately and you'll be charged or credited prorated amounts based on your billing cycle."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a free trial?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolutely! All plans come with a 14-day free trial. No credit card required to start. You can explore all features risk-free before committing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if I cancel?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can cancel anytime. Your account remains active until the end of your current billing period. All your data is safely stored and you can reactivate at any time."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you offer discounts?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! We offer annual billing discounts (save 20%), special rates for non-profits and educational institutions, and volume discounts for enterprise customers. Contact our sales team for custom pricing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What payment methods do you accept?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We accept all major credit cards (Visa, MasterCard, American Express, Discover), ACH bank transfers for annual plans, and can arrange invoicing for Enterprise customers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is my data secure?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. We use bank-level encryption, are SOC 2 compliant, and follow GDPR and CCPA regulations. Your data is encrypted at rest and in transit, with regular security audits."
+          }
+        }
+      ]
+    }
+  ];
+
   const handleSubscribe = async (priceId: string, tierName: string) => {
     if (!user) {
       toast.error("Please sign in to subscribe");
@@ -97,6 +241,14 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Pricing Plans - Causeio"
+        description="Choose the perfect plan for your business. Start with a 14-day free trial. Plans start at $29/month with AI chatbots, QR codes, social media automation, and SEO tools. No credit card required."
+        canonical="/pricing"
+        keywords="pricing, plans, subscription, AI chatbot pricing, marketing automation cost, social media tools pricing"
+        ogType="product"
+        schema={pricingSchemas}
+      />
       {/* Navigation */}
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">

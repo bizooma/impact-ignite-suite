@@ -6,6 +6,7 @@ import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, User
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
+import { SEOHead } from "@/components/seo/SEOHead";
 import heroBackground from "@/assets/hero-background.jpg";
 import causeioLogo from "@/assets/causeio-logo.png";
 import communityBackground from "@/assets/community-background.jpg";
@@ -23,9 +24,136 @@ const Landing = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    // Add FAQ structured data
-    const faqSchema = {
+  // Comprehensive structured data schemas
+  const schemas = [
+    // Organization Schema
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Causeio",
+      "description": "AI-powered marketing platform helping businesses grow with intelligent chatbots, dynamic QR codes, social media automation, and comprehensive SEO optimization.",
+      "url": "https://yourdomain.com",
+      "logo": "https://yourdomain.com/assets/causeio-logo.png",
+      "sameAs": [
+        "https://twitter.com/causeio",
+        "https://linkedin.com/company/causeio",
+        "https://facebook.com/causeio"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+1-800-CAUSEIO",
+        "contactType": "Customer Service",
+        "availableLanguage": ["English"],
+        "areaServed": "US"
+      }
+    },
+    // LocalBusiness Schema
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Causeio",
+      "image": "https://yourdomain.com/assets/causeio-logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 Main Street",
+        "addressLocality": "San Francisco",
+        "addressRegion": "CA",
+        "postalCode": "94105",
+        "addressCountry": "US"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 37.7749,
+        "longitude": -122.4194
+      },
+      "priceRange": "$29-$299",
+      "openingHours": "Mo-Fr 09:00-17:00",
+      "telephone": "+1-800-CAUSEIO"
+    },
+    // Service Schemas
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "AI Chatbot Development",
+      "provider": {
+        "@type": "Organization",
+        "name": "Causeio"
+      },
+      "description": "Intelligent customer support chatbots that learn from your business and provide 24/7 assistance.",
+      "areaServed": "US",
+      "availableChannel": {
+        "@type": "ServiceChannel",
+        "serviceUrl": "https://yourdomain.com"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "QR Code Generation",
+      "provider": {
+        "@type": "Organization",
+        "name": "Causeio"
+      },
+      "description": "Dynamic QR codes with advanced tracking, analytics, and custom branding capabilities.",
+      "areaServed": "Worldwide"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Social Media Management",
+      "provider": {
+        "@type": "Organization",
+        "name": "Causeio"
+      },
+      "description": "Automated social media scheduling and management across multiple platforms.",
+      "areaServed": "Worldwide"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "SEO Optimization",
+      "provider": {
+        "@type": "Organization",
+        "name": "Causeio"
+      },
+      "description": "Comprehensive SEO audits and optimization recommendations to improve search rankings.",
+      "areaServed": "Worldwide"
+    },
+    // HowTo Schema
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Create an AI Chatbot for Your Business",
+      "description": "Step-by-step guide to building and deploying an AI chatbot using Causeio",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Sign Up",
+          "text": "Create a free Causeio account and choose your plan",
+          "position": 1
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Build Your Chatbot",
+          "text": "Use our intuitive chatbot builder to create custom conversation flows",
+          "position": 2
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Train Your AI",
+          "text": "Upload your knowledge base and train the AI on your business information",
+          "position": 3
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Deploy",
+          "text": "Embed the chatbot on your website and start engaging customers 24/7",
+          "position": 4
+        }
+      ]
+    },
+    // Expanded FAQ Schema
+    {
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
@@ -108,22 +236,45 @@ const Landing = () => {
             "@type": "Answer",
             "text": "Yes. Nonprofit pricing is available, and the product follows WCAG 2.2 AA accessibility guidelines to ensure inclusive, equitable experiences for diverse communities."
           }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does it take to set up Causeio for my business?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most businesses can set up their first AI chatbot within 15 minutes, create QR codes instantly, and schedule their first social media posts within an hour. Our intuitive interface and pre-built templates make getting started fast and easy."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What platforms does Causeio integrate with?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Causeio integrates with Facebook, Instagram, LinkedIn, Twitter/X, Google Business Profile, and major website platforms. We also offer API access for custom integrations on Professional and Enterprise plans."
+          }
         }
       ]
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.textContent = JSON.stringify(faqSchema);
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+    },
+    // SpeakableSpecification for Voice Search
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [".hero-title", ".value-proposition", ".key-features"]
+      }
+    }
+  ];
 
   return (
     <div className="min-h-screen w-full bg-background">
+      <SEOHead
+        title="Causeio - AI-Powered Marketing Platform"
+        description="Transform your business with AI chatbots, dynamic QR codes, social media automation, and comprehensive SEO optimization. Everything you need to grow your digital presence in one powerful platform."
+        canonical="/"
+        keywords="AI chatbots, QR codes, social media automation, SEO optimization, digital marketing, business growth, marketing platform, voice SEO, AEO"
+        schema={schemas}
+      />
       {/* Navigation */}
       <nav className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -165,10 +316,10 @@ const Landing = () => {
           <Badge variant="secondary" className="mb-4">
             🚀 New: AI-Powered Marketing Tools
           </Badge>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white hero-title">
             Ignite Your Impact with Smart Business Tools
           </h1>
-          <p className="text-xl text-white/90 mb-8 leading-relaxed">
+          <p className="text-xl text-white/90 mb-8 leading-relaxed value-proposition">
             Transform your business with AI chatbots, dynamic QR codes, social media automation, and SEO optimization. 
             Everything you need to grow your digital presence in one powerful platform.
           </p>
@@ -191,7 +342,7 @@ const Landing = () => {
         <div className="w-full max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Everything You Need to Scale</h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-muted-foreground key-features">
               Powerful tools designed for modern businesses
             </p>
           </div>
