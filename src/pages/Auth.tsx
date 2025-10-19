@@ -127,8 +127,8 @@ export default function Auth() {
           <CardContent className="space-y-6">
             {isSignUp ? (
               <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Full name</label>
+                <div className="space-y-2 text-center">
+                  <label className="text-sm font-medium block">Full name</label>
                   <Input
                     placeholder="Enter your full name"
                     autoComplete="name"
@@ -142,8 +142,8 @@ export default function Auth() {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Email</label>
+                <div className="space-y-2 text-center">
+                  <label className="text-sm font-medium block">Email</label>
                   <Input
                     type="email"
                     placeholder="Enter your email address"
@@ -158,8 +158,8 @@ export default function Auth() {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Password</label>
+                <div className="space-y-2 text-center">
+                  <label className="text-sm font-medium block">Password</label>
                   <Input
                     type="password"
                     placeholder="Create a secure password"
@@ -180,8 +180,8 @@ export default function Auth() {
               </form>
             ) : (
               <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Email</label>
+                <div className="space-y-2 text-center">
+                  <label className="text-sm font-medium block">Email</label>
                   <Input
                     type="email"
                     placeholder="Enter your email address"
@@ -196,8 +196,8 @@ export default function Auth() {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Password</label>
+                <div className="space-y-2 text-center">
+                  <label className="text-sm font-medium block">Password</label>
                   <Input
                     type="password"
                     placeholder="Enter your password"
