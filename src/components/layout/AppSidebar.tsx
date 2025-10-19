@@ -57,7 +57,9 @@ export function AppSidebar() {
     .slice(0, 2);
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'hover:bg-sidebar-accent/50';
+    isActive 
+      ? 'bg-sidebar-accent text-blue-900 font-medium' 
+      : 'hover:bg-sidebar-accent/50 text-blue-900';
 
   return (
     <Sidebar className={collapsed ? 'w-14' : 'w-60'} collapsible="icon">
@@ -94,7 +96,7 @@ export function AppSidebar() {
                           </span>
                         )}
                         {!collapsed && !hasProductAccess && (
-                          <Lock className="w-3 h-3 ml-auto opacity-60" />
+                          <Lock className="w-3 h-3 ml-auto text-red-600" />
                         )}
                       </NavLink>
                     </SidebarMenuButton>
