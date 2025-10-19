@@ -1,5 +1,14 @@
 project_id = "svuxuhrsrawdqqkepeye"
 
+[functions.sync-crm-to-mailchimp]
+verify_jwt = true
+
+[functions.test-mailchimp-connection]
+verify_jwt = true
+
+[functions.mailchimp-webhook-handler]
+verify_jwt = false
+
 [functions.mobile-app-proxy]
 verify_jwt = true
 

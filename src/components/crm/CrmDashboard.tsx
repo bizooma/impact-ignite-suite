@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { UserCircle, Users, Heart, Clock, TrendingUp, Plus } from 'lucide-react';
 import { ContactsTable } from './ContactsTable';
 import { ListsManager } from './ListsManager';
+import { MailchimpSyncSettings } from './MailchimpSyncSettings';
 import { useCrm } from '@/hooks/useCrm';
 import { useState } from 'react';
 import { ContactForm } from './ContactForm';
@@ -103,6 +104,7 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
         <TabsList>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="lists">Lists</TabsTrigger>
+          <TabsTrigger value="mailchimp">Mailchimp Sync</TabsTrigger>
           <TabsTrigger value="donations">Donations</TabsTrigger>
           <TabsTrigger value="volunteers">Volunteer Hours</TabsTrigger>
         </TabsList>
@@ -120,6 +122,13 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
             lists={lists || []} 
             loading={listsLoading}
             organizationId={organizationId}
+          />
+        </TabsContent>
+
+        <TabsContent value="mailchimp">
+          <MailchimpSyncSettings 
+            organizationId={organizationId}
+            lists={lists || []}
           />
         </TabsContent>
 

@@ -745,6 +745,119 @@ export type Database = {
           },
         ]
       }
+      crm_mailchimp_mappings: {
+        Row: {
+          created_at: string
+          crm_list_id: string
+          field_mappings: Json | null
+          id: string
+          last_sync_error: string | null
+          last_sync_status: string | null
+          last_synced_at: string | null
+          mailchimp_audience_id: string
+          organization_id: string
+          sync_enabled: boolean | null
+          sync_frequency: string | null
+          sync_options: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          crm_list_id: string
+          field_mappings?: Json | null
+          id?: string
+          last_sync_error?: string | null
+          last_sync_status?: string | null
+          last_synced_at?: string | null
+          mailchimp_audience_id: string
+          organization_id: string
+          sync_enabled?: boolean | null
+          sync_frequency?: string | null
+          sync_options?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          crm_list_id?: string
+          field_mappings?: Json | null
+          id?: string
+          last_sync_error?: string | null
+          last_sync_status?: string | null
+          last_synced_at?: string | null
+          mailchimp_audience_id?: string
+          organization_id?: string
+          sync_enabled?: boolean | null
+          sync_frequency?: string | null
+          sync_options?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_mailchimp_mappings_crm_list_id_fkey"
+            columns: ["crm_list_id"]
+            isOneToOne: false
+            referencedRelation: "crm_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_mailchimp_mappings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_mailchimp_sync_logs: {
+        Row: {
+          contacts_added: number | null
+          contacts_failed: number | null
+          contacts_processed: number | null
+          contacts_updated: number | null
+          created_at: string
+          error_details: Json | null
+          id: string
+          mapping_id: string
+          status: string
+          sync_completed_at: string | null
+          sync_started_at: string
+        }
+        Insert: {
+          contacts_added?: number | null
+          contacts_failed?: number | null
+          contacts_processed?: number | null
+          contacts_updated?: number | null
+          created_at?: string
+          error_details?: Json | null
+          id?: string
+          mapping_id: string
+          status: string
+          sync_completed_at?: string | null
+          sync_started_at?: string
+        }
+        Update: {
+          contacts_added?: number | null
+          contacts_failed?: number | null
+          contacts_processed?: number | null
+          contacts_updated?: number | null
+          created_at?: string
+          error_details?: Json | null
+          id?: string
+          mapping_id?: string
+          status?: string
+          sync_completed_at?: string | null
+          sync_started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_mailchimp_sync_logs_mapping_id_fkey"
+            columns: ["mapping_id"]
+            isOneToOne: false
+            referencedRelation: "crm_mailchimp_mappings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_notes: {
         Row: {
           author_id: string
