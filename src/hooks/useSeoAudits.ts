@@ -52,9 +52,20 @@ export const useSeoAudits = (organizationId?: string) => {
       if (error) throw error;
 
       // Trigger audit process
-      await supabase.functions.invoke('seo-audit', {
-        body: { auditId: data.id, domain }
-      });
+      try {
+        await supabase.functions.invoke('seo-audit', {
+          body: { auditId: data.id, domain }
+        });
+      } catch (invokeError) {
+        // If invocation fails, update status to error
+        console.error('Failed to invoke seo-audit function:', invokeError);
+        await supabase
+          .from('seo_audits')
+          .update({ status: 'error' })
+          .eq('id', data.id);
+        
+        throw new Error('Failed to start audit process');
+      }
 
       setAudits(prev => [data, ...prev]);
       
@@ -72,6 +83,63 @@ export const useSeoAudits = (organizationId?: string) => {
         variant: "destructive",
       });
       return null;
+    }
+  };
+
+  const deleteAudit = async (auditId: string) => {
+    try {
+      const { error } = await supabase
+        .from('seo_audits')
+        .delete()
+        .eq('id', auditId);
+
+      if (error) throw error;
+
+      setAudits(prev => prev.filter(audit => audit.id !== auditId));
+      
+      toast({
+        title: "Success",
+        description: "Audit deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting audit:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete audit",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const retryAudit = async (auditId: string, domain: string) => {
+    try {
+      // Update status to pending
+      const { error: updateError } = await supabase
+        .from('seo_audits')
+        .update({ status: 'pending' })
+        .eq('id', auditId);
+
+      if (updateError) throw updateError;
+
+      // Trigger audit process
+      await supabase.functions.invoke('seo-audit', {
+        body: { auditId, domain }
+      });
+
+      // Refresh audits
+      await fetchAudits();
+      
+      toast({
+        title: "Success",
+        description: "Audit restarted successfully",
+      });
+    } catch (error) {
+      console.error('Error retrying audit:', error);
+      toast({
+        title: "Error",
+        description: "Failed to retry audit",
+        variant: "destructive",
+      });
     }
   };
 
@@ -99,6 +167,8 @@ export const useSeoAudits = (organizationId?: string) => {
     audits,
     loading,
     createAudit,
+    deleteAudit,
+    retryAudit,
     getAuditIssues,
     refetch: fetchAudits
   };

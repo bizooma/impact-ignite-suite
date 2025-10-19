@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useSeoAudits } from '@/hooks/useSeoAudits';
-import { Search, Globe, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { Search, Globe, AlertTriangle, CheckCircle, Clock, Trash2, RotateCw } from 'lucide-react';
 
 interface SeoAuditDashboardProps {
   organizationId: string;
@@ -14,7 +14,7 @@ interface SeoAuditDashboardProps {
 const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId }) => {
   const [domain, setDomain] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const { audits, loading, createAudit } = useSeoAudits(organizationId);
+  const { audits, loading, createAudit, deleteAudit, retryAudit } = useSeoAudits(organizationId);
 
   const handleCreateAudit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +30,7 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
     switch (status) {
       case 'completed': return 'bg-success text-success-foreground';
       case 'running': return 'bg-warning text-warning-foreground';
+      case 'error':
       case 'failed': return 'bg-destructive text-destructive-foreground';
       default: return 'bg-muted text-muted-foreground';
     }
@@ -39,6 +40,7 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
     switch (status) {
       case 'completed': return <CheckCircle className="h-4 w-4" />;
       case 'running': return <Clock className="h-4 w-4 animate-spin" />;
+      case 'error':
       case 'failed': return <AlertTriangle className="h-4 w-4" />;
       default: return <Clock className="h-4 w-4" />;
     }
@@ -106,23 +108,51 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
         {audits.map((audit) => (
           <Card key={audit.id} className="relative">
             <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <CardTitle className="text-lg">{audit.domain}</CardTitle>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <CardTitle className="text-lg truncate">{audit.domain}</CardTitle>
                 </div>
-                <Badge className={getStatusColor(audit.status || 'pending')}>
-                  <div className="flex items-center gap-1">
-                    {getStatusIcon(audit.status || 'pending')}
-                    {audit.status || 'pending'}
-                  </div>
-                </Badge>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Badge className={getStatusColor(audit.status || 'pending')}>
+                    <div className="flex items-center gap-1">
+                      {getStatusIcon(audit.status || 'pending')}
+                      {audit.status || 'pending'}
+                    </div>
+                  </Badge>
+                  {(audit.status === 'pending' || audit.status === 'error') && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => retryAudit(audit.id, audit.domain)}
+                      title="Retry audit"
+                    >
+                      <RotateCw className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => deleteAudit(audit.id)}
+                    title="Delete audit"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <CardDescription>
                 Started {new Date(audit.created_at).toLocaleDateString()}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {audit.status === 'error' && (
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <p className="text-sm text-destructive">
+                    Audit failed. Please try again or contact support if the issue persists.
+                  </p>
+                </div>
+              )}
+              
               {audit.overall_score && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
