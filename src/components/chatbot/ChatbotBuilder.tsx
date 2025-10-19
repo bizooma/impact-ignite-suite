@@ -11,6 +11,9 @@ import { Bot, Upload, Settings, MessageSquare, BarChart3, Plus } from 'lucide-re
 import { useChatbots, useKnowledgeSources } from '@/hooks/useChatbots';
 import { KnowledgeUpload } from './KnowledgeUpload';
 import { ChatbotPreview } from './ChatbotPreview';
+import { ChatbotSettings } from './ChatbotSettings';
+import { ChatbotAnalytics } from './ChatbotAnalytics';
+import { FAQManager } from './FAQManager';
 import type { Chatbot } from '@/types/database';
 
 interface ChatbotBuilderProps {
@@ -277,6 +280,11 @@ function ChatbotStudio({ chatbot, onUpdate, onBack }: ChatbotStudioProps) {
           <KnowledgeUpload chatbot={chatbot} />
         </TabsContent>
 
+        <TabsContent value="knowledge" className="space-y-6">
+          <KnowledgeUpload chatbot={chatbot} />
+          <FAQManager chatbotId={chatbot.id} />
+        </TabsContent>
+
         <TabsContent value="settings" className="space-y-6">
           <ChatbotSettings chatbot={chatbot} onUpdate={onUpdate} />
         </TabsContent>
@@ -293,30 +301,3 @@ function ChatbotStudio({ chatbot, onUpdate, onBack }: ChatbotStudioProps) {
   );
 }
 
-function ChatbotSettings({ chatbot, onUpdate }: { chatbot: Chatbot; onUpdate: (updates: Partial<Chatbot>) => void }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Chatbot Settings</CardTitle>
-        <CardDescription>Configure your chatbot's behavior and appearance</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground">Settings configuration coming soon...</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ChatbotAnalytics({ chatbot }: { chatbot: Chatbot }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Analytics & Insights</CardTitle>
-        <CardDescription>Monitor your chatbot's performance and user interactions</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground">Analytics dashboard coming soon...</p>
-      </CardContent>
-    </Card>
-  );
-}
