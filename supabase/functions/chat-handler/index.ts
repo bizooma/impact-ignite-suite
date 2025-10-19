@@ -62,6 +62,23 @@ serve(async (req) => {
       session = newSession;
     }
 
+    // Track message_sent event
+    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0] || 
+                     req.headers.get('x-real-ip') || 
+                     'unknown';
+    const userAgent = req.headers.get('user-agent') || 'unknown';
+
+    await supabase
+      .from('chatbot_events')
+      .insert({
+        chatbot_id: chatbotId,
+        session_id: session.id,
+        event_type: 'message_sent',
+        event_data: { message_length: message.length },
+        ip_address: ipAddress,
+        user_agent: userAgent,
+      });
+
     // Save user message to database
     const { error: messageError } = await supabase
       .from('chat_messages')
@@ -89,6 +106,13 @@ serve(async (req) => {
       .eq('chatbot_id', chatbotId)
       .eq('status', 'processed');
 
+    // Get FAQs for context
+    const { data: faqs } = await supabase
+      .from('chatbot_faqs')
+      .select('question, answer')
+      .eq('chatbot_id', chatbotId)
+      .order('order_index', { ascending: true });
+
     // Build context from knowledge sources
     let contextContent = '';
     if (knowledgeSources && knowledgeSources.length > 0) {
@@ -96,6 +120,40 @@ serve(async (req) => {
         .map(source => `${source.name}: ${source.content}`)
         .join('\n\n');
     }
+
+    // Add FAQ context
+    if (faqs && faqs.length > 0) {
+      const faqContent = faqs
+        .map(faq => `Q: ${faq.question}\nA: ${faq.answer}`)
+        .join('\n\n');
+      contextContent += contextContent ? `\n\n--- Frequently Asked Questions ---\n${faqContent}` : faqContent;
+    }
+
+    // Add widget configuration context (contact info, donations)
+    const widgetConfig = chatbot.web_widget_config || {};
+    let additionalContext = '';
+    
+    if (widgetConfig.email_contact || widgetConfig.phone_contact) {
+      additionalContext += '\n\n--- Contact Information ---\n';
+      if (widgetConfig.email_contact) {
+        additionalContext += `Email: ${widgetConfig.email_contact}\n`;
+      }
+      if (widgetConfig.phone_contact) {
+        additionalContext += `Phone: ${widgetConfig.phone_contact}\n`;
+      }
+    }
+    
+    if (widgetConfig.show_donations && (widgetConfig.donation_button_1 || widgetConfig.donation_button_2)) {
+      additionalContext += '\n\n--- Donation Options ---\n';
+      if (widgetConfig.donation_button_1) {
+        additionalContext += `${widgetConfig.donation_button_1.label}: ${widgetConfig.donation_button_1.url}\n`;
+      }
+      if (widgetConfig.donation_button_2) {
+        additionalContext += `${widgetConfig.donation_button_2.label}: ${widgetConfig.donation_button_2.url}\n`;
+      }
+    }
+    
+    contextContent += additionalContext;
 
     // Prepare OpenAI messages
     const systemPrompt = chatbot.description || 'You are a helpful AI assistant.';
@@ -151,6 +209,21 @@ serve(async (req) => {
     if (assistantMessageError) {
       console.error('Error saving assistant message:', assistantMessageError);
     }
+
+    // Track message_answered event
+    await supabase
+      .from('chatbot_events')
+      .insert({
+        chatbot_id: chatbotId,
+        session_id: session.id,
+        event_type: 'message_answered',
+        event_data: { 
+          response_length: assistantMessage.length,
+          model_used: 'gpt-4o-mini'
+        },
+        ip_address: ipAddress,
+        user_agent: userAgent,
+      });
 
     return new Response(JSON.stringify({ 
       message: assistantMessage, 

@@ -12,6 +12,12 @@ verify_jwt = true
 [functions.chat-handler]
 verify_jwt = false
 
+[functions.submit-volunteer]
+verify_jwt = false
+
+[functions.track-event]
+verify_jwt = false
+
 [functions.generate-qr]
 verify_jwt = true
 
