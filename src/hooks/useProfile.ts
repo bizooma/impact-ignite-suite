@@ -72,8 +72,8 @@ export function useProfile() {
 
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const fileName = `avatar-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('media-assets')
@@ -89,6 +89,7 @@ export function useProfile() {
 
       return { error: null, url: publicUrl };
     } catch (error: any) {
+      console.error('Avatar upload error:', error);
       toast.error('Failed to upload avatar');
       return { error, url: null };
     }
