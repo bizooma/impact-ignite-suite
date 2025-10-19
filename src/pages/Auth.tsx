@@ -112,7 +112,7 @@ export default function Auth() {
 
         {/* Auth Card */}
         <Card className="border-2 border-border/50 shadow-lg">
-          <CardHeader className="space-y-1">
+          <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-semibold">
               {isSignUp ? 'Create your account' : 'Welcome back'}
             </CardTitle>
