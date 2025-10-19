@@ -153,7 +153,7 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
                     <CardDescription>
                       Created {new Date(qrCode.created_at).toLocaleDateString()}
                     </CardDescription>
-                    <Badge variant={qrCode.is_active ? "default" : "secondary"} className="mt-2">
+                    <Badge variant={qrCode.is_active ? "success" : "secondary"} className="mt-2">
                       {qrCode.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
