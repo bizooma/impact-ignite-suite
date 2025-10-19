@@ -110,7 +110,7 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <img src={calFarleysLogo} alt="Cal Farley's Boys Ranch" className="h-12 w-12 rounded-full object-cover" />
+            <img src={calFarleysLogo} alt="Cal Farley's Boys Ranch" className="h-16 w-16 rounded-full object-cover" />
             <Smartphone className="h-8 w-8" />
             Mobile App Management
           </h1>
