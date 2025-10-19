@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { Heart, Shield, Users } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const signUpSchema = z.object({
   displayName: z.string().trim().min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters'),
@@ -28,12 +29,60 @@ type SignInFormData = z.infer<typeof signInSchema>;
 export default function Auth() {
   const { user, signUp, signIn, loading } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const inviteToken = searchParams.get('invite');
+  const [inviteEmail, setInviteEmail] = useState<string | null>(null);
+  const [processingInvite, setProcessingInvite] = useState(false);
+
+  useEffect(() => {
+    const handleInvitation = async () => {
+      if (!inviteToken || processingInvite) return;
+
+      setProcessingInvite(true);
+
+      try {
+        // Try to accept the invitation
+        const { data, error } = await supabase.functions.invoke('accept-invitation', {
+          body: { token: inviteToken },
+        });
+
+        if (error) throw error;
+
+        if (data.error) {
+          toast.error(data.error);
+          setSearchParams({});
+          setProcessingInvite(false);
+          return;
+        }
+
+        if (data.requiresAuth) {
+          // User needs to sign up or sign in
+          setInviteEmail(data.email);
+          setIsSignUp(true);
+          toast.info(`Please sign up or sign in with ${data.email} to accept the invitation`);
+          setProcessingInvite(false);
+        } else if (data.success) {
+          // Invitation accepted successfully
+          toast.success('Successfully joined the organization!');
+          setSearchParams({});
+          window.location.href = '/dashboard';
+        }
+      } catch (error: any) {
+        console.error('Error processing invitation:', error);
+        toast.error('Failed to process invitation');
+        setSearchParams({});
+        setProcessingInvite(false);
+      }
+    };
+
+    handleInvitation();
+  }, [inviteToken, user, processingInvite]);
 
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       displayName: '',
-      email: '',
+      email: inviteEmail || '',
       password: '',
     },
   });
@@ -63,6 +112,19 @@ export default function Auth() {
       }
     } else {
       toast.success('Welcome to Causeio! Please check your email to verify your account.');
+      
+      // If there's an invitation, try to accept it after signup
+      if (inviteToken) {
+        setTimeout(async () => {
+          const { data: inviteData } = await supabase.functions.invoke('accept-invitation', {
+            body: { token: inviteToken },
+          });
+          
+          if (inviteData?.success) {
+            setSearchParams({});
+          }
+        }, 2000);
+      }
     }
   };
 
@@ -77,6 +139,17 @@ export default function Auth() {
       }
     } else {
       toast.success('Welcome back to Causeio!');
+      
+      // If there's an invitation, try to accept it after signin
+      if (inviteToken) {
+        const { data: inviteData } = await supabase.functions.invoke('accept-invitation', {
+          body: { token: inviteToken },
+        });
+        
+        if (inviteData?.success) {
+          setSearchParams({});
+        }
+      }
     }
   };
 
@@ -114,12 +187,17 @@ export default function Auth() {
         <Card className="border-2 border-border/50 shadow-lg">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-semibold">
-              {isSignUp ? 'Create your account' : 'Welcome back'}
+              {inviteEmail 
+                ? 'Accept your invitation'
+                : isSignUp ? 'Create your account' : 'Welcome back'
+              }
             </CardTitle>
             <CardDescription>
-              {isSignUp 
-                ? 'Join thousands of nonprofits making a difference' 
-                : 'Sign in to continue your mission'
+              {inviteEmail 
+                ? `Sign up with ${inviteEmail} to join the organization`
+                : isSignUp 
+                  ? 'Join thousands of nonprofits making a difference' 
+                  : 'Sign in to continue your mission'
               }
             </CardDescription>
           </CardHeader>
@@ -148,7 +226,7 @@ export default function Auth() {
                     type="email"
                     placeholder="Enter your email address"
                     autoComplete="email"
-                    disabled={loading}
+                    disabled={loading || !!inviteEmail}
                     {...signUpForm.register('email')}
                   />
                   {signUpForm.formState.errors.email && (

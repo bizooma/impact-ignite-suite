@@ -30,8 +30,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Shield, Trash2, UserCog } from 'lucide-react';
+import { Shield, Trash2, UserCog, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { InviteMemberDialog } from './InviteMemberDialog';
+import { PendingInvitations } from './PendingInvitations';
+import { useInvitations } from '@/hooks/useInvitations';
 
 interface MembershipManagementProps {
   organizationId: string;
@@ -54,6 +57,8 @@ export function MembershipManagement({ organizationId }: MembershipManagementPro
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [memberToDelete, setMemberToDelete] = useState<Membership | null>(null);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const { invitations } = useInvitations(organizationId);
 
   // Fetch all memberships for this organization
   const { data: memberships, isLoading } = useQuery({
@@ -159,17 +164,31 @@ export function MembershipManagement({ organizationId }: MembershipManagementPro
     );
   }
 
+  const totalMemberCount = (memberships?.length || 0) + (invitations?.length || 0);
+  const atLimit = totalMemberCount >= 5;
+
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserCog className="h-5 w-5" />
-            Team Members
-          </CardTitle>
-          <CardDescription>
-            Manage team members and their roles in your organization
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <UserCog className="h-5 w-5" />
+                Team Members ({totalMemberCount}/5)
+              </CardTitle>
+              <CardDescription>
+                Manage team members and their roles in your organization
+              </CardDescription>
+            </div>
+            <Button 
+              onClick={() => setInviteDialogOpen(true)}
+              disabled={atLimit}
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Invite Member
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -254,6 +273,15 @@ export function MembershipManagement({ organizationId }: MembershipManagementPro
           </Table>
         </CardContent>
       </Card>
+
+      <PendingInvitations organizationId={organizationId} />
+
+      <InviteMemberDialog
+        open={inviteDialogOpen}
+        onOpenChange={setInviteDialogOpen}
+        organizationId={organizationId}
+        currentMemberCount={totalMemberCount}
+      />
 
       <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
         <AlertDialogContent>
