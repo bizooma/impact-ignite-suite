@@ -71,8 +71,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setLoading(true);
     await supabase.auth.signOut();
+    // Clear state immediately
+    setUser(null);
+    setSession(null);
     toast.success("You've been signed out successfully");
     setLoading(false);
+    // Redirect to landing page
+    window.location.href = '/';
   };
 
   return (
