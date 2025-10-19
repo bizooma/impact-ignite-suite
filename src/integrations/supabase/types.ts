@@ -1985,6 +1985,7 @@ export type Database = {
         | "openai"
         | "postmark"
         | "twilio"
+        | "mailchimp"
       knowledge_source_status: "pending" | "processing" | "completed" | "error"
       knowledge_source_type: "pdf" | "docx" | "url" | "text"
       post_status: "draft" | "scheduled" | "published" | "failed"
@@ -2130,6 +2131,7 @@ export const Constants = {
         "openai",
         "postmark",
         "twilio",
+        "mailchimp",
       ],
       knowledge_source_status: ["pending", "processing", "completed", "error"],
       knowledge_source_type: ["pdf", "docx", "url", "text"],

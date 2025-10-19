@@ -198,11 +198,15 @@ const IntegrationsDashboard: React.FC<IntegrationsDashboardProps> = ({ organizat
                   id="encrypted_tokens"
                   value={formData.encrypted_tokens}
                   onChange={(e) => setFormData({ ...formData, encrypted_tokens: e.target.value })}
-                  placeholder='{"api_key": "your_api_key", "secret": "your_secret"}'
+                  placeholder={formData.provider === 'mailchimp' 
+                    ? '{"api_key": "your_mailchimp_key-us14"}' 
+                    : '{"api_key": "your_api_key", "secret": "your_secret"}'}
                   className="min-h-[100px] font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  These will be encrypted and stored securely
+                  {formData.provider === 'mailchimp' 
+                    ? 'Enter your Mailchimp API key in JSON format. Find it in Mailchimp Account > Extras > API Keys.' 
+                    : 'These will be encrypted and stored securely. Must be valid JSON.'}
                 </p>
               </div>
               <div className="flex justify-end space-x-2">
@@ -382,8 +386,16 @@ const IntegrationsDashboard: React.FC<IntegrationsDashboardProps> = ({ organizat
                 id="edit-encrypted_tokens"
                 value={formData.encrypted_tokens}
                 onChange={(e) => setFormData({ ...formData, encrypted_tokens: e.target.value })}
+                placeholder={formData.provider === 'mailchimp' 
+                  ? '{"api_key": "your_mailchimp_key-us14"}' 
+                  : '{"api_key": "your_api_key", "secret": "your_secret"}'}
                 className="min-h-[100px] font-mono"
               />
+              <p className="text-xs text-muted-foreground">
+                {formData.provider === 'mailchimp' 
+                  ? 'Enter your Mailchimp API key in JSON format. Find it in Mailchimp Account > Extras > API Keys.' 
+                  : 'These will be encrypted and stored securely. Must be valid JSON.'}
+              </p>
             </div>
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={() => setEditingIntegration(null)}>
