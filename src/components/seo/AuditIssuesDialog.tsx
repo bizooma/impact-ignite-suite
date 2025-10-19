@@ -51,12 +51,12 @@ export function AuditIssuesDialog({ open, onOpenChange, issues, domain }: AuditI
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background">
         <DialogHeader>
           <DialogTitle>SEO Audit Results for {domain}</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="space-y-6 bg-background">
           {/* High Severity Issues */}
           {groupedIssues.high && groupedIssues.high.length > 0 && (
             <div className="space-y-3">

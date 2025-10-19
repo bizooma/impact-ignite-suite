@@ -90,6 +90,39 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
         </p>
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            Start New Audit
+          </CardTitle>
+          <CardDescription>
+            Enter a domain to begin a comprehensive SEO analysis
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleCreateAudit} className="flex gap-2">
+            <Input
+              placeholder="https://example.com"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+              className="flex-1"
+              disabled={isCreating}
+            />
+            <Button type="submit" disabled={isCreating || !domain.trim()}>
+              {isCreating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                'Start Audit'
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {audits.map((audit) => (
           <Card key={audit.id} className="relative">
