@@ -429,6 +429,523 @@ export type Database = {
           },
         ]
       }
+      crm_contacts: {
+        Row: {
+          address: Json | null
+          avatar_url: string | null
+          contact_type: string
+          created_at: string
+          custom_fields: Json | null
+          email: string | null
+          first_name: string | null
+          id: string
+          last_interaction_at: string | null
+          last_name: string | null
+          lifecycle_stage: string
+          opted_in_email: boolean | null
+          opted_in_sms: boolean | null
+          organization_id: string
+          organization_name: string | null
+          phone: string | null
+          rating: number | null
+          social_profiles: Json | null
+          source: string
+          source_id: string | null
+          tags: string[] | null
+          total_donations: number | null
+          total_volunteer_hours: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: Json | null
+          avatar_url?: string | null
+          contact_type?: string
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_interaction_at?: string | null
+          last_name?: string | null
+          lifecycle_stage?: string
+          opted_in_email?: boolean | null
+          opted_in_sms?: boolean | null
+          organization_id: string
+          organization_name?: string | null
+          phone?: string | null
+          rating?: number | null
+          social_profiles?: Json | null
+          source: string
+          source_id?: string | null
+          tags?: string[] | null
+          total_donations?: number | null
+          total_volunteer_hours?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: Json | null
+          avatar_url?: string | null
+          contact_type?: string
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_interaction_at?: string | null
+          last_name?: string | null
+          lifecycle_stage?: string
+          opted_in_email?: boolean | null
+          opted_in_sms?: boolean | null
+          organization_id?: string
+          organization_name?: string | null
+          phone?: string | null
+          rating?: number | null
+          social_profiles?: Json | null
+          source?: string
+          source_id?: string | null
+          tags?: string[] | null
+          total_donations?: number | null
+          total_volunteer_hours?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_contacts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_donations: {
+        Row: {
+          acknowledgment_sent: boolean | null
+          acknowledgment_sent_at: string | null
+          amount: number
+          campaign_id: string | null
+          contact_id: string
+          created_at: string
+          currency: string | null
+          donation_date: string
+          id: string
+          is_recurring: boolean | null
+          metadata: Json | null
+          notes: string | null
+          organization_id: string
+          payment_method: string | null
+          recurrence_frequency: string | null
+          tax_deductible: boolean | null
+          transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          acknowledgment_sent?: boolean | null
+          acknowledgment_sent_at?: string | null
+          amount: number
+          campaign_id?: string | null
+          contact_id: string
+          created_at?: string
+          currency?: string | null
+          donation_date: string
+          id?: string
+          is_recurring?: boolean | null
+          metadata?: Json | null
+          notes?: string | null
+          organization_id: string
+          payment_method?: string | null
+          recurrence_frequency?: string | null
+          tax_deductible?: boolean | null
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acknowledgment_sent?: boolean | null
+          acknowledgment_sent_at?: string | null
+          amount?: number
+          campaign_id?: string | null
+          contact_id?: string
+          created_at?: string
+          currency?: string | null
+          donation_date?: string
+          id?: string
+          is_recurring?: boolean | null
+          metadata?: Json | null
+          notes?: string | null
+          organization_id?: string
+          payment_method?: string | null
+          recurrence_frequency?: string | null
+          tax_deductible?: boolean | null
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_donations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_donations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_interactions: {
+        Row: {
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          interaction_date: string
+          interaction_type: string
+          metadata: Json | null
+          organization_id: string
+          source_id: string | null
+          source_module: string | null
+          subject: string | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          interaction_date?: string
+          interaction_type: string
+          metadata?: Json | null
+          organization_id: string
+          source_id?: string | null
+          source_module?: string | null
+          subject?: string | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          interaction_date?: string
+          interaction_type?: string
+          metadata?: Json | null
+          organization_id?: string
+          source_id?: string | null
+          source_module?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_interactions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_list_memberships: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          contact_id: string
+          id: string
+          list_id: string
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          contact_id: string
+          id?: string
+          list_id: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          contact_id?: string
+          id?: string
+          list_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_list_memberships_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_list_memberships_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "crm_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_lists: {
+        Row: {
+          color: string | null
+          contact_count: number | null
+          created_at: string
+          description: string | null
+          filter_rules: Json | null
+          icon: string | null
+          id: string
+          list_type: string
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          contact_count?: number | null
+          created_at?: string
+          description?: string | null
+          filter_rules?: Json | null
+          icon?: string | null
+          id?: string
+          list_type?: string
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          contact_count?: number | null
+          created_at?: string
+          description?: string | null
+          filter_rules?: Json | null
+          icon?: string | null
+          id?: string
+          list_type?: string
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_lists_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_notes: {
+        Row: {
+          author_id: string
+          contact_id: string
+          content: string
+          created_at: string
+          id: string
+          is_pinned: boolean | null
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          contact_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean | null
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          contact_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean | null
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_notes_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_relationships: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          organization_id: string
+          related_contact_id: string
+          relationship_type: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          related_contact_id: string
+          relationship_type: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          related_contact_id?: string
+          relationship_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_relationships_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_relationships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_relationships_related_contact_id_fkey"
+            columns: ["related_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          usage_count: number | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          usage_count?: number | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          usage_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_tags_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_volunteer_hours: {
+        Row: {
+          activity: string
+          approved: boolean | null
+          approved_at: string | null
+          approved_by: string | null
+          contact_id: string
+          created_at: string
+          hours: number
+          id: string
+          location: string | null
+          notes: string | null
+          organization_id: string
+          supervisor: string | null
+          updated_at: string
+          volunteer_date: string
+        }
+        Insert: {
+          activity: string
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          contact_id: string
+          created_at?: string
+          hours: number
+          id?: string
+          location?: string | null
+          notes?: string | null
+          organization_id: string
+          supervisor?: string | null
+          updated_at?: string
+          volunteer_date: string
+        }
+        Update: {
+          activity?: string
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          contact_id?: string
+          created_at?: string
+          hours?: number
+          id?: string
+          location?: string | null
+          notes?: string | null
+          organization_id?: string
+          supervisor?: string | null
+          updated_at?: string
+          volunteer_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_volunteer_hours_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_volunteer_hours_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gbp_profiles: {
         Row: {
           business_name: string
