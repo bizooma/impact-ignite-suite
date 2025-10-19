@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, Users, Check, Star } from "lucide-react";
+import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, Users, Check, Star, Building, FileText, CheckSquare, TrendingUp, Settings, Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
@@ -347,7 +347,7 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card className="border-2 hover:border-primary/20 transition-all duration-200">
               <CardHeader>
                 <MessageSquare className="w-12 h-12 text-primary mb-4" />
@@ -412,6 +412,108 @@ const Landing = () => {
                   <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Site Audits</li>
                   <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Keyword Tracking</li>
                   <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Competitor Analysis</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
+              <CardHeader>
+                <Building className="w-12 h-12 text-primary mb-4" />
+                <CardTitle>Google Business</CardTitle>
+                <CardDescription>
+                  Optimize your Google Business Profile for community visibility
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Profile Management</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Review Tracking</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Local SEO</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
+              <CardHeader>
+                <Users className="w-12 h-12 text-primary mb-4" />
+                <CardTitle>CRM & Contacts</CardTitle>
+                <CardDescription>
+                  Manage donors, volunteers, and supporters in one place
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Contact Management</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Segmentation</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Email Sync</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
+              <CardHeader>
+                <CheckSquare className="w-12 h-12 text-primary mb-4" />
+                <CardTitle>Task Management</CardTitle>
+                <CardDescription>
+                  Organize workflows and collaborate with your team
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Team Collaboration</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Project Tracking</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Deadlines</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
+              <CardHeader>
+                <TrendingUp className="w-12 h-12 text-primary mb-4" />
+                <CardTitle>Analytics Dashboard</CardTitle>
+                <CardDescription>
+                  Track performance across all your digital initiatives
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Cross-Platform Metrics</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Reports</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Data Exports</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
+              <CardHeader>
+                <Settings className="w-12 h-12 text-primary mb-4" />
+                <CardTitle>Integrations</CardTitle>
+                <CardDescription>
+                  Connect with external tools and services
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />API Access</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Third-Party Apps</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Webhooks</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
+              <CardHeader>
+                <Smartphone className="w-12 h-12 text-primary mb-4" />
+                <CardTitle>Mobile App</CardTitle>
+                <CardDescription>
+                  Native mobile experience for on-the-go management
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />iOS & Android</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Push Notifications</li>
+                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Offline Access</li>
                 </ul>
               </CardContent>
             </Card>
