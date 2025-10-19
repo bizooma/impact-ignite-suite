@@ -77,13 +77,8 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       qrCode: {
-        id: qrCode.id,
-        name: qrCode.name,
-        destinationUrl: finalUrl,
-        trackingUrl,
-        type: qrCode.type,
-        isActive: qrCode.is_active,
-        createdAt: qrCode.created_at
+        ...qrCode,
+        short_url: trackingUrl
       },
       qrCodeSvg: qrData
     }), {
