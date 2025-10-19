@@ -35,11 +35,15 @@ serve(async (req) => {
 
     // Store audit results
     const { error: insertError } = await supabaseClient
-      .from('seo_audit_issues')
+      .from('audit_issues')
       .insert(
         auditResults.map(issue => ({
           audit_id: auditId,
-          ...issue
+          page_url: domain,
+          category: issue.issue_type,
+          severity: issue.severity,
+          issue: issue.description,
+          recommendation: issue.recommendation
         }))
       );
 
@@ -76,6 +80,28 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in seo-audit", { message: errorMessage });
     
+    // Update audit status to error
+    try {
+      const requestBody = await req.clone().json();
+      const { auditId } = requestBody;
+      
+      const errorClient = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        { auth: { persistSession: false } }
+      );
+      
+      await errorClient
+        .from('seo_audits')
+        .update({ 
+          status: 'error',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', auditId);
+    } catch (updateError) {
+      logStep("Failed to update audit status to error", { error: updateError });
+    }
+    
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
@@ -87,8 +113,11 @@ async function performSeoAudit(domain: string) {
   const issues = [];
   
   try {
+    // Remove protocol if present to avoid double https://
+    const cleanDomain = domain.replace(/^https?:\/\//, '');
+    
     // Fetch the website
-    const response = await fetch(`https://${domain}`);
+    const response = await fetch(`https://${cleanDomain}`);
     const html = await response.text();
     
     // Basic SEO checks
@@ -144,7 +173,7 @@ async function performSeoAudit(domain: string) {
     
     // Check response time
     const startTime = Date.now();
-    await fetch(`https://${domain}`);
+    await fetch(`https://${cleanDomain}`);
     const responseTime = Date.now() - startTime;
     
     if (responseTime > 3000) {
