@@ -17,12 +17,22 @@ export const useQrCodes = (organizationId?: string) => {
     try {
       const { data, error } = await supabase
         .from('qr_codes')
-        .select('*')
+        .select(`
+          *,
+          qr_scans (count)
+        `)
         .eq('organization_id', organizationId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setQrCodes(data || []);
+      
+      // Transform data to include scan count
+      const qrCodesWithScans = (data || []).map(qr => ({
+        ...qr,
+        scan_count: qr.qr_scans?.[0]?.count || 0
+      }));
+      
+      setQrCodes(qrCodesWithScans as any);
     } catch (error) {
       console.error('Error fetching QR codes:', error);
       toast({

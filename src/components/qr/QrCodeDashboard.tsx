@@ -35,7 +35,7 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
   const { toast } = useToast();
   const [analyticsQr, setAnalyticsQr] = useState<{ id: string; name: string } | null>(null);
   const [settingsQr, setSettingsQr] = useState<any | null>(null);
-  const totalScans = 0; // Will be calculated from qr_scans table
+  const totalScans = qrCodes.reduce((sum, qr) => sum + ((qr as any).scan_count || 0), 0);
   const activeQrCodes = qrCodes.filter(qr => qr.is_active).length;
 
   const handleDownload = async (id: string, name: string, url?: string | null) => {
@@ -173,7 +173,7 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
 
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Scans</span>
-                  <span className="font-medium">0</span>
+                  <span className="font-medium">{(qrCode as any).scan_count || 0}</span>
                 </div>
 
                 <div className="flex gap-2">
