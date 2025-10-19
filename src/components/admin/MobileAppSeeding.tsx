@@ -218,7 +218,7 @@ export function MobileAppSeeding() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={db.is_active ? 'default' : 'secondary'}>
+                      <Badge variant={db.is_active ? 'success' : 'secondary'}>
                         {db.is_active ? (
                           <><CheckCircle className="h-3 w-3 mr-1" /> Active</>
                         ) : (

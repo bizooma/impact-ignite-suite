@@ -281,7 +281,7 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Current Status</span>
-              <Badge variant={chatbot.status === 'active' ? 'default' : 'secondary'}>
+              <Badge variant={chatbot.status === 'active' ? 'success' : 'secondary'}>
                 {chatbot.status}
               </Badge>
             </div>

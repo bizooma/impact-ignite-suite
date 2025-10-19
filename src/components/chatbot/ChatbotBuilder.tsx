@@ -205,7 +205,7 @@ export function ChatbotBuilder({ organizationId }: ChatbotBuilderProps) {
                             <p className="text-sm text-muted-foreground">{chatbot.description}</p>
                           </div>
                         </div>
-                        <Badge variant={chatbot.status === 'active' ? 'default' : 'secondary'}>
+                        <Badge variant={chatbot.status === 'active' ? 'success' : 'secondary'}>
                           {chatbot.status}
                         </Badge>
                       </div>
@@ -248,7 +248,7 @@ function ChatbotStudio({ chatbot, onUpdate, onBack }: ChatbotStudioProps) {
             <p className="text-muted-foreground">{chatbot.description}</p>
           </div>
         </div>
-        <Badge variant={chatbot.status === 'active' ? 'default' : 'secondary'} className="text-sm">
+        <Badge variant={chatbot.status === 'active' ? 'success' : 'secondary'} className="text-sm">
           {chatbot.status}
         </Badge>
       </div>

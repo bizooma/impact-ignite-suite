@@ -172,7 +172,7 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <h4 className="font-semibold">{chatbot.name}</h4>
-                      <Badge variant={chatbot.status === 'active' ? 'default' : 'secondary'}>
+                      <Badge variant={chatbot.status === 'active' ? 'success' : 'secondary'}>
                         {chatbot.status}
                       </Badge>
                     </div>
