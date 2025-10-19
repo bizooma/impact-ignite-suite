@@ -153,6 +153,21 @@ export function MembershipManagement({ organizationId }: MembershipManagementPro
     }
   };
 
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'owner':
+        return 'Owner';
+      case 'admin':
+        return 'Admin';
+      case 'viewer':
+        return 'Team Member';
+      case 'editor':
+        return 'Team Member';
+      default:
+        return role;
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -233,7 +248,7 @@ export function MembershipManagement({ organizationId }: MembershipManagementPro
                     <TableCell>
                       {isOwner ? (
                         <Badge variant={getRoleBadgeVariant(membership.role)}>
-                          {membership.role}
+                          {getRoleDisplayName(membership.role)}
                         </Badge>
                       ) : (
                         <Select
@@ -241,12 +256,24 @@ export function MembershipManagement({ organizationId }: MembershipManagementPro
                           onValueChange={(value) => handleRoleChange(membership.id, value as 'admin' | 'viewer' | 'editor')}
                           disabled={updateRoleMutation.isPending}
                         >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
+                          <SelectTrigger className="w-40">
+                            <SelectValue>
+                              {getRoleDisplayName(membership.role)}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="viewer">Viewer</SelectItem>
+                            <SelectItem value="admin">
+                              <div className="flex flex-col">
+                                <span className="font-medium">Admin</span>
+                                <span className="text-xs text-muted-foreground">Platform admin access</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="viewer">
+                              <div className="flex flex-col">
+                                <span className="font-medium">Team Member</span>
+                                <span className="text-xs text-muted-foreground">Standard access</span>
+                              </div>
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       )}

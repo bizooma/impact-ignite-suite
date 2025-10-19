@@ -71,8 +71,18 @@ export function InviteMemberDialog({ open, onOpenChange, organizationId, current
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin - Full access to manage organization</SelectItem>
-                  <SelectItem value="viewer">Viewer - Read-only access</SelectItem>
+                  <SelectItem value="admin">
+                    <div className="flex flex-col">
+                      <span className="font-medium">Admin</span>
+                      <span className="text-xs text-muted-foreground">Full access including platform admin features</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="viewer">
+                    <div className="flex flex-col">
+                      <span className="font-medium">Team Member</span>
+                      <span className="text-xs text-muted-foreground">Access to all features except platform admin</span>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

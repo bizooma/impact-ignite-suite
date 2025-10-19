@@ -53,12 +53,13 @@ export function PendingInvitations({ organizationId }: PendingInvitationsProps) 
           <TableBody>
             {invitations.map((invitation) => {
               const expiresIn = formatDistanceToNow(new Date(invitation.expires_at), { addSuffix: true });
+              const roleDisplay = invitation.role === 'admin' ? 'Admin' : 'Team Member';
               
               return (
                 <TableRow key={invitation.id}>
                   <TableCell className="font-medium">{invitation.email}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{invitation.role}</Badge>
+                    <Badge variant="outline">{roleDisplay}</Badge>
                   </TableCell>
                   <TableCell>
                     {invitation.inviter?.display_name || 'Unknown'}
