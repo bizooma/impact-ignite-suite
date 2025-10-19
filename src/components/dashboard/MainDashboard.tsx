@@ -24,7 +24,7 @@ const moduleCards = [
     title: 'Chatbots',
     description: 'Create compassionate AI chatbots that connect with your community',
     icon: MessageCircle,
-    route: '/chatbots',
+    route: 'chatbots',
     status: 'active',
     color: 'primary'
   },
@@ -32,7 +32,7 @@ const moduleCards = [
     title: 'QR Codes',
     description: 'Generate branded QR codes with UTM tracking for campaigns',
     icon: QrCode,
-    route: '/qr-codes',
+    route: 'qr-codes',
     status: 'active',
     color: 'success'
   },
@@ -40,7 +40,7 @@ const moduleCards = [
     title: 'Social Media',
     description: 'Plan, schedule, and publish mission-driven content',
     icon: Calendar,
-    route: '/social',
+    route: 'social',
     status: 'active',
     color: 'warning'
   },
@@ -48,7 +48,7 @@ const moduleCards = [
     title: 'SEO Audits',
     description: 'Optimize your website for search engines and AI assistants',
     icon: BarChart3,
-    route: '/seo',
+    route: 'seo',
     status: 'active',
     color: 'primary'
   },
@@ -56,7 +56,7 @@ const moduleCards = [
     title: 'Google Business',
     description: 'Optimize your Google Business Profile for community visibility',
     icon: Building,
-    route: '/gbp',
+    route: 'gbp',
     status: 'active',
     color: 'success'
   },
@@ -64,7 +64,7 @@ const moduleCards = [
     title: 'Content Templates',
     description: 'Create and manage reusable content templates',
     icon: FileText,
-    route: '/content',
+    route: 'content',
     status: 'active',
     color: 'warning'
   },
@@ -72,7 +72,7 @@ const moduleCards = [
     title: 'Tasks',
     description: 'Manage your organization tasks and workflows',
     icon: CheckSquare,
-    route: '/tasks',
+    route: 'tasks',
     status: 'active',
     color: 'primary'
   },
@@ -80,7 +80,7 @@ const moduleCards = [
     title: 'Analytics',
     description: 'Track performance across all your digital initiatives',
     icon: TrendingUp,
-    route: '/analytics',
+    route: 'analytics',
     status: 'active',
     color: 'success'
   },
@@ -88,7 +88,7 @@ const moduleCards = [
     title: 'Integrations',
     description: 'Connect with external tools and services',
     icon: Settings,
-    route: '/integrations',
+    route: 'integrations',
     status: 'active',
     color: 'warning'
   }
@@ -191,31 +191,31 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Button asChild>
-              <Link to="/chatbots">
+              <Link to="chatbots">
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Create Chatbot
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/social">
+              <Link to="social">
                 <Calendar className="w-4 h-4 mr-2" />
                 Social Media
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/qr-codes">
+              <Link to="qr-codes">
                 <QrCode className="w-4 h-4 mr-2" />
                 Generate QR Code
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/seo">
+              <Link to="seo">
                 <BarChart3 className="w-4 h-4 mr-2" />
                 SEO Audit
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/gbp">
+              <Link to="gbp">
                 <Building className="w-4 h-4 mr-2" />
                 Google Business
               </Link>
