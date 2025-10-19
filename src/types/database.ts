@@ -230,3 +230,66 @@ export interface Integration {
   created_at: string;
   updated_at: string;
 }
+
+export interface Volunteer {
+  id: string;
+  chatbot_id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  days: string[];
+  public_key?: string;
+  ip_address?: string;
+  user_agent?: string;
+  created_at: string;
+}
+
+export interface ChatbotFAQ {
+  id: string;
+  chatbot_id: string;
+  question: string;
+  answer: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatbotEvent {
+  id: string;
+  chatbot_id: string;
+  session_id?: string;
+  event_type: string;
+  event_data: {
+    button_label?: string;
+    url?: string;
+    position?: string;
+    [key: string]: any;
+  };
+  ip_address?: string;
+  user_agent?: string;
+  created_at: string;
+}
+
+export interface EnhancedChatbotWidgetConfig extends ChatbotWidgetConfig {
+  // Video Settings
+  video_source?: string;
+  video_type?: 'youtube' | 'vimeo' | 'direct';
+  launcher_text?: string;
+  video_cta_text?: string;
+  
+  // Position
+  position?: 'bottom-right' | 'bottom-left' | 'middle-right' | 'middle-left';
+  
+  // Branding
+  logo_url?: string;
+  bot_name?: string;
+  
+  // Contact Info
+  email_contact?: string;
+  phone_contact?: string;
+  
+  // Donations
+  show_donations?: boolean;
+  donation_button_1?: { label: string; url: string };
+  donation_button_2?: { label: string; url: string };
+}

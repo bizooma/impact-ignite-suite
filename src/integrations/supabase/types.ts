@@ -258,6 +258,92 @@ export type Database = {
           },
         ]
       }
+      chatbot_events: {
+        Row: {
+          chatbot_id: string
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          chatbot_id: string
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          chatbot_id?: string
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_events_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chatbot_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chatbot_faqs: {
+        Row: {
+          answer: string
+          chatbot_id: string
+          created_at: string
+          id: string
+          order_index: number | null
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          chatbot_id: string
+          created_at?: string
+          id?: string
+          order_index?: number | null
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          chatbot_id?: string
+          created_at?: string
+          id?: string
+          order_index?: number | null
+          question?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_faqs_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chatbots: {
         Row: {
           brand_settings: Json | null
@@ -1132,6 +1218,53 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteers: {
+        Row: {
+          chatbot_id: string
+          created_at: string
+          days: string[] | null
+          email: string
+          id: string
+          ip_address: unknown | null
+          name: string
+          phone: string | null
+          public_key: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          chatbot_id: string
+          created_at?: string
+          days?: string[] | null
+          email: string
+          id?: string
+          ip_address?: unknown | null
+          name: string
+          phone?: string | null
+          public_key?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          chatbot_id?: string
+          created_at?: string
+          days?: string[] | null
+          email?: string
+          id?: string
+          ip_address?: unknown | null
+          name?: string
+          phone?: string | null
+          public_key?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteers_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbots"
             referencedColumns: ["id"]
           },
         ]
