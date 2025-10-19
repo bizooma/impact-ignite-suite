@@ -8,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useSocialPosts } from '@/hooks/useSocialPosts';
-import { CalendarIcon, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { useIntegrations } from '@/hooks/useIntegrations';
+import { CalendarIcon, Facebook, Twitter, Instagram, Linkedin, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface PostComposerProps {
   open: boolean;
@@ -32,6 +34,13 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { createPost } = useSocialPosts(organizationId);
+  const { integrations } = useIntegrations(organizationId);
+
+  const isPlatformConnected = (platformName: string) => {
+    return integrations.some(
+      (i) => i.provider === platformName && i.status === 'active'
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +102,16 @@ export const PostComposer: React.FC<PostComposerProps> = ({
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!isPlatformConnected(platform) && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                {platform.charAt(0).toUpperCase() + platform.slice(1)} is not connected. 
+                Please connect your account in the Integrations tab before publishing.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="platform">Platform</Label>
             <Select value={platform} onValueChange={(value: any) => setPlatform(value)}>

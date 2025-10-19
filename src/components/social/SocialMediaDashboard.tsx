@@ -7,6 +7,7 @@ import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { Calendar, Share2, Users, TrendingUp, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import { PostComposer } from './PostComposer';
 import { CampaignManager } from './CampaignManager';
+import SocialIntegrationsPanel from './SocialIntegrationsPanel';
 
 interface SocialMediaDashboardProps {
   organizationId: string;
@@ -120,6 +121,7 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
         <TabsList>
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
         </TabsList>
 
         <TabsContent value="posts" className="space-y-4">
@@ -177,6 +179,10 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
 
         <TabsContent value="campaigns">
           <CampaignManager organizationId={organizationId} campaigns={campaigns} />
+        </TabsContent>
+
+        <TabsContent value="integrations">
+          <SocialIntegrationsPanel organizationId={organizationId} />
         </TabsContent>
       </Tabs>
 
