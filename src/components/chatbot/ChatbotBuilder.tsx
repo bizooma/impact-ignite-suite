@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Bot, Upload, Settings, MessageSquare, BarChart3, Plus } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Bot, Upload, Settings, MessageSquare, BarChart3, Plus, ChevronDown, Video, Heart, Phone, HelpCircle, TrendingUp, Sparkles } from 'lucide-react';
 import { useChatbots, useKnowledgeSources } from '@/hooks/useChatbots';
 import { KnowledgeUpload } from './KnowledgeUpload';
 import { ChatbotPreview } from './ChatbotPreview';
@@ -24,6 +25,7 @@ export function ChatbotBuilder({ organizationId }: ChatbotBuilderProps) {
   const { chatbots, loading, createChatbot, updateChatbot } = useChatbots(organizationId);
   const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -174,10 +176,81 @@ export function ChatbotBuilder({ organizationId }: ChatbotBuilderProps) {
                 </div>
               </div>
 
+              <Separator className="my-6" />
+
+              <Collapsible open={showFeatures} onOpenChange={setShowFeatures}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between group hover:bg-primary/5">
+                    <span className="flex items-center gap-2 text-base font-semibold">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      What can I configure after creation?
+                    </span>
+                    <ChevronDown className={`h-5 w-5 transition-transform ${showFeatures ? 'rotate-180' : ''}`} />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-4 pt-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="flex gap-3 p-3 rounded-lg bg-accent/50 border border-border/50">
+                      <Video className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-sm text-foreground">Video Launcher</h4>
+                        <p className="text-xs text-muted-foreground">Add a video preview to your chatbot launcher (YouTube, Vimeo, or direct upload)</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 p-3 rounded-lg bg-accent/50 border border-border/50">
+                      <Heart className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-sm text-foreground">Donation Buttons</h4>
+                        <p className="text-xs text-muted-foreground">Configure up to 2 donation buttons with custom labels and URLs</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 p-3 rounded-lg bg-accent/50 border border-border/50">
+                      <Phone className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-sm text-foreground">Contact Integration</h4>
+                        <p className="text-xs text-muted-foreground">Add email and phone contact buttons for supporters to reach you</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 p-3 rounded-lg bg-accent/50 border border-border/50">
+                      <HelpCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-sm text-foreground">FAQ Management</h4>
+                        <p className="text-xs text-muted-foreground">Create and manage frequently asked questions for quick supporter access</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 p-3 rounded-lg bg-accent/50 border border-border/50">
+                      <MessageSquare className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-sm text-foreground">Volunteer Form</h4>
+                        <p className="text-xs text-muted-foreground">Capture volunteer interest with integrated signup forms and day preferences</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 p-3 rounded-lg bg-accent/50 border border-border/50">
+                      <TrendingUp className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-sm text-foreground">Analytics Dashboard</h4>
+                        <p className="text-xs text-muted-foreground">Track conversations, volunteer submissions, donations, and user engagement</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground text-center">
+                      💡 All these features will be available in the <strong>Settings</strong> and <strong>Knowledge</strong> tabs after you create your chatbot
+                    </p>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+
               <Button 
                 onClick={handleCreateChatbot}
                 disabled={!formData.name || isCreating}
-                className="w-full"
+                className="w-full mt-4"
               >
                 {isCreating ? 'Creating...' : 'Create Chatbot'}
               </Button>
