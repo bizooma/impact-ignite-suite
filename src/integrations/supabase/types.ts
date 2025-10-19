@@ -717,6 +717,7 @@ export type Database = {
           logo_url: string | null
           mobile_app_code: string | null
           name: string
+          purchased_products: Json | null
           slug: string
           updated_at: string
           website: string | null
@@ -729,6 +730,7 @@ export type Database = {
           logo_url?: string | null
           mobile_app_code?: string | null
           name: string
+          purchased_products?: Json | null
           slug: string
           updated_at?: string
           website?: string | null
@@ -741,6 +743,7 @@ export type Database = {
           logo_url?: string | null
           mobile_app_code?: string | null
           name?: string
+          purchased_products?: Json | null
           slug?: string
           updated_at?: string
           website?: string | null

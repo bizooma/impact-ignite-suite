@@ -10,6 +10,7 @@ import { PlatformAdminProvider } from "@/hooks/usePlatformAdmin";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { ProtectedProductRoute } from "@/components/upgrade/ProtectedProductRoute";
 import Landing from "./pages/Landing";
 import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -76,16 +77,151 @@ const App = () => (
                           {(organizationId) => (
                             <Routes>
                               <Route path="/" element={<MainDashboard organizationId={organizationId} />} />
-                              <Route path="/chatbots" element={<ChatbotDashboard organizationId={organizationId} />} />
-                              <Route path="/qr-codes" element={<QrCodeDashboard organizationId={organizationId} />} />
-                              <Route path="/social" element={<SocialMediaDashboard organizationId={organizationId} />} />
-                              <Route path="/seo" element={<SeoAuditDashboard organizationId={organizationId} />} />
-                              <Route path="/gbp" element={<GbpDashboard organizationId={organizationId} />} />
-                              <Route path="/content" element={<ContentTemplatesDashboard organizationId={organizationId} />} />
-                              <Route path="/tasks" element={<TaskDashboard organizationId={organizationId} />} />
-                              <Route path="/analytics" element={<AnalyticsDashboard organizationId={organizationId} />} />
+                              <Route path="/chatbots" element={
+                                <ProtectedProductRoute
+                                  productId="chatbots"
+                                  productName="Chatbot Builder"
+                                  description="Create AI-powered chatbots to engage your audience 24/7"
+                                  features={[
+                                    "Build custom AI chatbots with your organization's knowledge",
+                                    "Upload documents, websites, and text as knowledge sources",
+                                    "Embed chatbot widget on your website",
+                                    "Track conversations and capture leads",
+                                    "View detailed analytics and chat history"
+                                  ]}
+                                >
+                                  <ChatbotDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/qr-codes" element={
+                                <ProtectedProductRoute
+                                  productId="qr_codes"
+                                  productName="QR Code Generator"
+                                  description="Create trackable QR codes for marketing campaigns and events"
+                                  features={[
+                                    "Generate dynamic QR codes with custom designs",
+                                    "Track scans with detailed analytics",
+                                    "Add UTM parameters for campaign tracking",
+                                    "Customize colors and branding",
+                                    "Export QR codes in multiple formats"
+                                  ]}
+                                >
+                                  <QrCodeDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/social" element={
+                                <ProtectedProductRoute
+                                  productId="social_media"
+                                  productName="Social Media Manager"
+                                  description="Manage and schedule posts across all your social platforms"
+                                  features={[
+                                    "Schedule posts across multiple platforms",
+                                    "Create and manage social media campaigns",
+                                    "Track post performance and engagement",
+                                    "Collaborate with your team on content",
+                                    "Generate content ideas with AI assistance"
+                                  ]}
+                                >
+                                  <SocialMediaDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/seo" element={
+                                <ProtectedProductRoute
+                                  productId="seo_audits"
+                                  productName="SEO Audit Tools"
+                                  description="Comprehensive SEO analysis to improve your search rankings"
+                                  features={[
+                                    "Complete technical SEO audits",
+                                    "Content optimization recommendations",
+                                    "Schema markup analysis",
+                                    "Voice search optimization (AEO)",
+                                    "Track and fix SEO issues over time"
+                                  ]}
+                                >
+                                  <SeoAuditDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/gbp" element={
+                                <ProtectedProductRoute
+                                  productId="google_business"
+                                  productName="Google Business Profile Manager"
+                                  description="Optimize and manage your Google Business Profile"
+                                  features={[
+                                    "Sync and update your Google Business Profile",
+                                    "Track profile completeness and optimization",
+                                    "Manage business categories and attributes",
+                                    "Monitor profile performance",
+                                    "Receive optimization recommendations"
+                                  ]}
+                                >
+                                  <GbpDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/content" element={
+                                <ProtectedProductRoute
+                                  productId="content_templates"
+                                  productName="Content Templates"
+                                  description="Pre-built templates for faster content creation"
+                                  features={[
+                                    "Access library of proven content templates",
+                                    "Customize templates for your organization",
+                                    "Create and save your own templates",
+                                    "Share templates with your team",
+                                    "AI-powered content suggestions"
+                                  ]}
+                                >
+                                  <ContentTemplatesDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/tasks" element={
+                                <ProtectedProductRoute
+                                  productId="tasks"
+                                  productName="Task Management"
+                                  description="Track and manage tasks across all modules"
+                                  features={[
+                                    "Centralized task tracking and management",
+                                    "Assign tasks to team members",
+                                    "Set priorities and due dates",
+                                    "Tasks auto-generated from other modules",
+                                    "Track task completion and performance"
+                                  ]}
+                                >
+                                  <TaskDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/analytics" element={
+                                <ProtectedProductRoute
+                                  productId="analytics"
+                                  productName="Analytics Dashboard"
+                                  description="Comprehensive analytics across all your tools"
+                                  features={[
+                                    "Unified analytics from all modules",
+                                    "Custom reports and data visualization",
+                                    "Track KPIs and performance metrics",
+                                    "Export data for deeper analysis",
+                                    "Scheduled reports delivered to your inbox"
+                                  ]}
+                                >
+                                  <AnalyticsDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
                               <Route path="/integrations" element={<IntegrationsDashboard organizationId={organizationId} />} />
-                              <Route path="/mobile-app" element={<MobileAppDashboard organizationId={organizationId} />} />
+                              <Route path="/mobile-app" element={
+                                <ProtectedProductRoute
+                                  productId="mobile_app"
+                                  productName="Mobile App Management"
+                                  description="Manage your organization's mobile application"
+                                  features={[
+                                    "Manage mobile app users and permissions",
+                                    "View and moderate chat conversations",
+                                    "Configure app settings and features",
+                                    "Track app usage and analytics",
+                                    "Export data and generate reports"
+                                  ]}
+                                >
+                                  <MobileAppDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
                               <Route path="/members" element={<MembershipManagement organizationId={organizationId} />} />
                               <Route path="/profile" element={<Profile />} />
                               <Route path="*" element={<NotFound />} />

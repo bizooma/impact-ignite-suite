@@ -18,19 +18,26 @@ import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
 import { Separator } from '@/components/ui/separator';
+import { useProductAccess, ProductId } from '@/hooks/useProductAccess';
 
-const navigationItems = [
-  { title: 'Dashboard', url: '/dashboard', icon: Home },
-  { title: 'Chatbots', url: '/dashboard/chatbots', icon: MessageCircle },
-  { title: 'QR Codes', url: '/dashboard/qr-codes', icon: QrCode },
-  { title: 'Social Media', url: '/dashboard/social', icon: Calendar },
-  { title: 'SEO Audits', url: '/dashboard/seo', icon: BarChart3 },
-  { title: 'Google Business', url: '/dashboard/gbp', icon: Building },
-  { title: 'Content Templates', url: '/dashboard/content', icon: FileText },
-  { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare },
-  { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp },
-  { title: 'Integrations', url: '/dashboard/integrations', icon: Settings },
-  { title: 'Team Members', url: '/dashboard/members', icon: Users },
+const navigationItems: Array<{
+  title: string;
+  url: string;
+  icon: any;
+  productId?: ProductId;
+  alwaysShow?: boolean;
+}> = [
+  { title: 'Dashboard', url: '/dashboard', icon: Home, alwaysShow: true },
+  { title: 'Chatbots', url: '/dashboard/chatbots', icon: MessageCircle, productId: 'chatbots' },
+  { title: 'QR Codes', url: '/dashboard/qr-codes', icon: QrCode, productId: 'qr_codes' },
+  { title: 'Social Media', url: '/dashboard/social', icon: Calendar, productId: 'social_media' },
+  { title: 'SEO Audits', url: '/dashboard/seo', icon: BarChart3, productId: 'seo_audits' },
+  { title: 'Google Business', url: '/dashboard/gbp', icon: Building, productId: 'google_business' },
+  { title: 'Content Templates', url: '/dashboard/content', icon: FileText, productId: 'content_templates' },
+  { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
+  { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
+  { title: 'Integrations', url: '/dashboard/integrations', icon: Settings, alwaysShow: true },
+  { title: 'Team Members', url: '/dashboard/members', icon: Users, alwaysShow: true },
 ];
 
 export function AppSidebar() {
@@ -39,6 +46,14 @@ export function AppSidebar() {
   const { isPlatformAdmin } = usePlatformAdmin();
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
+  const { hasAccess } = useProductAccess();
+
+  // Filter navigation items based on product access
+  const visibleNavItems = navigationItems.filter(item => {
+    if (item.alwaysShow) return true;
+    if (!item.productId) return false;
+    return hasAccess(item.productId);
+  });
 
   const initials = (profile?.display_name || user?.email || 'U')
     .split(' ')
@@ -67,7 +82,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
+              {visibleNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink 
@@ -81,17 +96,19 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink 
-                    to="/dashboard/mobile-app" 
-                    className={getNavCls}
-                  >
-                    <Smartphone className="w-4 h-4" />
-                    {!collapsed && <span>Mobile App</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {hasAccess('mobile_app') && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to="/dashboard/mobile-app" 
+                      className={getNavCls}
+                    >
+                      <Smartphone className="w-4 h-4" />
+                      {!collapsed && <span>Mobile App</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

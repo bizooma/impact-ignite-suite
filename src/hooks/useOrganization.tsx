@@ -12,6 +12,7 @@ interface Organization {
   website?: string;
   has_mobile_app?: boolean;
   mobile_app_code?: string;
+  purchased_products?: string[];
 }
 
 interface OrganizationContextType {
@@ -54,14 +55,23 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
             logo_url,
             website,
             has_mobile_app,
-            mobile_app_code
+            mobile_app_code,
+            purchased_products
           )
         `)
         .eq('user_id', user?.id);
 
       if (memberships) {
         const orgs = memberships
-          .map(m => m.organizations)
+          .map(m => {
+            if (!m.organizations) return null;
+            return {
+              ...m.organizations,
+              purchased_products: Array.isArray(m.organizations.purchased_products) 
+                ? m.organizations.purchased_products as string[]
+                : []
+            } as Organization;
+          })
           .filter(Boolean) as Organization[];
         
         setOrganizations(orgs);
@@ -107,12 +117,22 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
           if (existingMembership) {
             toast.error(`You're already a member of ${existingOrg.name}`);
             await fetchOrganizations();
-            setOrganization(existingOrg);
+            setOrganization({
+              ...existingOrg,
+              purchased_products: Array.isArray(existingOrg.purchased_products)
+                ? existingOrg.purchased_products as string[]
+                : []
+            } as Organization);
             return;
           }
 
           // Join existing organization as admin
-          org = existingOrg;
+          org = {
+            ...existingOrg,
+            purchased_products: Array.isArray(existingOrg.purchased_products)
+              ? existingOrg.purchased_products as string[]
+              : []
+          } as Organization;
           isNewOrg = false;
 
           const { error: membershipError } = await supabase
@@ -147,7 +167,12 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
         .single();
 
       if (orgError) throw orgError;
-      org = newOrg;
+      org = {
+        ...newOrg,
+        purchased_products: Array.isArray(newOrg.purchased_products)
+          ? newOrg.purchased_products as string[]
+          : []
+      } as Organization;
 
       // If mobile app code provided, link to mobile_app_databases
       if (mobileAppCode && org) {
