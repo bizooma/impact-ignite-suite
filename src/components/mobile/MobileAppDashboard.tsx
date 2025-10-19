@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMobileAppData } from '@/hooks/useMobileAppData';
 import { Smartphone, Users, Shield, MessageSquare, Settings, ShieldAlert, FileText, History } from 'lucide-react';
+import calFarleysLogo from '@/assets/cal-farleys-logo.jpg';
 import { MobileAppUserManager } from './MobileAppUserManager';
 import { MobileAppSettings } from './MobileAppSettings';
 import { MobileAppRolesManager } from './MobileAppRolesManager';
@@ -109,6 +110,7 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
+            <img src={calFarleysLogo} alt="Cal Farley's Boys Ranch" className="h-12 w-12 rounded-full object-cover" />
             <Smartphone className="h-8 w-8" />
             Mobile App Management
           </h1>
