@@ -5,6 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { useQrCodes } from '@/hooks/useQrCodes';
 import { QrCode, Eye, Download, Settings, Plus, BarChart3 } from 'lucide-react';
 import { QrCodeGenerator } from './QrCodeGenerator';
+import QRCode from 'qrcode';
+import { useToast } from '@/hooks/use-toast';
+import { QrAnalyticsDialog } from './QrAnalyticsDialog';
+import { QrSettingsDialog } from './QrSettingsDialog';
 
 interface QrCodeDashboardProps {
   organizationId: string;
@@ -13,9 +17,28 @@ interface QrCodeDashboardProps {
 const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => {
   const [showGenerator, setShowGenerator] = useState(false);
   const { qrCodes, loading } = useQrCodes(organizationId);
-
+  const { toast } = useToast();
+  const [analyticsQr, setAnalyticsQr] = useState<{ id: string; name: string } | null>(null);
+  const [settingsQr, setSettingsQr] = useState<any | null>(null);
   const totalScans = 0; // Will be calculated from qr_scans table
   const activeQrCodes = qrCodes.filter(qr => qr.is_active).length;
+
+  const handleDownload = async (id: string, name: string, url?: string | null) => {
+    try {
+      const data = url || '';
+      const dataUrl = await QRCode.toDataURL(data, { width: 1024, margin: 1 });
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `${name.replace(/\s+/g, '-').toLowerCase()}-qr.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast({ title: 'Downloaded', description: 'QR code image saved.' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Error', description: 'Failed to generate QR image', variant: 'destructive' });
+    }
+  };
 
   if (loading) {
     return (
@@ -134,15 +157,15 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
               </div>
 
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="flex-1">
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => handleDownload(qrCode.id, qrCode.name, (qrCode as any).short_url || qrCode.destination_url)}>
                   <Download className="h-4 w-4 mr-1" />
                   Download
                 </Button>
-                <Button size="sm" variant="outline" className="flex-1">
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => setAnalyticsQr({ id: qrCode.id, name: qrCode.name })}>
                   <BarChart3 className="h-4 w-4 mr-1" />
                   Analytics
                 </Button>
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" onClick={() => setSettingsQr(qrCode)}>
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
@@ -169,6 +192,20 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
       <QrCodeGenerator 
         open={showGenerator}
         onClose={() => setShowGenerator(false)}
+        organizationId={organizationId}
+      />
+
+      <QrAnalyticsDialog
+        open={!!analyticsQr}
+        onClose={() => setAnalyticsQr(null)}
+        qrCodeId={analyticsQr?.id}
+        qrName={analyticsQr?.name}
+      />
+
+      <QrSettingsDialog
+        open={!!settingsQr}
+        onClose={() => setSettingsQr(null)}
+        qrCode={settingsQr || undefined}
         organizationId={organizationId}
       />
     </div>

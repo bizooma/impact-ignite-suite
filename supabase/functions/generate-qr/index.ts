@@ -70,6 +70,14 @@ serve(async (req) => {
     if (type === 'dynamic') {
       // Create a tracking URL that redirects through our system
       trackingUrl = `${supabaseUrl.replace('supabase.co', 'functions.supabase.co')}/functions/v1/qr-redirect/${qrCode.id}`;
+      // Persist the short URL for this QR code
+      const { error: updateErr } = await supabase
+        .from('qr_codes')
+        .update({ short_url: trackingUrl })
+        .eq('id', qrCode.id);
+      if (updateErr) {
+        console.error('Failed to persist short_url for QR code', updateErr);
+      }
     }
 
     // Generate QR code SVG (simple implementation)
