@@ -7,7 +7,6 @@ export type ProductId =
   | 'social_media'
   | 'seo_audits'
   | 'google_business'
-  | 'content_templates'
   | 'tasks'
   | 'analytics';
 

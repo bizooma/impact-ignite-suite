@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, FileText, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock } from 'lucide-react';
+import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock } from 'lucide-react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
 import {
   Sidebar,
@@ -33,7 +33,6 @@ const navigationItems: Array<{
   { title: 'Social Media', url: '/dashboard/social', icon: Calendar, productId: 'social_media' },
   { title: 'SEO Audits', url: '/dashboard/seo', icon: BarChart3, productId: 'seo_audits' },
   { title: 'Google Business', url: '/dashboard/gbp', icon: Building, productId: 'google_business' },
-  { title: 'Content Templates', url: '/dashboard/content', icon: FileText, productId: 'content_templates' },
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
   { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },

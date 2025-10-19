@@ -23,7 +23,7 @@ import QrCodeDashboard from "./components/qr/QrCodeDashboard";
 import SocialMediaDashboard from "./components/social/SocialMediaDashboard";
 import SeoAuditDashboard from "./components/seo/SeoAuditDashboard";
 import GbpDashboard from "./components/gbp/GbpDashboard";
-import ContentTemplatesDashboard from "./components/content/ContentTemplatesDashboard";
+
 import TaskDashboard from "./components/tasks/TaskDashboard";
 import AnalyticsDashboard from "./components/analytics/AnalyticsDashboard";
 import IntegrationsDashboard from "./components/integrations/IntegrationsDashboard";
@@ -155,22 +155,6 @@ const App = () => (
                                   ]}
                                 >
                                   <GbpDashboard organizationId={organizationId} />
-                                </ProtectedProductRoute>
-                              } />
-                              <Route path="/content" element={
-                                <ProtectedProductRoute
-                                  productId="content_templates"
-                                  productName="Content Templates"
-                                  description="Pre-built templates for faster content creation"
-                                  features={[
-                                    "Access library of proven content templates",
-                                    "Customize templates for your organization",
-                                    "Create and save your own templates",
-                                    "Share templates with your team",
-                                    "AI-powered content suggestions"
-                                  ]}
-                                >
-                                  <ContentTemplatesDashboard organizationId={organizationId} />
                                 </ProtectedProductRoute>
                               } />
                               <Route path="/tasks" element={
