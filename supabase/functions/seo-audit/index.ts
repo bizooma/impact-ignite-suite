@@ -19,57 +19,17 @@ serve(async (req) => {
   try {
     logStep("SEO audit function started");
 
-    const { domain, auditId } = await req.json();
-    logStep("Processing audit", { domain, auditId });
-
-    // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
+    const { domain } = await req.json();
+    logStep("Processing audit", { domain });
 
     // Basic SEO audit checks
     const auditResults = await performSeoAudit(domain);
     logStep("Audit completed", { issuesFound: auditResults.length });
 
-    // Store audit results
-    const { error: insertError } = await supabaseClient
-      .from('audit_issues')
-      .insert(
-        auditResults.map(issue => ({
-          audit_id: auditId,
-          page_url: domain,
-          category: issue.issue_type,
-          severity: issue.severity,
-          issue: issue.description,
-          recommendation: issue.recommendation
-        }))
-      );
-
-    if (insertError) {
-      logStep("Error storing audit results", { error: insertError });
-      throw insertError;
-    }
-
-    // Update audit status
-    const { error: updateError } = await supabaseClient
-      .from('seo_audits')
-      .update({ 
-        status: 'completed',
-        completed_at: new Date().toISOString()
-      })
-      .eq('id', auditId);
-
-    if (updateError) {
-      logStep("Error updating audit status", { error: updateError });
-      throw updateError;
-    }
-
-    logStep("Audit results stored successfully");
-
+    // Return results immediately
     return new Response(JSON.stringify({ 
-      success: true, 
+      success: true,
+      issues: auditResults,
       issuesFound: auditResults.length 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -80,29 +40,10 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in seo-audit", { message: errorMessage });
     
-    // Update audit status to error
-    try {
-      const requestBody = await req.clone().json();
-      const { auditId } = requestBody;
-      
-      const errorClient = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-        { auth: { persistSession: false } }
-      );
-      
-      await errorClient
-        .from('seo_audits')
-        .update({ 
-          status: 'error',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', auditId);
-    } catch (updateError) {
-      logStep("Failed to update audit status to error", { error: updateError });
-    }
-    
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ 
+      success: false,
+      error: errorMessage 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     });

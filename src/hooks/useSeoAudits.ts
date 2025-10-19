@@ -39,50 +39,72 @@ export const useSeoAudits = (organizationId?: string) => {
     if (!organizationId) return null;
 
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      // Call edge function to perform audit synchronously
+      const { data: auditData, error: invokeError } = await supabase.functions.invoke('seo-audit', {
+        body: { domain }
+      });
+
+      if (invokeError) throw invokeError;
+      
+      if (!auditData.success) {
+        throw new Error(auditData.error || 'Audit failed');
+      }
+
+      // Create audit record with completed status and results
+      const { data: audit, error: insertError } = await supabase
         .from('seo_audits')
         .insert({
           organization_id: organizationId,
           domain,
-          status: 'pending'
+          status: 'completed',
+          pages_crawled: 1,
+          overall_score: Math.max(0, 100 - (auditData.issues.length * 10))
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      // Trigger audit process
-      try {
-        await supabase.functions.invoke('seo-audit', {
-          body: { auditId: data.id, domain }
-        });
-      } catch (invokeError) {
-        // If invocation fails, update status to error
-        console.error('Failed to invoke seo-audit function:', invokeError);
-        await supabase
-          .from('seo_audits')
-          .update({ status: 'error' })
-          .eq('id', data.id);
-        
-        throw new Error('Failed to start audit process');
+      // Store audit issues
+      if (auditData.issues && auditData.issues.length > 0) {
+        const { error: issuesError } = await supabase
+          .from('audit_issues')
+          .insert(
+            auditData.issues.map((issue: any) => ({
+              audit_id: audit.id,
+              page_url: domain,
+              category: issue.issue_type,
+              severity: issue.severity,
+              issue: issue.description,
+              recommendation: issue.recommendation
+            }))
+          );
+
+        if (issuesError) {
+          console.error('Error storing audit issues:', issuesError);
+        }
       }
 
-      setAudits(prev => [data, ...prev]);
+      setAudits(prev => [audit, ...prev]);
       
       toast({
         title: "Success",
-        description: "SEO audit started successfully",
+        description: `SEO audit completed. Found ${auditData.issues.length} issues.`,
       });
 
-      return data;
+      return audit;
     } catch (error) {
       console.error('Error creating SEO audit:', error);
       toast({
         title: "Error",
-        description: "Failed to start SEO audit",
+        description: error instanceof Error ? error.message : "Failed to create audit",
         variant: "destructive",
       });
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,33 +135,69 @@ export const useSeoAudits = (organizationId?: string) => {
 
   const retryAudit = async (auditId: string, domain: string) => {
     try {
-      // Update status to pending
+      setLoading(true);
+      
+      // Delete old audit issues
+      await supabase
+        .from('audit_issues')
+        .delete()
+        .eq('audit_id', auditId);
+
+      // Call edge function to perform audit synchronously
+      const { data: auditData, error: invokeError } = await supabase.functions.invoke('seo-audit', {
+        body: { domain }
+      });
+
+      if (invokeError) throw invokeError;
+      
+      if (!auditData.success) {
+        throw new Error(auditData.error || 'Audit failed');
+      }
+
+      // Update audit record with results
       const { error: updateError } = await supabase
         .from('seo_audits')
-        .update({ status: 'pending' })
+        .update({
+          status: 'completed',
+          overall_score: Math.max(0, 100 - (auditData.issues.length * 10)),
+          updated_at: new Date().toISOString()
+        })
         .eq('id', auditId);
 
       if (updateError) throw updateError;
 
-      // Trigger audit process
-      await supabase.functions.invoke('seo-audit', {
-        body: { auditId, domain }
-      });
+      // Store new audit issues
+      if (auditData.issues && auditData.issues.length > 0) {
+        await supabase
+          .from('audit_issues')
+          .insert(
+            auditData.issues.map((issue: any) => ({
+              audit_id: auditId,
+              page_url: domain,
+              category: issue.issue_type,
+              severity: issue.severity,
+              issue: issue.description,
+              recommendation: issue.recommendation
+            }))
+          );
+      }
 
       // Refresh audits
       await fetchAudits();
       
       toast({
         title: "Success",
-        description: "Audit restarted successfully",
+        description: `SEO audit completed. Found ${auditData.issues.length} issues.`,
       });
     } catch (error) {
       console.error('Error retrying audit:', error);
       toast({
         title: "Error",
-        description: "Failed to retry audit",
+        description: error instanceof Error ? error.message : "Failed to retry audit",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 

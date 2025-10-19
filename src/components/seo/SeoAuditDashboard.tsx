@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useSeoAudits } from '@/hooks/useSeoAudits';
-import { Search, Globe, AlertTriangle, CheckCircle, Clock, Trash2, RotateCw } from 'lucide-react';
+import { Search, Globe, AlertTriangle, CheckCircle, Clock, Trash2, RotateCw, Eye, Loader2 } from 'lucide-react';
+import { AuditIssuesDialog } from './AuditIssuesDialog';
 
 interface SeoAuditDashboardProps {
   organizationId: string;
@@ -14,7 +15,10 @@ interface SeoAuditDashboardProps {
 const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId }) => {
   const [domain, setDomain] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const { audits, loading, createAudit, deleteAudit, retryAudit } = useSeoAudits(organizationId);
+  const [selectedAuditId, setSelectedAuditId] = useState<string | null>(null);
+  const [auditIssues, setAuditIssues] = useState<any[]>([]);
+  const [showIssuesDialog, setShowIssuesDialog] = useState(false);
+  const { audits, loading, createAudit, deleteAudit, retryAudit, getAuditIssues } = useSeoAudits(organizationId);
 
   const handleCreateAudit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +28,13 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
     await createAudit(domain.trim());
     setDomain('');
     setIsCreating(false);
+  };
+
+  const handleViewIssues = async (auditId: string) => {
+    const issues = await getAuditIssues(auditId);
+    setAuditIssues(issues);
+    setSelectedAuditId(auditId);
+    setShowIssuesDialog(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -46,7 +57,7 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
     }
   };
 
-  if (loading) {
+  if (loading && audits.length === 0) {
     return (
       <div className="space-y-4">
         <div className="h-8 bg-muted animate-pulse rounded" />
@@ -96,9 +107,17 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
               className="flex-1"
+              disabled={isCreating}
             />
-            <Button type="submit" disabled={isCreating}>
-              {isCreating ? 'Starting...' : 'Start Audit'}
+            <Button type="submit" disabled={isCreating || !domain.trim()}>
+              {isCreating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                'Start Audit'
+              )}
             </Button>
           </form>
         </CardContent>
@@ -120,7 +139,7 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
                       {audit.status || 'pending'}
                     </div>
                   </Badge>
-                  {(audit.status === 'pending' || audit.status === 'error') && (
+                  {audit.status === 'error' && (
                     <Button
                       size="icon"
                       variant="ghost"
@@ -153,7 +172,7 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
                 </div>
               )}
               
-              {audit.overall_score && (
+              {audit.overall_score !== null && audit.overall_score !== undefined && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Overall Score</span>
@@ -195,6 +214,18 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
                   {audit.pages_crawled} pages analyzed
                 </div>
               )}
+
+              {audit.status === 'completed' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewIssues(audit.id)}
+                  className="w-full"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Issues
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -211,6 +242,13 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
           </CardContent>
         </Card>
       )}
+
+      <AuditIssuesDialog
+        open={showIssuesDialog}
+        onOpenChange={setShowIssuesDialog}
+        issues={auditIssues}
+        domain={audits.find(a => a.id === selectedAuditId)?.domain || ''}
+      />
     </div>
   );
 };
