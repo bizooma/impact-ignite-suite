@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, FileText, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut } from 'lucide-react';
+import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, FileText, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock } from 'lucide-react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
 import {
   Sidebar,
@@ -36,6 +36,7 @@ const navigationItems: Array<{
   { title: 'Content Templates', url: '/dashboard/content', icon: FileText, productId: 'content_templates' },
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
+  { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },
   { title: 'Integrations', url: '/dashboard/integrations', icon: Settings, alwaysShow: true },
   { title: 'Team Members', url: '/dashboard/members', icon: Users, alwaysShow: true },
 ];
@@ -47,13 +48,6 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const { hasAccess } = useProductAccess();
-
-  // Filter navigation items based on product access
-  const visibleNavItems = navigationItems.filter(item => {
-    if (item.alwaysShow) return true;
-    if (!item.productId) return false;
-    return hasAccess(item.productId);
-  });
 
   const initials = (profile?.display_name || user?.email || 'U')
     .split(' ')
@@ -82,33 +76,31 @@ export function AppSidebar() {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {visibleNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      end={item.url === '/dashboard'}
-                      className={getNavCls}
-                    >
-                      <item.icon className="w-4 h-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              {hasAccess('mobile_app') && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to="/dashboard/mobile-app" 
-                      className={getNavCls}
-                    >
-                      <Smartphone className="w-4 h-4" />
-                      {!collapsed && <span>Mobile App</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
+              {navigationItems.map((item) => {
+                const hasProductAccess = item.alwaysShow || !item.productId || hasAccess(item.productId);
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        end={item.url === '/dashboard'}
+                        className={getNavCls}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        {!collapsed && (
+                          <span className={!hasProductAccess ? 'opacity-60' : ''}>
+                            {item.title}
+                          </span>
+                        )}
+                        {!collapsed && !hasProductAccess && (
+                          <Lock className="w-3 h-3 ml-auto opacity-60" />
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
