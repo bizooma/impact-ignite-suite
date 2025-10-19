@@ -28,7 +28,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   const [platform, setPlatform] = useState<'facebook' | 'twitter' | 'instagram' | 'linkedin'>('facebook');
   const [scheduledDate, setScheduledDate] = useState<Date>();
   const [scheduledTime, setScheduledTime] = useState('');
-  const [campaignId, setCampaignId] = useState<string>('');
+  const [campaignId, setCampaignId] = useState<string>('none');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { createPost } = useSocialPosts(organizationId);
@@ -51,13 +51,13 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       content: content.trim(),
       platform,
       scheduled_for: scheduledFor,
-      campaign_id: campaignId || undefined
+      campaign_id: campaignId === 'none' ? undefined : campaignId
     });
 
     setContent('');
     setScheduledDate(undefined);
     setScheduledTime('');
-    setCampaignId('');
+    setCampaignId('none');
     setIsSubmitting(false);
     onClose();
   };
@@ -152,7 +152,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                 <SelectValue placeholder="Select a campaign" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No campaign</SelectItem>
+                <SelectItem value="none">No campaign</SelectItem>
                 {campaigns.map((campaign) => (
                   <SelectItem key={campaign.id} value={campaign.id}>
                     {campaign.name}
