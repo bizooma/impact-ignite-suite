@@ -23,7 +23,7 @@ import QrCodeDashboard from "./components/qr/QrCodeDashboard";
 import SocialMediaDashboard from "./components/social/SocialMediaDashboard";
 import SeoAuditDashboard from "./components/seo/SeoAuditDashboard";
 import GbpDashboard from "./components/gbp/GbpDashboard";
-
+import { CrmDashboard } from "./components/crm/CrmDashboard";
 import TaskDashboard from "./components/tasks/TaskDashboard";
 import AnalyticsDashboard from "./components/analytics/AnalyticsDashboard";
 import IntegrationsDashboard from "./components/integrations/IntegrationsDashboard";
@@ -155,6 +155,22 @@ const App = () => (
                                   ]}
                                 >
                                   <GbpDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/crm" element={
+                                <ProtectedProductRoute
+                                  productId="crm"
+                                  productName="CRM"
+                                  description="Manage all your constituent relationships in one place"
+                                  features={[
+                                    "Track volunteers, donors, and members",
+                                    "Organize contacts into segmented lists",
+                                    "Log interactions and activities",
+                                    "Manage donations and volunteer hours",
+                                    "Automatic integration with chatbots and other products"
+                                  ]}
+                                >
+                                  <CrmDashboard organizationId={organizationId} />
                                 </ProtectedProductRoute>
                               } />
                               <Route path="/tasks" element={

@@ -8,7 +8,8 @@ export type ProductId =
   | 'seo_audits'
   | 'google_business'
   | 'tasks'
-  | 'analytics';
+  | 'analytics'
+  | 'crm';
 
 export function useProductAccess() {
   const { organization } = useOrganization();
