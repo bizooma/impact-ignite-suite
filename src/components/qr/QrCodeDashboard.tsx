@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,21 @@ import { QrSettingsDialog } from './QrSettingsDialog';
 interface QrCodeDashboardProps {
   organizationId: string;
 }
+
+const QrPreview: React.FC<{ url: string }> = ({ url }) => {
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (!url) return;
+    QRCode.toDataURL(url, { width: 120, margin: 1 })
+      .then(setQrDataUrl)
+      .catch(console.error);
+  }, [url]);
+
+  if (!qrDataUrl) return <div className="w-20 h-20 bg-muted rounded animate-pulse" />;
+  
+  return <img src={qrDataUrl} alt="QR preview" className="w-20 h-20 rounded border border-border" />;
+};
 
 const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => {
   const [showGenerator, setShowGenerator] = useState(false);
@@ -124,54 +139,60 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {qrCodes.map((qrCode) => (
-          <Card key={qrCode.id} className="relative">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <QrCode className="h-4 w-4 text-muted-foreground" />
-                  <CardTitle className="text-lg">{qrCode.name}</CardTitle>
+        {qrCodes.map((qrCode) => {
+          const qrUrl = (qrCode as any).short_url || qrCode.destination_url;
+          return (
+            <Card key={qrCode.id} className="relative">
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <QrCode className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <CardTitle className="text-lg truncate">{qrCode.name}</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Created {new Date(qrCode.created_at).toLocaleDateString()}
+                    </CardDescription>
+                    <Badge variant={qrCode.is_active ? "default" : "secondary"} className="mt-2">
+                      {qrCode.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </div>
+                  <QrPreview url={qrUrl} />
                 </div>
-                <Badge variant={qrCode.is_active ? "default" : "secondary"}>
-                  {qrCode.is_active ? 'Active' : 'Inactive'}
-                </Badge>
-              </div>
-              <CardDescription>
-                Created {new Date(qrCode.created_at).toLocaleDateString()}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-sm">
-                <div className="font-medium mb-1">Destination URL</div>
-                <div className="text-muted-foreground truncate">{qrCode.destination_url}</div>
-              </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Type</span>
-                <span className="font-medium capitalize">{qrCode.type || 'dynamic'}</span>
-              </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-sm">
+                  <div className="font-medium mb-1">Destination URL</div>
+                  <div className="text-muted-foreground truncate">{qrCode.destination_url}</div>
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Type</span>
+                  <span className="font-medium capitalize">{qrCode.type || 'dynamic'}</span>
+                </div>
 
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Scans</span>
-                <span className="font-medium">0</span>
-              </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Scans</span>
+                  <span className="font-medium">0</span>
+                </div>
 
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="flex-1" onClick={() => handleDownload(qrCode.id, qrCode.name, (qrCode as any).short_url || qrCode.destination_url)}>
-                  <Download className="h-4 w-4 mr-1" />
-                  Download
-                </Button>
-                <Button size="sm" variant="outline" className="flex-1" onClick={() => setAnalyticsQr({ id: qrCode.id, name: qrCode.name })}>
-                  <BarChart3 className="h-4 w-4 mr-1" />
-                  Analytics
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => setSettingsQr(qrCode)}>
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => handleDownload(qrCode.id, qrCode.name, qrUrl)}>
+                    <Download className="h-4 w-4 mr-1" />
+                    Download
+                  </Button>
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => setAnalyticsQr({ id: qrCode.id, name: qrCode.name })}>
+                    <BarChart3 className="h-4 w-4 mr-1" />
+                    Analytics
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setSettingsQr(qrCode)}>
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {qrCodes.length === 0 && (
