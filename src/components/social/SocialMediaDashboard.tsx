@@ -3,11 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { Calendar, Share2, Users, TrendingUp, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import { PostComposer } from './PostComposer';
 import { CampaignManager } from './CampaignManager';
 import SocialIntegrationsPanel from './SocialIntegrationsPanel';
+import SocialCalendar from './SocialCalendar';
+import PostDetailsDialog from './PostDetailsDialog';
 
 interface SocialMediaDashboardProps {
   organizationId: string;
@@ -16,6 +20,44 @@ interface SocialMediaDashboardProps {
 const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizationId }) => {
   const { posts, campaigns, loading } = useSocialPosts(organizationId);
   const [showComposer, setShowComposer] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+
+  const platforms = [
+    { id: 'facebook', name: 'Facebook', icon: Facebook },
+    { id: 'twitter', name: 'Twitter', icon: Twitter },
+    { id: 'instagram', name: 'Instagram', icon: Instagram },
+    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin }
+  ];
+
+  const statuses = [
+    { id: 'draft', name: 'Draft' },
+    { id: 'scheduled', name: 'Scheduled' },
+    { id: 'published', name: 'Published' },
+    { id: 'failed', name: 'Failed' }
+  ];
+
+  const togglePlatform = (platformId: string) => {
+    setSelectedPlatforms(prev =>
+      prev.includes(platformId)
+        ? prev.filter(p => p !== platformId)
+        : [...prev, platformId]
+    );
+  };
+
+  const toggleStatus = (statusId: string) => {
+    setSelectedStatuses(prev =>
+      prev.includes(statusId)
+        ? prev.filter(s => s !== statusId)
+        : [...prev, statusId]
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedPlatforms([]);
+    setSelectedStatuses([]);
+  };
 
   const getPlatformIcon = (platform: string) => {
     switch (platform) {
@@ -117,12 +159,88 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
         </Card>
       </div>
 
-      <Tabs defaultValue="posts" className="space-y-4">
+      <Tabs defaultValue="calendar" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="calendar" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-3">
+              <SocialCalendar
+                posts={posts}
+                onPostClick={setSelectedPost}
+                selectedPlatforms={selectedPlatforms}
+                selectedStatuses={selectedStatuses}
+              />
+            </div>
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Filters</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium mb-3">Platforms</h4>
+                    <div className="space-y-2">
+                      {platforms.map(platform => (
+                        <div key={platform.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`platform-${platform.id}`}
+                            checked={selectedPlatforms.includes(platform.id)}
+                            onCheckedChange={() => togglePlatform(platform.id)}
+                          />
+                          <Label
+                            htmlFor={`platform-${platform.id}`}
+                            className="flex items-center gap-2 text-sm cursor-pointer"
+                          >
+                            <platform.icon className="h-4 w-4" />
+                            {platform.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-medium mb-3">Status</h4>
+                    <div className="space-y-2">
+                      {statuses.map(status => (
+                        <div key={status.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`status-${status.id}`}
+                            checked={selectedStatuses.includes(status.id)}
+                            onCheckedChange={() => toggleStatus(status.id)}
+                          />
+                          <Label
+                            htmlFor={`status-${status.id}`}
+                            className="text-sm cursor-pointer"
+                          >
+                            {status.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {(selectedPlatforms.length > 0 || selectedStatuses.length > 0) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearFilters}
+                      className="w-full"
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
 
         <TabsContent value="posts" className="space-y-4">
           <div className="grid gap-4">
@@ -191,6 +309,12 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
         onClose={() => setShowComposer(false)}
         organizationId={organizationId}
         campaigns={campaigns}
+      />
+
+      <PostDetailsDialog
+        post={selectedPost}
+        open={!!selectedPost}
+        onClose={() => setSelectedPost(null)}
       />
     </div>
   );
