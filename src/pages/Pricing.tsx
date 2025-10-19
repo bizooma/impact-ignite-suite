@@ -242,10 +242,10 @@ const Pricing = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Pricing Plans - Causeio"
-        description="Choose the perfect plan for your business. Start with a 14-day free trial. Plans start at $29/month with AI chatbots, QR codes, social media automation, and SEO tools. No credit card required."
+        title="Pricing Plans for Nonprofits - Causeio"
+        description="Choose the perfect plan for your nonprofit. Start with a 14-day free trial. Plans start at $29/month with AI chatbots, QR codes, social media automation, and SEO tools. Nonprofit discounts available."
         canonical="/pricing"
-        keywords="pricing, plans, subscription, AI chatbot pricing, marketing automation cost, social media tools pricing"
+        keywords="nonprofit pricing, charity marketing pricing, nonprofit software cost, fundraising tools pricing, donor engagement platform cost"
         ogType="product"
         schema={pricingSchemas}
       />

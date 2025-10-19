@@ -269,10 +269,10 @@ const Landing = () => {
   return (
     <div className="min-h-screen w-full bg-background">
       <SEOHead
-        title="Causeio - AI-Powered Marketing Platform"
-        description="Transform your business with AI chatbots, dynamic QR codes, social media automation, and comprehensive SEO optimization. Everything you need to grow your digital presence in one powerful platform."
+        title="Causeio - Marketing Platform for Nonprofits & Charities"
+        description="Empower your nonprofit with AI chatbots, dynamic QR codes, social media automation, and SEO optimization. Attract donors, recruit volunteers, and grow community support with tools designed for charities and foundations."
         canonical="/"
-        keywords="AI chatbots, QR codes, social media automation, SEO optimization, digital marketing, business growth, marketing platform, voice SEO, AEO"
+        keywords="nonprofit marketing, charity marketing, donor engagement, volunteer recruitment, fundraising tools, nonprofit social media, charity automation, nonprofit SEO, voice SEO for nonprofits"
         schema={schemas}
       />
       {/* Navigation */}
@@ -314,14 +314,14 @@ const Landing = () => {
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="w-full max-w-5xl mx-auto text-center relative z-10">
           <Badge variant="secondary" className="mb-4">
-            🚀 New: AI-Powered Marketing Tools
+            🚀 New: AI-Powered Tools for Nonprofits
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white hero-title">
-            Ignite Your Impact with Smart Business Tools
+            Amplify Your Mission with Smart Marketing Tools
           </h1>
           <p className="text-xl text-white/90 mb-8 leading-relaxed value-proposition">
-            Transform your business with AI chatbots, dynamic QR codes, social media automation, and SEO optimization. 
-            Everything you need to grow your digital presence in one powerful platform.
+            Empower your nonprofit with AI chatbots, dynamic QR codes, social media automation, and SEO optimization. 
+            Everything you need to attract donors, recruit volunteers, and grow community support in one powerful platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/pricing">
@@ -341,9 +341,9 @@ const Landing = () => {
       <section className="w-full py-20 px-6 bg-muted/30">
         <div className="w-full max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Everything You Need to Scale</h2>
+            <h2 className="text-4xl font-bold mb-4">Everything Your Nonprofit Needs to Thrive</h2>
             <p className="text-xl text-muted-foreground key-features">
-              Powerful tools designed for modern businesses
+              Powerful tools designed for nonprofits, charities, and foundations
             </p>
           </div>
           
@@ -353,7 +353,7 @@ const Landing = () => {
                 <MessageSquare className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>AI Chatbots</CardTitle>
                 <CardDescription>
-                  Intelligent customer support that learns from your business
+                  Intelligent donor support that learns from your mission and engages supporters 24/7
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -423,9 +423,9 @@ const Landing = () => {
       <section className="w-full py-20 px-6">
         <div className="w-full max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Trusted by Growing Businesses</h2>
+            <h2 className="text-4xl font-bold mb-4">Trusted by Nonprofits Making a Difference</h2>
             <p className="text-xl text-muted-foreground">
-              Join thousands of companies using Causeio to scale their impact
+              Join thousands of nonprofits using Causeio to amplify their impact
             </p>
           </div>
           
@@ -438,7 +438,7 @@ const Landing = () => {
                   ))}
                 </div>
                 <p className="text-muted-foreground mb-4">
-                  "Causeio transformed our customer service. Our chatbot handles 80% of inquiries automatically."
+                  "Causeio transformed our donor engagement. Our chatbot answers questions and directs supporters to give 24/7."
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold mr-3">
@@ -446,7 +446,7 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold">Jane Smith</div>
-                    <div className="text-sm text-muted-foreground">CEO, TechCorp</div>
+                    <div className="text-sm text-muted-foreground">Executive Director, Hope Foundation</div>
                   </div>
                 </div>
               </CardContent>
@@ -460,7 +460,7 @@ const Landing = () => {
                   ))}
                 </div>
                 <p className="text-muted-foreground mb-4">
-                  "The QR code analytics helped us increase our offline-to-online conversion by 300%."
+                  "The QR code analytics helped us track which fundraising materials drive the most donations. Game changer!"
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold mr-3">
@@ -468,7 +468,7 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold">Mike Davis</div>
-                    <div className="text-sm text-muted-foreground">Marketing Dir, RetailPlus</div>
+                    <div className="text-sm text-muted-foreground">Development Director, Community Cares</div>
                   </div>
                 </div>
               </CardContent>
@@ -490,7 +490,7 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold">Anna Lee</div>
-                    <div className="text-sm text-muted-foreground">Founder, Creative Agency</div>
+                    <div className="text-sm text-muted-foreground">Communications Director, Youth Alliance</div>
                   </div>
                 </div>
               </CardContent>
