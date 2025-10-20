@@ -26,14 +26,112 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Block legacy Causeio widget if externally injected -->
-    <style>#causeio-widget-root { display: none !important; }</style>
+    <!-- Aggressive blocker for legacy Causeio widget -->
+    <style>
+      #causeio-widget-root,
+      [id*="causeio"][id*="widget"],
+      iframe[src*="supabase.co/storage"][src*="widget"] { 
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+    </style>
     <script>
       (function() {
-        try {
-          var el = document.getElementById('causeio-widget-root');
-          if (el) el.remove();
-        } catch (e) { /* noop */ }
+        'use strict';
+        
+        // Block legacy widget scripts before they load
+        var originalAppendChild = Element.prototype.appendChild;
+        var originalInsertBefore = Element.prototype.insertBefore;
+        
+        function blockLegacyWidget(node) {
+          if (node && node.tagName === 'SCRIPT' && node.src) {
+            var src = node.src.toLowerCase();
+            if (src.includes('embed.js') || src.includes('widget.umd.js')) {
+              console.warn('Blocked legacy Causeio widget script:', node.src);
+              return true;
+            }
+          }
+          if (node && node.tagName === 'IFRAME') {
+            var src = (node.src || '').toLowerCase();
+            // Only allow NPO Bot iframe
+            if (!src.includes('npobots.com') && src.includes('widget')) {
+              console.warn('Blocked legacy widget iframe:', node.src);
+              return true;
+            }
+          }
+          return false;
+        }
+        
+        Element.prototype.appendChild = function(node) {
+          if (blockLegacyWidget(node)) return node;
+          return originalAppendChild.call(this, node);
+        };
+        
+        Element.prototype.insertBefore = function(node, ref) {
+          if (blockLegacyWidget(node)) return node;
+          return originalInsertBefore.call(this, node, ref);
+        };
+        
+        // Remove any existing legacy widget elements
+        function cleanupLegacyWidget() {
+          try {
+            // Remove widget containers
+            var containers = document.querySelectorAll('#causeio-widget-root, [id*="causeio"][id*="widget"]');
+            containers.forEach(function(el) { 
+              el.remove();
+              console.log('Removed legacy widget container:', el.id);
+            });
+            
+            // Remove legacy widget iframes
+            var iframes = document.querySelectorAll('iframe');
+            iframes.forEach(function(iframe) {
+              var src = (iframe.src || '').toLowerCase();
+              if (!src.includes('npobots.com') && src.includes('widget')) {
+                iframe.remove();
+                console.log('Removed legacy widget iframe');
+              }
+            });
+          } catch (e) {
+            console.warn('Cleanup error:', e);
+          }
+        }
+        
+        // Monitor for dynamically injected elements
+        var observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+              if (node.nodeType === 1) { // Element node
+                if (blockLegacyWidget(node)) {
+                  node.remove();
+                }
+                // Check children
+                if (node.querySelectorAll) {
+                  var scripts = node.querySelectorAll('script[src*="embed.js"], script[src*="widget.umd.js"]');
+                  scripts.forEach(function(s) { 
+                    s.remove();
+                    console.warn('Blocked dynamically added widget script');
+                  });
+                }
+              }
+            });
+          });
+          cleanupLegacyWidget();
+        });
+        
+        // Start observing
+        if (document.body) {
+          observer.observe(document.body, { childList: true, subtree: true });
+        } else {
+          document.addEventListener('DOMContentLoaded', function() {
+            observer.observe(document.body, { childList: true, subtree: true });
+          });
+        }
+        
+        // Initial cleanup
+        cleanupLegacyWidget();
+        setInterval(cleanupLegacyWidget, 1000); // Check every second
       })();
     </script>
     
