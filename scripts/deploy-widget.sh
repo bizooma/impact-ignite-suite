@@ -1,43 +1,53 @@
 #!/bin/bash
 
 # Causeio Widget Deployment Script
-# This script builds the widget and uploads it to Supabase Storage
+set -e
 
-set -e  # Exit on error
+echo "=================================="
+echo "📦 CAUSEIO WIDGET SETUP"
+echo "=================================="
+echo ""
 
-echo "🚀 Building Causeio Widget..."
+# Check if build script exists in package.json
+if ! grep -q '"build:widget"' package.json; then
+  echo "⚠️  REQUIRED: Add this to package.json scripts section:"
+  echo ""
+  echo '  "build:widget": "vite build --config vite.widget.config.ts"'
+  echo ""
+  echo "Then run this script again."
+  exit 1
+fi
 
-# Build the widget
+echo "✅ Build script found in package.json"
+echo ""
+echo "🚀 Building widget..."
 npm run build:widget
 
+echo ""
 echo "✅ Widget built successfully!"
 echo ""
-echo "📦 Widget files created:"
-echo "  - dist-widget/widget.umd.js"
-echo "  - dist-widget/widget.css"
-echo "  - public/embed.js"
+echo "📦 Files created:"
+echo "  ✓ dist-widget/widget.umd.js"
+echo "  ✓ dist-widget/widget.css"
+echo "  ✓ public/embed.js"
 echo ""
-echo "📤 Next Steps:"
+echo "=================================="
+echo "📤 UPLOAD TO SUPABASE STORAGE"
+echo "=================================="
 echo ""
-echo "1. Go to Supabase Storage:"
-echo "   https://supabase.com/dashboard/project/svuxuhrsrawdqqkepeye/storage/buckets/widget-hosting"
+echo "1. Open: https://supabase.com/dashboard/project/svuxuhrsrawdqqkepeye/storage/buckets/widget-hosting"
 echo ""
-echo "2. Upload these 3 files:"
-echo "   - public/embed.js"
-echo "   - dist-widget/widget.umd.js"
-echo "   - dist-widget/widget.css"
+echo "2. Upload these 3 files (drag & drop):"
+echo "   • public/embed.js"
+echo "   • dist-widget/widget.umd.js"
+echo "   • dist-widget/widget.css"
 echo ""
-echo "3. Verify the files are accessible at:"
-echo "   - https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting/embed.js"
-echo "   - https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting/widget.umd.js"
-echo "   - https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting/widget.css"
+echo "=================================="
+echo "✅ READY TO USE"
+echo "=================================="
 echo ""
-echo "4. Test your widget by adding this to any HTML page:"
-echo '<script'
-echo '  src="https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting/embed.js"'
-echo '  data-chatbot-id="3c83a2ce-c387-47bd-8f86-b10154810d16"'
-echo '  data-primary-color="#0066CC"'
-echo '  data-accent-color="#00AA44"'
-echo '></script>'
+echo "Your embed code:"
+echo '<script src="https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting/embed.js" data-chatbot-id="YOUR_CHATBOT_ID"></script>'
 echo ""
-echo "✨ After uploading, click 'Activate Chatbot' in your dashboard to go live!"
+echo "💡 Get your chatbot ID from the dashboard"
+echo "🎯 Click 'Activate Chatbot' to go live!"
