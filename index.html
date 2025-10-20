@@ -65,6 +65,17 @@
       })();
     </script>
     
+    <!-- Block legacy Causeio widget if externally injected -->
+    <style>#causeio-widget-root { display: none !important; }</style>
+    <script>
+      (function() {
+        try {
+          var el = document.getElementById('causeio-widget-root');
+          if (el) el.remove();
+        } catch (e) { /* noop */ }
+      })();
+    </script>
+    
     <!-- NPO Chatbot Widget -->
     <script src="https://npobots.com/npo-bot.js" data-public-key="707232ac-683f-4ebb-988b-06c66c6067d6" data-position="bottom-right"></script>
   </body>
