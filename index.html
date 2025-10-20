@@ -26,45 +26,6 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Force-unregister any existing service workers and clear caches -->
-    <script>
-      (function () {
-        try {
-          var needsReload = !sessionStorage.getItem('sw-cleaned-v1');
-          var unregisterPromises = [];
-
-          if ('serviceWorker' in navigator) {
-            unregisterPromises.push(
-              navigator.serviceWorker.getRegistrations().then(function (registrations) {
-                registrations.forEach(function (reg) {
-                  try { reg.unregister(); } catch (e) { /* noop */ }
-                });
-              })
-            );
-          }
-
-          if (window.caches && caches.keys) {
-            unregisterPromises.push(
-              caches.keys().then(function (keys) {
-                return Promise.all(keys.map(function (key) {
-                  try { return caches.delete(key); } catch (e) { return Promise.resolve(false); }
-                }));
-              })
-            );
-          }
-
-          Promise.all(unregisterPromises).then(function () {
-            if (needsReload) {
-              try { sessionStorage.setItem('sw-cleaned-v1', '1'); } catch (e) {}
-              location.reload();
-            }
-          });
-        } catch (e) {
-          console.warn('SW cleanup error:', e);
-        }
-      })();
-    </script>
-    
     <!-- Block legacy Causeio widget if externally injected -->
     <style>#causeio-widget-root { display: none !important; }</style>
     <script>
