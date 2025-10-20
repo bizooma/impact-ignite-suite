@@ -301,7 +301,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
               <CardTitle className="flex items-center gap-2">
                 User Management
                 {isConnected && (
-                  <Badge variant="outline" className="gap-1">
+                  <Badge variant="outline" className="gap-1 bg-green-500 text-white border-green-500 hover:bg-green-600">
                     <Activity className="h-3 w-3 animate-pulse" />
                     Live
                   </Badge>
