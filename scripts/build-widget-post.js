@@ -33,7 +33,7 @@ widgetBuild.on('close', (code) => {
     
     try {
       copyFileSync(
-        resolve(__dirname, '../dist-widget/widget.umd.js'),
+        resolve(__dirname, '../dist-widget/widget.umd.cjs'),
         resolve(publicWidgetDir, 'widget.umd.js')
       );
       copyFileSync(
