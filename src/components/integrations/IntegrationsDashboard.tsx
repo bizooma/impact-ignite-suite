@@ -93,6 +93,7 @@ const IntegrationsDashboard: React.FC<IntegrationsDashboardProps> = ({ organizat
   };
 
   const availableProviders = [
+    { value: 'google_business', label: 'Google Business Profile' },
     { value: 'google_ads', label: 'Google Ads' },
     { value: 'facebook_ads', label: 'Facebook Ads' },
     { value: 'twitter', label: 'Twitter/X' },
@@ -198,13 +199,19 @@ const IntegrationsDashboard: React.FC<IntegrationsDashboardProps> = ({ organizat
                   id="encrypted_tokens"
                   value={formData.encrypted_tokens}
                   onChange={(e) => setFormData({ ...formData, encrypted_tokens: e.target.value })}
-                  placeholder={formData.provider === 'mailchimp' 
-                    ? '{"api_key": "your_mailchimp_key-us14"}' 
-                    : '{"api_key": "your_api_key", "secret": "your_secret"}'}
+                  placeholder={
+                    formData.provider === 'google_business'
+                      ? '{"client_id": "your-client-id.apps.googleusercontent.com", "client_secret": "your-client-secret"}'
+                      : formData.provider === 'mailchimp' 
+                      ? '{"api_key": "your_mailchimp_key-us14"}' 
+                      : '{"api_key": "your_api_key", "secret": "your_secret"}'
+                  }
                   className="min-h-[100px] font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {formData.provider === 'mailchimp' 
+                  {formData.provider === 'google_business'
+                    ? 'Get OAuth credentials from Google Cloud Console. Enable Google My Business API and create OAuth 2.0 credentials.'
+                    : formData.provider === 'mailchimp' 
                     ? 'Enter your Mailchimp API key in JSON format. Find it in Mailchimp Account > Extras > API Keys.' 
                     : 'These will be encrypted and stored securely. Must be valid JSON.'}
                 </p>

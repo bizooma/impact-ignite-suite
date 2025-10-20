@@ -59,3 +59,21 @@ verify_jwt = false
 
 [functions.get-widget-config]
 verify_jwt = false
+
+[functions.gbp-oauth-callback]
+verify_jwt = false
+
+[functions.gbp-sync-reviews]
+verify_jwt = false
+
+[functions.gbp-generate-response]
+verify_jwt = false
+
+[functions.gbp-notify-review]
+verify_jwt = false
+
+[functions.gbp-quick-approve]
+verify_jwt = false
+
+[functions.gbp-post-response]
+verify_jwt = false
