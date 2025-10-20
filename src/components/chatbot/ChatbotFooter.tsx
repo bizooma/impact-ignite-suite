@@ -55,9 +55,10 @@ export const ChatbotFooter: React.FC<ChatbotFooterProps> = ({
               onTrackEvent('volunteer_opened');
               onVolunteerClick();
             }}
-            variant="outline"
+            variant="default"
             size="sm"
             className="w-full"
+            style={{ backgroundColor: brandColors.primary, color: 'white' }}
           >
             <Heart className="w-4 h-4 mr-1" />
             <span className="hidden sm:inline">Volunteer</span>
@@ -67,9 +68,10 @@ export const ChatbotFooter: React.FC<ChatbotFooterProps> = ({
           {hasContactInfo && (
             <Button
               onClick={handleContactClick}
-              variant="outline"
+              variant="default"
               size="sm"
               className="w-full"
+              style={{ backgroundColor: brandColors.primary, color: 'white' }}
             >
               {config.phone_contact ? (
                 <Phone className="w-4 h-4 mr-1" />
@@ -86,9 +88,10 @@ export const ChatbotFooter: React.FC<ChatbotFooterProps> = ({
               onTrackEvent('faq_opened');
               onFaqClick();
             }}
-            variant="outline"
+            variant="default"
             size="sm"
             className="w-full"
+            style={{ backgroundColor: brandColors.primary, color: 'white' }}
           >
             <HelpCircle className="w-4 h-4 mr-1" />
             <span className="hidden sm:inline">FAQ</span>
