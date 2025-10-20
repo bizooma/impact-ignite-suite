@@ -1,10 +1,8 @@
 # Chatbot Widget Setup - Quick Start
 
-## ✅ Automated Widget Build
+## 🚀 Deploy Your Widget
 
-The widget now builds automatically whenever you deploy your app! No manual build steps required.
-
-## 🚀 Deploy Your Widget (1 Step)
+The widget files are pre-built and ready to upload.
 
 ### Upload to Supabase Storage
 
@@ -43,11 +41,10 @@ Open `scripts/test-widget.html` in your browser to test the widget locally.
 
 ## 🔄 Updating Your Widget
 
-When you make changes to the chatbot:
+When you make changes to the chatbot components, ask Lovable to rebuild the widget files, then:
 
-1. Deploy your app (widget builds automatically)
-2. Re-upload the 3 files to Supabase Storage
-3. Changes are live immediately (no caching)
+1. Re-upload the 3 files to Supabase Storage
+2. Changes are live immediately (no caching)
 
 ## 📚 Full Documentation
 
