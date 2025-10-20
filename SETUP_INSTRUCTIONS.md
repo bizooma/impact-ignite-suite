@@ -1,37 +1,14 @@
 # Chatbot Widget Setup - Quick Start
 
-## ⚠️ ONE-TIME MANUAL STEP REQUIRED
+## ✅ Automated Widget Build
 
-Add this line to your `package.json` in the `"scripts"` section:
+The widget now builds automatically whenever you deploy your app! No manual build steps required.
 
-```json
-"build:widget": "vite build --config vite.widget.config.ts"
-```
+## 🚀 Deploy Your Widget (1 Step)
 
-**Example:**
-```json
-{
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:widget": "vite build --config vite.widget.config.ts",  ← ADD THIS
-    "preview": "vite preview"
-  }
-}
-```
+### Upload to Supabase Storage
 
-## 🚀 Deploy Your Widget (2 Steps)
-
-### Step 1: Build the Widget
-```bash
-npm run build:widget
-```
-Or use the helper script:
-```bash
-bash scripts/deploy-widget.sh
-```
-
-### Step 2: Upload to Supabase Storage
+After your app is deployed, the widget files are automatically generated. You just need to upload them:
 
 1. **Open Supabase Storage:**
    https://supabase.com/dashboard/project/svuxuhrsrawdqqkepeye/storage/buckets/widget-hosting
@@ -68,7 +45,7 @@ Open `scripts/test-widget.html` in your browser to test the widget locally.
 
 When you make changes to the chatbot:
 
-1. Run `npm run build:widget`
+1. Deploy your app (widget builds automatically)
 2. Re-upload the 3 files to Supabase Storage
 3. Changes are live immediately (no caching)
 
