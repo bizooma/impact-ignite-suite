@@ -41,6 +41,20 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
     enabled: !!user?.id && !!organizationId,
   });
 
+  // Fetch organization brand color for theming
+  const { data: orgData } = useQuery({
+    queryKey: ['organization-theme', organizationId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('organizations')
+        .select('id, name, brand_color')
+        .eq('id', organizationId)
+        .single();
+      return data;
+    },
+    enabled: !!organizationId,
+  });
+
   if (configLoading || membershipLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -154,28 +168,64 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="users" className="flex items-center gap-2">
+        <TabsList 
+          className="grid w-full grid-cols-6"
+          style={orgData?.brand_color ? {
+            backgroundColor: orgData.brand_color,
+            borderColor: orgData.brand_color
+          } : undefined}
+        >
+          <TabsTrigger 
+            value="users" 
+            className="flex items-center gap-2"
+            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
+            data-brand-styled={!!orgData?.brand_color}
+          >
             <Users className="h-4 w-4" />
             Users
           </TabsTrigger>
-          <TabsTrigger value="roles" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="roles" 
+            className="flex items-center gap-2"
+            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
+            data-brand-styled={!!orgData?.brand_color}
+          >
             <Shield className="h-4 w-4" />
             Roles
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="history" 
+            className="flex items-center gap-2"
+            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
+            data-brand-styled={!!orgData?.brand_color}
+          >
             <History className="h-4 w-4" />
             Role History
           </TabsTrigger>
-          <TabsTrigger value="chats" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="chats" 
+            className="flex items-center gap-2"
+            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
+            data-brand-styled={!!orgData?.brand_color}
+          >
             <MessageSquare className="h-4 w-4" />
             Chats
           </TabsTrigger>
-          <TabsTrigger value="audit" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="audit" 
+            className="flex items-center gap-2"
+            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
+            data-brand-styled={!!orgData?.brand_color}
+          >
             <FileText className="h-4 w-4" />
             Audit Logs
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="settings" 
+            className="flex items-center gap-2"
+            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
+            data-brand-styled={!!orgData?.brand_color}
+          >
             <Settings className="h-4 w-4" />
             Settings
           </TabsTrigger>

@@ -13,6 +13,7 @@ interface Organization {
   has_mobile_app?: boolean;
   mobile_app_code?: string;
   purchased_products?: string[];
+  brand_color?: string;
 }
 
 interface OrganizationContextType {
@@ -56,7 +57,8 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
             website,
             has_mobile_app,
             mobile_app_code,
-            purchased_products
+            purchased_products,
+            brand_color
           )
         `)
         .eq('user_id', user?.id);

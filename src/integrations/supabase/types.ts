@@ -1601,6 +1601,7 @@ export type Database = {
       }
       organizations: {
         Row: {
+          brand_color: string | null
           created_at: string
           description: string | null
           has_mobile_app: boolean | null
@@ -1614,6 +1615,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          brand_color?: string | null
           created_at?: string
           description?: string | null
           has_mobile_app?: boolean | null
@@ -1627,6 +1629,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          brand_color?: string | null
           created_at?: string
           description?: string | null
           has_mobile_app?: boolean | null
