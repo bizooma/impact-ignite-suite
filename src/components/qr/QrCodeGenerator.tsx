@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useQrCodes } from '@/hooks/useQrCodes';
 import { Palette, Link, BarChart3 } from 'lucide-react';
 import { QrShapePicker, type QrShape } from './QrShapePicker';
 
@@ -14,12 +13,20 @@ interface QrCodeGeneratorProps {
   open: boolean;
   onClose: () => void;
   organizationId: string;
+  createQrCode: (qrData: {
+    name: string;
+    destination_url: string;
+    type?: 'static' | 'dynamic';
+    brand_config?: any;
+    utm_params?: any;
+  }) => Promise<any>;
 }
 
 export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
   open,
   onClose,
-  organizationId
+  organizationId,
+  createQrCode
 }) => {
   const [name, setName] = useState('');
   const [destinationUrl, setDestinationUrl] = useState('');
@@ -32,8 +39,6 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
   const [utmMedium, setUtmMedium] = useState('qr_code');
   const [utmCampaign, setUtmCampaign] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { createQrCode } = useQrCodes(organizationId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

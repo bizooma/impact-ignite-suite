@@ -50,7 +50,7 @@ const QrPreview: React.FC<{ url: string; brandConfig?: any }> = ({ url, brandCon
 
 const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => {
   const [showGenerator, setShowGenerator] = useState(false);
-  const { qrCodes, loading } = useQrCodes(organizationId);
+  const { qrCodes, loading, createQrCode } = useQrCodes(organizationId);
   const { toast } = useToast();
   const [analyticsQr, setAnalyticsQr] = useState<{ id: string; name: string } | null>(null);
   const [settingsQr, setSettingsQr] = useState<any | null>(null);
@@ -249,6 +249,7 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
         open={showGenerator}
         onClose={() => setShowGenerator(false)}
         organizationId={organizationId}
+        createQrCode={createQrCode}
       />
 
       <QrAnalyticsDialog
