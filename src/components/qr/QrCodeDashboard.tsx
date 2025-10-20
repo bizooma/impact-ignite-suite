@@ -14,19 +14,38 @@ interface QrCodeDashboardProps {
   organizationId: string;
 }
 
-const QrPreview: React.FC<{ url: string }> = ({ url }) => {
+const QrPreview: React.FC<{ url: string; brandConfig?: any }> = ({ url, brandConfig }) => {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
   useEffect(() => {
     if (!url) return;
-    QRCode.toDataURL(url, { width: 120, margin: 1 })
+    
+    const options: any = {
+      width: 120,
+      margin: 1,
+      color: {
+        dark: brandConfig?.primaryColor || '#000000',
+        light: brandConfig?.backgroundColor || '#ffffff'
+      }
+    };
+    
+    QRCode.toDataURL(url, options)
       .then(setQrDataUrl)
       .catch(console.error);
-  }, [url]);
+  }, [url, brandConfig]);
 
   if (!qrDataUrl) return <div className="w-20 h-20 bg-muted rounded animate-pulse" />;
   
-  return <img src={qrDataUrl} alt="QR preview" className="w-20 h-20 rounded border border-border" />;
+  return (
+    <div className="relative">
+      <img src={qrDataUrl} alt="QR preview" className="w-20 h-20 rounded border border-border" />
+      {brandConfig?.shape && brandConfig.shape !== 'square' && (
+        <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+          {brandConfig.shape}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => {
@@ -38,10 +57,19 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
   const totalScans = qrCodes.reduce((sum, qr) => sum + ((qr as any).scan_count || 0), 0);
   const activeQrCodes = qrCodes.filter(qr => qr.is_active).length;
 
-  const handleDownload = async (id: string, name: string, url?: string | null) => {
+  const handleDownload = async (id: string, name: string, url?: string | null, brandConfig?: any) => {
     try {
       const data = url || '';
-      const dataUrl = await QRCode.toDataURL(data, { width: 1024, margin: 1 });
+      const options: any = {
+        width: 1024,
+        margin: 1,
+        color: {
+          dark: brandConfig?.primaryColor || '#000000',
+          light: brandConfig?.backgroundColor || '#ffffff'
+        }
+      };
+      
+      const dataUrl = await QRCode.toDataURL(data, options);
       const a = document.createElement('a');
       a.href = dataUrl;
       a.download = `${name.replace(/\s+/g, '-').toLowerCase()}-qr.png`;
@@ -157,7 +185,7 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
                       {qrCode.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
-                  <QrPreview url={qrUrl} />
+                  <QrPreview url={qrUrl} brandConfig={qrCode.brand_config} />
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -171,13 +199,20 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
                   <span className="font-medium capitalize">{qrCode.type || 'dynamic'}</span>
                 </div>
 
+                {(qrCode.brand_config as any)?.shape && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Shape</span>
+                    <span className="font-medium capitalize">{(qrCode.brand_config as any).shape}</span>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Scans</span>
                   <span className="font-medium">{(qrCode as any).scan_count || 0}</span>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1" onClick={() => handleDownload(qrCode.id, qrCode.name, qrUrl)}>
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => handleDownload(qrCode.id, qrCode.name, qrUrl, qrCode.brand_config)}>
                     <Download className="h-4 w-4 mr-1" />
                     Download
                   </Button>

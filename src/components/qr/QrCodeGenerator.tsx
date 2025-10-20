@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQrCodes } from '@/hooks/useQrCodes';
 import { Palette, Link, BarChart3 } from 'lucide-react';
+import { QrShapePicker, type QrShape } from './QrShapePicker';
 
 interface QrCodeGeneratorProps {
   open: boolean;
@@ -25,6 +26,7 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
   const [type, setType] = useState<'static' | 'dynamic'>('dynamic');
   const [primaryColor, setPrimaryColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
+  const [shape, setShape] = useState<QrShape>('square');
   const [logo, setLogo] = useState('');
   const [utmSource, setUtmSource] = useState('');
   const [utmMedium, setUtmMedium] = useState('qr_code');
@@ -42,6 +44,7 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
     const brandConfig = {
       primaryColor,
       backgroundColor,
+      shape,
       logo: logo || undefined
     };
 
@@ -65,6 +68,7 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
     setType('dynamic');
     setPrimaryColor('#000000');
     setBackgroundColor('#ffffff');
+    setShape('square');
     setLogo('');
     setUtmSource('');
     setUtmMedium('qr_code');
@@ -192,6 +196,8 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
                     </div>
                   </div>
 
+                  <QrShapePicker value={shape} onChange={setShape} />
+
                   <div className="space-y-2">
                     <Label htmlFor="logo">Logo URL (Optional)</Label>
                     <Input
@@ -263,7 +269,7 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
                     <div className="text-center">
                       <div className="text-sm font-medium mb-2">QR Code Preview</div>
                       <div className="text-xs text-muted-foreground">
-                        Generated after creation
+                        Generated with {shape} shape
                       </div>
                     </div>
                   </div>
