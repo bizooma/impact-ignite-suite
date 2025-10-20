@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Causeio Widget Test Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 {
+      color: #0066CC;
+      border-bottom: 3px solid #00AA44;
+      padding-bottom: 10px;
+    }
+    .instructions {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .status.warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+    code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 Causeio Widget Test Page</h1>
+  
+  <div class="instructions">
+    <h2>Testing Instructions:</h2>
+    <ol>
+      <li>Make sure you've uploaded the widget files to Supabase Storage</li>
+      <li>Make sure your chatbot is set to <code>active</code> status</li>
+      <li>Look for the widget launcher in the bottom-right corner</li>
+      <li>Click the launcher to open the chat</li>
+      <li>Try sending a message</li>
+    </ol>
+  </div>
+
+  <div class="status success" id="widget-status">
+    ✅ Widget script is loading...
+  </div>
+
+  <h2>What You Should See:</h2>
+  <ul>
+    <li>A circular launcher button in the bottom-right corner with video preview</li>
+    <li>Text saying "Causeio Support" and "How Can I Help You Today?"</li>
+    <li>When clicked, a chat window should open</li>
+    <li>You should be able to send messages and get AI responses</li>
+  </ul>
+
+  <h2>Troubleshooting:</h2>
+  <ul>
+    <li><strong>Widget doesn't appear:</strong> Check browser console for errors</li>
+    <li><strong>Widget appears but doesn't work:</strong> Verify chatbot is active in database</li>
+    <li><strong>No AI responses:</strong> Check OPENAI_API_KEY is set in Supabase</li>
+    <li><strong>CORS errors:</strong> Verify files are in the public widget-hosting bucket</li>
+  </ul>
+
+  <!-- Causeio Chatbot Widget -->
+  <script
+    src="https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting/embed.js"
+    data-chatbot-id="3c83a2ce-c387-47bd-8f86-b10154810d16"
+    data-primary-color="#0066CC"
+    data-accent-color="#00AA44"
+  ></script>
+
+  <script>
+    // Monitor widget loading
+    setTimeout(() => {
+      const statusEl = document.getElementById('widget-status');
+      if (window.CauseioWidget) {
+        statusEl.innerHTML = '✅ Widget loaded successfully! Look for the launcher in the bottom-right corner.';
+        statusEl.className = 'status success';
+      } else {
+        statusEl.innerHTML = '⚠️ Widget failed to load. Check the browser console for errors.';
+        statusEl.className = 'status warning';
+      }
+    }, 3000);
+  </script>
+</body>
+</html>
