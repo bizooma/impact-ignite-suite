@@ -455,7 +455,10 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={user.is_active ? 'default' : 'secondary'}>
+                        <Badge 
+                          variant={user.is_active ? 'default' : 'secondary'}
+                          className={user.is_active ? 'bg-[#003D7A] hover:bg-[#002a54] text-white' : ''}
+                        >
                           {user.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>
