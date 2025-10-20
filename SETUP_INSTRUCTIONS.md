@@ -1,8 +1,27 @@
 # Chatbot Widget Setup - Quick Start
 
+## ✅ Automated Widget Build Setup
+
+To enable automatic widget builds with your app deployment:
+
+### One-Time Setup (Required)
+
+Add this to your `package.json` scripts section:
+
+```json
+{
+  "scripts": {
+    "build": "vite build && node scripts/build-widget-post.js",
+    "build:dev": "vite build --mode development && node scripts/build-widget-post.js"
+  }
+}
+```
+
+**Note:** You'll need to manually edit `package.json` to add these scripts. After this one-time setup, the widget will build automatically every time you deploy!
+
 ## 🚀 Deploy Your Widget
 
-The widget files are pre-built and ready to upload.
+After your app deploys (with the widget build), upload the generated files:
 
 ### Upload to Supabase Storage
 
@@ -41,10 +60,20 @@ Open `scripts/test-widget.html` in your browser to test the widget locally.
 
 ## 🔄 Updating Your Widget
 
-When you make changes to the chatbot components, ask Lovable to rebuild the widget files, then:
+With automated builds enabled:
 
-1. Re-upload the 3 files to Supabase Storage
-2. Changes are live immediately (no caching)
+1. Deploy your app (widget builds automatically)
+2. Re-upload the 3 files to Supabase Storage
+3. Changes are live immediately (no caching)
+
+### Manual Build (if needed)
+
+You can also manually build the widget anytime:
+
+```bash
+npm run build:widget
+node scripts/build-widget-post.js
+```
 
 ## 📚 Full Documentation
 
