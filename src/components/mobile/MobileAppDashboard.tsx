@@ -132,7 +132,10 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
             Manage your mobile app data and settings
           </p>
         </div>
-        <Badge variant={isActive ? 'default' : 'secondary'}>
+        <Badge 
+          variant={isActive ? 'default' : 'secondary'}
+          className={isActive ? 'bg-green-500 hover:bg-green-600 text-white' : ''}
+        >
           {isActive ? 'Active' : 'Inactive'}
         </Badge>
       </div>
