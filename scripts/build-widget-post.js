@@ -5,13 +5,17 @@
  * This runs as a separate process to avoid nested build issues
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 console.log('\n🔧 Building chatbot widget...');
 
 const widgetBuild = spawn('npx', ['vite', 'build', '--config', 'vite.widget.config.ts'], {
-  cwd: path.resolve(__dirname, '..'),
+  cwd: resolve(__dirname, '..'),
   stdio: 'inherit',
   shell: true
 });
