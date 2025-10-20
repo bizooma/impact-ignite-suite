@@ -6,10 +6,13 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGbpProfiles } from '@/hooks/useGbpProfiles';
 import { useGbpReviews } from '@/hooks/useGbpReviews';
+import { useIntegrations } from '@/hooks/useIntegrations';
 import { MapPin, Star, Users, CheckCircle, Clock, AlertTriangle, Plus, RefreshCw, MessageSquare } from 'lucide-react';
 import { ProfileManager } from './ProfileManager';
 import { TaskManager } from './TaskManager';
 import { ReviewsManager } from './ReviewsManager';
+import { GbpSetupGuide } from './GbpSetupGuide';
+import { IntegrationStatusBanner } from './IntegrationStatusBanner';
 
 interface GbpDashboardProps {
   organizationId: string;
@@ -17,8 +20,12 @@ interface GbpDashboardProps {
 
 const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
   const [showProfileManager, setShowProfileManager] = useState(false);
-  const { profiles, tasks, loading } = useGbpProfiles(organizationId);
-  const { reviewStats, loading: reviewsLoading } = useGbpReviews(organizationId);
+  const { profiles, tasks, loading, refetch: refetchProfiles } = useGbpProfiles(organizationId);
+  const { reviewStats, loading: reviewsLoading, fetchReviews } = useGbpReviews(organizationId);
+  const { integrations, loading: integrationsLoading } = useIntegrations(organizationId);
+  
+  const gbpIntegration = integrations.find(i => i.provider === 'google_business' && i.status === 'active');
+  const hasGbpIntegration = !!gbpIntegration;
 
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const pendingTasks = tasks.filter(t => t.status === 'todo').length;
@@ -40,7 +47,9 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
     }
   };
 
-  if (loading) {
+  const isLoading = loading || reviewsLoading || integrationsLoading;
+
+  if (isLoading) {
     return (
       <div className="space-y-4">
         <div className="h-8 bg-muted animate-pulse rounded" />
@@ -58,19 +67,44 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+  // Show setup guide if no integration
+  if (!hasGbpIntegration) {
+    return (
+      <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Google Business Profile</h2>
           <p className="text-muted-foreground">
             Manage your Google Business Profile presence and optimization
           </p>
         </div>
-        <Button onClick={() => setShowProfileManager(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Profile
-        </Button>
+        <GbpSetupGuide organizationId={organizationId} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Google Business Profile</h2>
+            <p className="text-muted-foreground">
+              Manage your Google Business Profile presence and optimization
+            </p>
+          </div>
+          <Button onClick={() => setShowProfileManager(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Profile
+          </Button>
+        </div>
+        
+        <IntegrationStatusBanner 
+          integration={gbpIntegration || null} 
+          onRefresh={() => {
+            refetchProfiles();
+            fetchReviews();
+          }}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
