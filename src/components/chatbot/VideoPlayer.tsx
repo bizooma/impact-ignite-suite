@@ -61,21 +61,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   return (
     <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden">
       {getVideoElement()}
-      
-      {/* Gradient overlay with CTA */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/95 to-transparent p-4">
-        <p className="text-sm font-medium text-foreground mb-2">
-          {ctaText}
-        </p>
-        <Button 
-          onClick={onContinue}
-          variant="default"
-          size="sm"
-          className="w-full"
-        >
-          Continue to chat
-        </Button>
-      </div>
     </div>
   );
 };
