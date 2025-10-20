@@ -46,78 +46,85 @@ export const ChatbotFooter: React.FC<ChatbotFooterProps> = ({
 
   return (
     <div className="border-t bg-background/70 backdrop-blur-sm p-3">
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {/* Volunteer button */}
-        <Button
-          onClick={() => {
-            onTrackEvent('volunteer_opened');
-            onVolunteerClick();
-          }}
-          variant="outline"
-          size="sm"
-          className="w-full"
-        >
-          <Heart className="w-4 h-4 mr-1" />
-          <span className="hidden sm:inline">Volunteer</span>
-        </Button>
-
-        {/* Contact button */}
-        {hasContactInfo && (
+      <div className="flex flex-col gap-2">
+        {/* Top row: Volunteer, Contact, FAQ */}
+        <div className="grid grid-cols-3 gap-2">
+          {/* Volunteer button */}
           <Button
-            onClick={handleContactClick}
+            onClick={() => {
+              onTrackEvent('volunteer_opened');
+              onVolunteerClick();
+            }}
             variant="outline"
             size="sm"
             className="w-full"
           >
-            {config.phone_contact ? (
-              <Phone className="w-4 h-4 mr-1" />
-            ) : (
-              <Mail className="w-4 h-4 mr-1" />
+            <Heart className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">Volunteer</span>
+          </Button>
+
+          {/* Contact button */}
+          {hasContactInfo && (
+            <Button
+              onClick={handleContactClick}
+              variant="outline"
+              size="sm"
+              className="w-full"
+            >
+              {config.phone_contact ? (
+                <Phone className="w-4 h-4 mr-1" />
+              ) : (
+                <Mail className="w-4 h-4 mr-1" />
+              )}
+              <span className="hidden sm:inline">Contact</span>
+            </Button>
+          )}
+
+          {/* FAQ button */}
+          <Button
+            onClick={() => {
+              onTrackEvent('faq_opened');
+              onFaqClick();
+            }}
+            variant="outline"
+            size="sm"
+            className="w-full"
+          >
+            <HelpCircle className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">FAQ</span>
+          </Button>
+        </div>
+
+        {/* Bottom row: Donation buttons */}
+        {hasDonations && (config.donation_button_1 || config.donation_button_2) && (
+          <div className="grid grid-cols-2 gap-2">
+            {config.donation_button_1 && (
+              <Button
+                onClick={() => handleDonationClick(config.donation_button_1!, 1)}
+                variant="default"
+                size="sm"
+                className="w-full"
+                style={{ backgroundColor: brandColors.accent, color: 'white' }}
+              >
+                <DollarSign className="w-4 h-4 mr-1" />
+                <span className="truncate">{config.donation_button_1.label}</span>
+              </Button>
             )}
-            <span className="hidden sm:inline">Contact</span>
-          </Button>
-        )}
 
-        {/* Donation buttons */}
-        {hasDonations && config.donation_button_1 && (
-          <Button
-            onClick={() => handleDonationClick(config.donation_button_1!, 1)}
-            variant="default"
-            size="sm"
-            className="w-full"
-            style={{ backgroundColor: brandColors.accent, color: 'white' }}
-          >
-            <DollarSign className="w-4 h-4 mr-1" />
-            <span className="truncate">{config.donation_button_1.label}</span>
-          </Button>
+            {config.donation_button_2 && (
+              <Button
+                onClick={() => handleDonationClick(config.donation_button_2!, 2)}
+                variant="default"
+                size="sm"
+                className="w-full"
+                style={{ backgroundColor: brandColors.accent, color: 'white' }}
+              >
+                <DollarSign className="w-4 h-4 mr-1" />
+                <span className="truncate">{config.donation_button_2.label}</span>
+              </Button>
+            )}
+          </div>
         )}
-
-        {hasDonations && config.donation_button_2 && (
-          <Button
-            onClick={() => handleDonationClick(config.donation_button_2!, 2)}
-            variant="default"
-            size="sm"
-            className="w-full"
-            style={{ backgroundColor: brandColors.accent, color: 'white' }}
-          >
-            <DollarSign className="w-4 h-4 mr-1" />
-            <span className="truncate">{config.donation_button_2.label}</span>
-          </Button>
-        )}
-
-        {/* FAQ button */}
-        <Button
-          onClick={() => {
-            onTrackEvent('faq_opened');
-            onFaqClick();
-          }}
-          variant="outline"
-          size="sm"
-          className="w-full"
-        >
-          <HelpCircle className="w-4 h-4 mr-1" />
-          <span className="hidden sm:inline">FAQ</span>
-        </Button>
       </div>
     </div>
   );
