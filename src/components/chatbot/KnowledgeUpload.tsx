@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useKnowledgeSources } from '@/hooks/useChatbots';
 import type { Chatbot } from '@/types/database';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface KnowledgeUploadProps {
   chatbot: Chatbot;
@@ -52,13 +54,37 @@ export function KnowledgeUpload({ chatbot }: KnowledgeUploadProps) {
     if (!urlContent.trim() || !nameContent.trim()) return;
     
     setIsUploading(true);
-    await addKnowledgeSource({
+    
+    const newSource = await addKnowledgeSource({
       type: 'url',
       name: nameContent,
       file_url: urlContent,
       status: 'pending',
       metadata: {},
     });
+    
+    if (newSource) {
+      try {
+        const { error } = await supabase.functions.invoke('process-knowledge', {
+          body: {
+            knowledgeSourceId: newSource.id,
+            type: 'url',
+            content: urlContent,
+            name: nameContent
+          }
+        });
+        
+        if (error) {
+          console.error('Error processing knowledge source:', error);
+          toast.error('URL added but processing failed. Please try re-adding it.');
+        } else {
+          toast.success('URL is being processed. This may take a minute...');
+        }
+      } catch (error) {
+        console.error('Error invoking process-knowledge:', error);
+        toast.error('Failed to start processing');
+      }
+    }
     
     setUrlContent('');
     setNameContent('');
