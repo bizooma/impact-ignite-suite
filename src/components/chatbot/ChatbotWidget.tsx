@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { VideoPlayer } from './VideoPlayer';
 import { ChatbotFooter } from './ChatbotFooter';
+import { VolunteerDialog } from './VolunteerDialog';
 import { Chatbot, ChatbotWidgetConfig } from '@/types/database';
 import { useChatbot } from '@/hooks/useChatbot';
 
@@ -30,6 +31,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
   const [mounted, setMounted] = useState(false);
   const [input, setInput] = useState('');
   const [showVideo, setShowVideo] = useState(true);
+  const [showVolunteerDialog, setShowVolunteerDialog] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -75,6 +77,11 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
   const handleContinueToChat = () => {
     setShowVideo(false);
     inputRef.current?.focus();
+  };
+
+  const handleVolunteerClick = () => {
+    setShowVolunteerDialog(true);
+    onTrackEvent('volunteer_opened');
   };
 
   if (!mounted || !isOpen) return null;
@@ -200,11 +207,19 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
         <ChatbotFooter
           config={config}
           brandColors={brandColors}
-          onVolunteerClick={onVolunteerClick}
+          onVolunteerClick={handleVolunteerClick}
           onFaqClick={onFaqClick}
           onTrackEvent={onTrackEvent}
         />
       </div>
+
+      {/* Volunteer Dialog */}
+      <VolunteerDialog
+        isOpen={showVolunteerDialog}
+        onClose={() => setShowVolunteerDialog(false)}
+        chatbotId={chatbot.id}
+        onTrackEvent={onTrackEvent}
+      />
     </div>
   );
 

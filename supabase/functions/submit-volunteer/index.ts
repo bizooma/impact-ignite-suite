@@ -91,6 +91,25 @@ serve(async (req) => {
 
     console.log('Volunteer submission successful:', volunteer.id);
 
+    // Sync to CRM automatically
+    try {
+      console.log('Syncing volunteer to CRM...');
+      
+      const syncResponse = await supabase.functions.invoke('sync-volunteer-to-crm', {
+        body: { volunteer }
+      });
+      
+      if (syncResponse.error) {
+        console.error('CRM sync failed:', syncResponse.error);
+        // Don't fail the whole request if CRM sync fails
+      } else {
+        console.log('Successfully synced to CRM:', syncResponse.data);
+      }
+    } catch (syncError) {
+      console.error('Error calling CRM sync:', syncError);
+      // Log but don't fail the request
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
