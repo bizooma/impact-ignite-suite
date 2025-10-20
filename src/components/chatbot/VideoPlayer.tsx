@@ -23,7 +23,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       
       return (
         <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&playsinline=1&rel=0`}
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=1&modestbranding=1&playsinline=1&rel=0`}
           className="absolute inset-0 w-full h-full"
           allow="autoplay; encrypted-media"
           style={{ border: 'none' }}
@@ -37,7 +37,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       
       return (
         <iframe
-          src={`https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&loop=1&background=1`}
+          src={`https://player.vimeo.com/video/${videoId}?autoplay=1&muted=0&loop=1&background=1`}
           className="absolute inset-0 w-full h-full"
           allow="autoplay; encrypted-media"
           style={{ border: 'none' }}
@@ -50,7 +50,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       <video
         src={videoSource}
         autoPlay
-        muted
         loop
         playsInline
         controls
@@ -64,15 +63,15 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {getVideoElement()}
       
       {/* Gradient overlay with CTA */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent 
-        flex flex-col justify-end p-6">
-        <p className="text-lg font-semibold text-foreground mb-3">
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/95 to-transparent p-4">
+        <p className="text-sm font-medium text-foreground mb-2">
           {ctaText}
         </p>
         <Button 
           onClick={onContinue}
-          variant="secondary"
-          className="w-full sm:w-auto"
+          variant="default"
+          size="sm"
+          className="w-full"
         >
           Continue to chat
         </Button>

@@ -76,7 +76,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
 
   const widget = (
     <div className="fixed bottom-20 right-6 z-[200] w-[400px] h-[600px] animate-slide-in-right">
-      <div className="w-full h-full bg-background/95 backdrop-blur-md 
+      <div className="w-full h-full bg-background 
         rounded-lg shadow-elevated flex flex-col overflow-hidden border">
         
         {/* Header */}
