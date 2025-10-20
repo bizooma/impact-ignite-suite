@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Chatbot } from '@/types/database';
+import { useChatbots } from '@/hooks/useChatbots';
 
 interface ChatbotPreviewProps {
   chatbot: Chatbot;
@@ -28,6 +29,7 @@ interface PreviewMessage {
 }
 
 export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
+  const { updateChatbot } = useChatbots(chatbot.organization_id);
   const [messages, setMessages] = useState<PreviewMessage[]>([
     {
       id: '1',
@@ -38,6 +40,7 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -67,17 +70,30 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
     }, 1500);
   };
 
+  const handleToggleStatus = async () => {
+    setIsUpdatingStatus(true);
+    try {
+      const newStatus = chatbot.status === 'active' ? 'draft' : 'active';
+      await updateChatbot(chatbot.id, { status: newStatus });
+      toast.success(`Chatbot ${newStatus === 'active' ? 'activated' : 'paused'} successfully`);
+      
+      // Reload the page to reflect the new status
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      console.error('Error updating chatbot status:', error);
+      toast.error('Failed to update chatbot status');
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   const embedCode = `<!-- Causeio Chatbot Widget -->
-<script>
-  (function() {
-    var script = document.createElement('script');
-    script.src = 'https://widget.causeio.com/embed.js';
-    script.setAttribute('data-chatbot-id', '${chatbot.id}');
-    script.setAttribute('data-primary-color', '${chatbot.brand_settings.primary_color}');
-    script.setAttribute('data-accent-color', '${chatbot.brand_settings.accent_color}');
-    document.head.appendChild(script);
-  })();
-</script>`;
+<script
+  src="https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting/embed.js"
+  data-chatbot-id="${chatbot.id}"
+  data-primary-color="${chatbot.brand_settings.primary_color || '#0066CC'}"
+  data-accent-color="${chatbot.brand_settings.accent_color || '#00AA44'}"
+></script>`;
 
   const copyEmbedCode = () => {
     navigator.clipboard.writeText(embedCode);
@@ -297,8 +313,14 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
             <Button 
               className="w-full"
               variant={chatbot.status === 'active' ? 'outline' : 'default'}
+              onClick={handleToggleStatus}
+              disabled={isUpdatingStatus}
             >
-              {chatbot.status === 'active' ? 'Pause Chatbot' : 'Activate Chatbot'}
+              {isUpdatingStatus 
+                ? 'Updating...' 
+                : chatbot.status === 'active' 
+                  ? 'Pause Chatbot' 
+                  : 'Activate Chatbot'}
             </Button>
           </CardContent>
         </Card>

@@ -7,6 +7,28 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Simple in-memory rate limiting (resets on cold start)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 30; // 30 requests per minute per IP
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const limit = rateLimitMap.get(ip);
+
+  if (!limit || now > limit.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+
+  if (limit.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+
+  limit.count++;
+  return true;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -14,8 +36,25 @@ serve(async (req) => {
   }
 
   try {
+    // Get IP address for rate limiting
+    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0] || 
+                      req.headers.get('x-real-ip') || 
+                      'unknown';
+
+    // Check rate limit
+    if (!checkRateLimit(ipAddress)) {
+      console.warn('Rate limit exceeded for IP:', ipAddress);
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const { message, sessionId, chatbotId } = await req.json();
-    console.log('Processing chat message:', { sessionId, chatbotId, messageLength: message?.length });
+    console.log('Processing chat message:', { sessionId, chatbotId, messageLength: message?.length, ip: ipAddress });
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -63,10 +102,8 @@ serve(async (req) => {
     }
 
     // Track message_sent event
-    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0] || 
-                     req.headers.get('x-real-ip') || 
-                     'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
+    const origin = req.headers.get('origin') || req.headers.get('referer') || 'unknown';
 
     await supabase
       .from('chatbot_events')
@@ -74,7 +111,10 @@ serve(async (req) => {
         chatbot_id: chatbotId,
         session_id: session.id,
         event_type: 'message_sent',
-        event_data: { message_length: message.length },
+        event_data: { 
+          message_length: message.length,
+          origin: origin 
+        },
         ip_address: ipAddress,
         user_agent: userAgent,
       });

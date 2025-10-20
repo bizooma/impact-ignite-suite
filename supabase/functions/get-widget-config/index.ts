@@ -31,11 +31,12 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch chatbot configuration
+    // Fetch chatbot configuration (only active chatbots for external widgets)
     const { data: chatbot, error: chatbotError } = await supabase
       .from('chatbots')
       .select('*')
       .eq('id', chatbotId)
+      .eq('status', 'active')
       .single();
 
     if (chatbotError || !chatbot) {
