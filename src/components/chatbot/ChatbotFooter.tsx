@@ -5,6 +5,7 @@ import { ChatbotWidgetConfig } from '@/types/database';
 
 interface ChatbotFooterProps {
   config: ChatbotWidgetConfig;
+  brandColors: { primary: string; accent: string };
   onVolunteerClick: () => void;
   onFaqClick: () => void;
   onTrackEvent: (eventType: string, eventData?: any) => void;
@@ -12,6 +13,7 @@ interface ChatbotFooterProps {
 
 export const ChatbotFooter: React.FC<ChatbotFooterProps> = ({
   config,
+  brandColors,
   onVolunteerClick,
   onFaqClick,
   onTrackEvent,
@@ -82,7 +84,8 @@ export const ChatbotFooter: React.FC<ChatbotFooterProps> = ({
             onClick={() => handleDonationClick(config.donation_button_1!, 1)}
             variant="default"
             size="sm"
-            className="w-full bg-gradient-primary"
+            className="w-full"
+            style={{ backgroundColor: brandColors.accent, color: 'white' }}
           >
             <DollarSign className="w-4 h-4 mr-1" />
             <span className="truncate">{config.donation_button_1.label}</span>
@@ -94,7 +97,8 @@ export const ChatbotFooter: React.FC<ChatbotFooterProps> = ({
             onClick={() => handleDonationClick(config.donation_button_2!, 2)}
             variant="default"
             size="sm"
-            className="w-full bg-gradient-primary"
+            className="w-full"
+            style={{ backgroundColor: brandColors.accent, color: 'white' }}
           >
             <DollarSign className="w-4 h-4 mr-1" />
             <span className="truncate">{config.donation_button_2.label}</span>

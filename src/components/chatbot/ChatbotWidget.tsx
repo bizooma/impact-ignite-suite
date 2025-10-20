@@ -36,6 +36,11 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
   const config = chatbot.web_widget_config as ChatbotWidgetConfig || {};
   const { messages, sessionId, loading, sendMessage } = useChatbot(chatbot.id);
 
+  const brandColors = {
+    primary: chatbot.brand_settings?.primary_color || '#0066cc',
+    accent: chatbot.brand_settings?.accent_color || '#00AA44',
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -80,7 +85,10 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
         rounded-lg shadow-elevated flex flex-col overflow-hidden border">
         
         {/* Header */}
-        <div className="bg-gradient-primary text-primary-foreground p-4 flex items-center justify-between">
+        <div 
+          className="text-white p-4 flex items-center justify-between"
+          style={{ backgroundColor: brandColors.primary }}
+        >
           <div className="flex items-center gap-3">
             {config.logo_url && (
               <Avatar className="w-10 h-10">
@@ -97,7 +105,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
             onClick={onClose}
             variant="ghost"
             size="icon"
-            className="text-primary-foreground hover:bg-primary-foreground/20"
+            className="text-white hover:bg-white/20"
           >
             <X className="w-5 h-5" />
           </Button>
@@ -137,9 +145,10 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
                   <div
                     className={`rounded-lg p-3 ${
                       msg.role === 'user'
-                        ? 'bg-primary text-primary-foreground ml-auto'
+                        ? 'text-white ml-auto'
                         : 'bg-muted text-foreground'
                     }`}
+                    style={msg.role === 'user' ? { backgroundColor: brandColors.accent } : undefined}
                   >
                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                   </div>
@@ -176,7 +185,12 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
               disabled={loading}
               className="flex-1"
             />
-            <Button type="submit" size="icon" disabled={loading || !input.trim()}>
+            <Button 
+              type="submit" 
+              size="icon" 
+              disabled={loading || !input.trim()}
+              style={{ backgroundColor: brandColors.accent, color: 'white' }}
+            >
               <Send className="w-4 h-4" />
             </Button>
           </form>
@@ -185,6 +199,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
         {/* Footer with action buttons */}
         <ChatbotFooter
           config={config}
+          brandColors={brandColors}
           onVolunteerClick={onVolunteerClick}
           onFaqClick={onFaqClick}
           onTrackEvent={onTrackEvent}
