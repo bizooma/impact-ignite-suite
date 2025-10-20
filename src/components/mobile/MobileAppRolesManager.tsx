@@ -4,12 +4,14 @@ import { useMobileAppRealtime } from "@/hooks/useMobileAppRealtime";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { format } from "date-fns";
-import { Users, Shield, Activity } from "lucide-react";
+import { Users, Shield, Activity, Edit } from "lucide-react";
+import { UserRoleManager } from "./UserRoleManager";
 
 interface MobileAppRolesManagerProps {
   organizationId: string;
@@ -27,6 +29,8 @@ interface User {
   id: string;
   full_name: string;
   username: string;
+  role: string;
+  is_active: boolean;
   avatar_url?: string;
 }
 
@@ -46,6 +50,8 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
   const { fetchTableData } = useMobileAppData(organizationId);
   const { isConnected } = useMobileAppRealtime(organizationId, true);
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [roleManagerOpen, setRoleManagerOpen] = useState(false);
 
   const { data: userRoles, isLoading: rolesLoading } = useQuery({
     queryKey: ['mobile-app-user-roles', organizationId],
@@ -59,11 +65,11 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
     refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
   });
 
-  const { data: users } = useQuery({
+  const { data: users, refetch: refetchUsers } = useQuery({
     queryKey: ['mobile-app-users-for-roles', organizationId],
     queryFn: async () => {
       const result = await fetchTableData('users', {
-        columns: 'id,full_name,username'
+        columns: 'id,full_name,username,role,is_active,avatar_url'
       });
       return result.data;
     },
@@ -186,6 +192,7 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
                 <TableHead>Role</TableHead>
                 <TableHead>Granted By</TableHead>
                 <TableHead>Granted At</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -231,6 +238,19 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
                         {format(new Date(userRole.granted_at), 'h:mm a')}
                       </div>
                     </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedUser(user || null);
+                          setRoleManagerOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -238,6 +258,19 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
           </Table>
         </CardContent>
       </Card>
+
+      {selectedUser && (
+        <UserRoleManager
+          open={roleManagerOpen}
+          onOpenChange={setRoleManagerOpen}
+          user={selectedUser}
+          organizationId={organizationId}
+          onSuccess={() => {
+            refetchUsers();
+            setRoleManagerOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
