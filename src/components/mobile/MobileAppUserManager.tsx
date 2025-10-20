@@ -355,6 +355,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
                   setEditingUser(null);
                   setShowUserForm(true);
                 }}
+                className="bg-[#003D7A] hover:bg-[#002a54] text-white"
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Add User
@@ -550,7 +551,7 @@ export function MobileAppUserManager({ organizationId }: MobileAppUserManagerPro
                       variant={currentPage === pageNum ? "default" : "outline"}
                       size="sm"
                       onClick={() => handlePageChange(pageNum)}
-                      className="w-10"
+                      className={currentPage === pageNum ? "w-10 bg-[#003D7A] hover:bg-[#002a54] text-white" : "w-10"}
                     >
                       {pageNum}
                     </Button>

@@ -320,7 +320,7 @@ export function UserCSVImport({ open, onOpenChange, organizationId, onSuccess }:
             {importResults ? 'Close' : 'Cancel'}
           </Button>
           {parsedUsers.length > 0 && !importResults && validCount > 0 && (
-            <Button onClick={handleImport} disabled={importing}>
+            <Button onClick={handleImport} disabled={importing} className="bg-[#003D7A] hover:bg-[#002a54] text-white">
               {importing ? 'Importing...' : `Import ${validCount} Users`}
             </Button>
           )}

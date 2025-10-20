@@ -107,7 +107,7 @@ export function MobileAppDataTable({ organizationId, tableName, data, onRefresh 
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
-              <Button size="sm" onClick={handleAdd}>
+              <Button size="sm" onClick={handleAdd} className="bg-[#003D7A] hover:bg-[#002a54] text-white">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Row
               </Button>

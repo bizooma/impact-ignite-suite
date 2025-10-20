@@ -404,7 +404,7 @@ export function UserFormDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isExecuting || uploading}>
+              <Button type="submit" disabled={isExecuting || uploading} className="bg-[#003D7A] hover:bg-[#002a54] text-white">
                 {(isExecuting || uploading) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
