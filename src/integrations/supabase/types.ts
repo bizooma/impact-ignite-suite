@@ -1061,6 +1061,7 @@ export type Database = {
       }
       gbp_profiles: {
         Row: {
+          auto_response_enabled: boolean | null
           business_name: string
           categories: string[] | null
           completeness_score: number | null
@@ -1068,11 +1069,14 @@ export type Database = {
           description: string | null
           id: string
           last_synced_at: string | null
+          notification_preferences: Json | null
           organization_id: string
           profile_data: Json | null
+          response_settings: Json | null
           updated_at: string
         }
         Insert: {
+          auto_response_enabled?: boolean | null
           business_name: string
           categories?: string[] | null
           completeness_score?: number | null
@@ -1080,11 +1084,14 @@ export type Database = {
           description?: string | null
           id?: string
           last_synced_at?: string | null
+          notification_preferences?: Json | null
           organization_id: string
           profile_data?: Json | null
+          response_settings?: Json | null
           updated_at?: string
         }
         Update: {
+          auto_response_enabled?: boolean | null
           business_name?: string
           categories?: string[] | null
           completeness_score?: number | null
@@ -1092,13 +1099,134 @@ export type Database = {
           description?: string | null
           id?: string
           last_synced_at?: string | null
+          notification_preferences?: Json | null
           organization_id?: string
           profile_data?: Json | null
+          response_settings?: Json | null
           updated_at?: string
         }
         Relationships: [
           {
             foreignKeyName: "gbp_profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gbp_review_approvals: {
+        Row: {
+          action: Database["public"]["Enums"]["approval_action"]
+          approved_by: string
+          created_at: string
+          id: string
+          notes: string | null
+          review_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["approval_action"]
+          approved_by: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          review_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["approval_action"]
+          approved_by?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gbp_review_approvals_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "gbp_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gbp_reviews: {
+        Row: {
+          ai_generated_response: string | null
+          created_at: string
+          edited_response: string | null
+          final_response: string | null
+          gbp_profile_id: string
+          google_reply_id: string | null
+          google_review_id: string
+          id: string
+          metadata: Json | null
+          organization_id: string
+          posted_at: string | null
+          rating: number
+          reply_status:
+            | Database["public"]["Enums"]["review_reply_status"]
+            | null
+          review_date: string
+          review_text: string | null
+          reviewer_name: string
+          reviewer_photo_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_generated_response?: string | null
+          created_at?: string
+          edited_response?: string | null
+          final_response?: string | null
+          gbp_profile_id: string
+          google_reply_id?: string | null
+          google_review_id: string
+          id?: string
+          metadata?: Json | null
+          organization_id: string
+          posted_at?: string | null
+          rating: number
+          reply_status?:
+            | Database["public"]["Enums"]["review_reply_status"]
+            | null
+          review_date: string
+          review_text?: string | null
+          reviewer_name: string
+          reviewer_photo_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_generated_response?: string | null
+          created_at?: string
+          edited_response?: string | null
+          final_response?: string | null
+          gbp_profile_id?: string
+          google_reply_id?: string | null
+          google_review_id?: string
+          id?: string
+          metadata?: Json | null
+          organization_id?: string
+          posted_at?: string | null
+          rating?: number
+          reply_status?:
+            | Database["public"]["Enums"]["review_reply_status"]
+            | null
+          review_date?: string
+          review_text?: string | null
+          reviewer_name?: string
+          reviewer_photo_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gbp_reviews_gbp_profile_id_fkey"
+            columns: ["gbp_profile_id"]
+            isOneToOne: false
+            referencedRelation: "gbp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gbp_reviews_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -1974,6 +2102,7 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "admin" | "editor" | "viewer"
+      approval_action: "approved" | "rejected" | "edited" | "posted"
       audit_severity: "low" | "medium" | "high" | "critical"
       chatbot_status: "draft" | "active" | "paused"
       integration_provider:
@@ -1990,6 +2119,12 @@ export type Database = {
       knowledge_source_type: "pdf" | "docx" | "url" | "text"
       post_status: "draft" | "scheduled" | "published" | "failed"
       qr_code_type: "static" | "dynamic"
+      review_reply_status:
+        | "pending_ai"
+        | "awaiting_approval"
+        | "approved"
+        | "posted"
+        | "rejected"
       social_platform: "facebook" | "instagram" | "linkedin" | "twitter"
       task_status: "todo" | "in_progress" | "completed" | "cancelled"
     }
@@ -2120,6 +2255,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "admin", "editor", "viewer"],
+      approval_action: ["approved", "rejected", "edited", "posted"],
       audit_severity: ["low", "medium", "high", "critical"],
       chatbot_status: ["draft", "active", "paused"],
       integration_provider: [
@@ -2137,6 +2273,13 @@ export const Constants = {
       knowledge_source_type: ["pdf", "docx", "url", "text"],
       post_status: ["draft", "scheduled", "published", "failed"],
       qr_code_type: ["static", "dynamic"],
+      review_reply_status: [
+        "pending_ai",
+        "awaiting_approval",
+        "approved",
+        "posted",
+        "rejected",
+      ],
       social_platform: ["facebook", "instagram", "linkedin", "twitter"],
       task_status: ["todo", "in_progress", "completed", "cancelled"],
     },
