@@ -25,21 +25,27 @@
     return;
   }
 
-  // Supabase storage URL for widget files
-  var WIDGET_BASE_URL = 'https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting';
+  // Determine the app URL from the embed script location
+  var scriptSrc = script.src;
+  var WIDGET_BASE_URL = scriptSrc.substring(0, scriptSrc.lastIndexOf('/')) + '/widget';
+  
+  console.log('Causeio Widget: Loading from', WIDGET_BASE_URL);
+
+  // Add cache-busting timestamp
+  var timestamp = Date.now();
 
   // Load widget styles
   var widgetStyles = document.createElement('link');
   widgetStyles.rel = 'stylesheet';
-  widgetStyles.href = WIDGET_BASE_URL + '/widget.css';
+  widgetStyles.href = WIDGET_BASE_URL + '/widget.css?v=' + timestamp;
   widgetStyles.onerror = function() {
-    console.error('Causeio Widget: Failed to load styles');
+    console.error('Causeio Widget: Failed to load styles from', widgetStyles.href);
   };
   document.head.appendChild(widgetStyles);
 
   // Load the widget bundle
   var widgetScript = document.createElement('script');
-  widgetScript.src = WIDGET_BASE_URL + '/widget.umd.js';
+  widgetScript.src = WIDGET_BASE_URL + '/widget.umd.js?v=' + timestamp;
   widgetScript.async = true;
   
   widgetScript.onload = function() {

@@ -87,9 +87,12 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
     }
   };
 
+  // Get the current deployed app URL (automatically works in preview and production)
+  const appUrl = window.location.origin;
+  
   const embedCode = `<!-- Causeio Chatbot Widget -->
 <script
-  src="https://svuxuhrsrawdqqkepeye.supabase.co/storage/v1/object/public/widget-hosting/embed.js"
+  src="${appUrl}/embed.js"
   data-chatbot-id="${chatbot.id}"
   data-primary-color="${chatbot.brand_settings.primary_color || '#0066CC'}"
   data-accent-color="${chatbot.brand_settings.accent_color || '#00AA44'}"

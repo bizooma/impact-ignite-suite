@@ -8,6 +8,7 @@
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
+import { copyFileSync, mkdirSync, existsSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,13 +24,34 @@ const widgetBuild = spawn('npx', ['vite', 'build', '--config', 'vite.widget.conf
 widgetBuild.on('close', (code) => {
   if (code === 0) {
     console.log('✅ Widget built successfully!');
-    console.log('📦 Widget files created:');
-    console.log('   • dist-widget/widget.umd.js');
-    console.log('   • dist-widget/widget.css');
-    console.log('   • public/embed.js');
-    console.log('');
-    console.log('📤 Next: Upload these files to Supabase Storage');
-    console.log('   https://supabase.com/dashboard/project/svuxuhrsrawdqqkepeye/storage/buckets/widget-hosting');
+    
+    // Copy widget files to public/widget/ for automatic deployment
+    const publicWidgetDir = resolve(__dirname, '../public/widget');
+    if (!existsSync(publicWidgetDir)) {
+      mkdirSync(publicWidgetDir, { recursive: true });
+    }
+    
+    try {
+      copyFileSync(
+        resolve(__dirname, '../dist-widget/widget.umd.js'),
+        resolve(publicWidgetDir, 'widget.umd.js')
+      );
+      copyFileSync(
+        resolve(__dirname, '../dist-widget/widget.css'),
+        resolve(publicWidgetDir, 'widget.css')
+      );
+      
+      console.log('📦 Widget files deployed:');
+      console.log('   ✓ public/widget/widget.umd.js');
+      console.log('   ✓ public/widget/widget.css');
+      console.log('   ✓ public/embed.js');
+      console.log('');
+      console.log('✅ Widget will be automatically deployed with your app!');
+      console.log('🚀 No manual upload needed - deploy and you\'re done!');
+    } catch (error) {
+      console.error('❌ Failed to copy widget files:', error);
+      process.exit(1);
+    }
   } else {
     console.error('❌ Widget build failed with code', code);
     process.exit(code);
