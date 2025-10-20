@@ -5,9 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGbpProfiles } from '@/hooks/useGbpProfiles';
-import { MapPin, Star, Users, CheckCircle, Clock, AlertTriangle, Plus, RefreshCw } from 'lucide-react';
+import { useGbpReviews } from '@/hooks/useGbpReviews';
+import { MapPin, Star, Users, CheckCircle, Clock, AlertTriangle, Plus, RefreshCw, MessageSquare } from 'lucide-react';
 import { ProfileManager } from './ProfileManager';
 import { TaskManager } from './TaskManager';
+import { ReviewsManager } from './ReviewsManager';
 
 interface GbpDashboardProps {
   organizationId: string;
@@ -16,6 +18,7 @@ interface GbpDashboardProps {
 const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
   const [showProfileManager, setShowProfileManager] = useState(false);
   const { profiles, tasks, loading } = useGbpProfiles(organizationId);
+  const { reviewStats, loading: reviewsLoading } = useGbpReviews(organizationId);
 
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const pendingTasks = tasks.filter(t => t.status === 'todo').length;
@@ -70,10 +73,10 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Business Profiles</CardTitle>
+            <CardTitle className="text-sm font-medium">Profiles</CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -83,33 +86,53 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Completeness</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Reviews</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{reviewStats.total}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{reviewStats.pendingApproval}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg. Rating</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${getCompletenessColor(avgCompleteness)}`}>
-              {avgCompleteness}%
+            <div className="text-2xl font-bold">
+              {reviewStats.avgRating > 0 ? `${reviewStats.avgRating}⭐` : '—'}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed Tasks</CardTitle>
+            <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completedTasks}</div>
+            <div className="text-2xl font-bold">{reviewStats.responseRate}%</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
+            <CardTitle className="text-sm font-medium">Avg. Response</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingTasks}</div>
+            <div className="text-2xl font-bold">{reviewStats.avgResponseTime}</div>
           </CardContent>
         </Card>
       </div>
@@ -117,6 +140,12 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
       <Tabs defaultValue="profiles" className="space-y-4">
         <TabsList>
           <TabsTrigger value="profiles">Business Profiles</TabsTrigger>
+          <TabsTrigger value="reviews">
+            Reviews
+            {reviewStats.pendingApproval > 0 && (
+              <Badge className="ml-2" variant="default">{reviewStats.pendingApproval}</Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="tasks">Optimization Tasks</TabsTrigger>
         </TabsList>
 
@@ -200,6 +229,10 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="reviews" className="space-y-4">
+          <ReviewsManager organizationId={organizationId} />
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
