@@ -178,7 +178,6 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
           <TabsTrigger 
             value="users" 
             className="flex items-center gap-2"
-            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
             data-brand-styled={!!orgData?.brand_color}
           >
             <Users className="h-4 w-4" />
@@ -187,7 +186,6 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
           <TabsTrigger 
             value="roles" 
             className="flex items-center gap-2"
-            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
             data-brand-styled={!!orgData?.brand_color}
           >
             <Shield className="h-4 w-4" />
@@ -196,7 +194,6 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
           <TabsTrigger 
             value="history" 
             className="flex items-center gap-2"
-            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
             data-brand-styled={!!orgData?.brand_color}
           >
             <History className="h-4 w-4" />
@@ -205,7 +202,6 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
           <TabsTrigger 
             value="chats" 
             className="flex items-center gap-2"
-            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
             data-brand-styled={!!orgData?.brand_color}
           >
             <MessageSquare className="h-4 w-4" />
@@ -214,7 +210,6 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
           <TabsTrigger 
             value="audit" 
             className="flex items-center gap-2"
-            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
             data-brand-styled={!!orgData?.brand_color}
           >
             <FileText className="h-4 w-4" />
@@ -223,7 +218,6 @@ export function MobileAppDashboard({ organizationId }: MobileAppDashboardProps) 
           <TabsTrigger 
             value="settings" 
             className="flex items-center gap-2"
-            style={orgData?.brand_color ? { color: '#ffffff' } : undefined}
             data-brand-styled={!!orgData?.brand_color}
           >
             <Settings className="h-4 w-4" />
