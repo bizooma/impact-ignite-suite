@@ -25,13 +25,20 @@ widgetBuild.on('close', (code) => {
   if (code === 0) {
     console.log('✅ Widget built successfully!');
     
-    // Copy widget files to public/widget/ for automatic deployment
+    // Copy widget files to public/widget/ for local dev
     const publicWidgetDir = resolve(__dirname, '../public/widget');
     if (!existsSync(publicWidgetDir)) {
       mkdirSync(publicWidgetDir, { recursive: true });
     }
     
+    // Copy widget files to dist/widget/ for production deployment
+    const distWidgetDir = resolve(__dirname, '../dist/widget');
+    if (!existsSync(distWidgetDir)) {
+      mkdirSync(distWidgetDir, { recursive: true });
+    }
+    
     try {
+      // Copy to public/widget/ for local development
       copyFileSync(
         resolve(__dirname, '../dist-widget/widget.umd.cjs'),
         resolve(publicWidgetDir, 'widget.umd.js')
@@ -41,9 +48,21 @@ widgetBuild.on('close', (code) => {
         resolve(publicWidgetDir, 'widget.css')
       );
       
+      // Copy to dist/widget/ for production deployment
+      copyFileSync(
+        resolve(__dirname, '../dist-widget/widget.umd.cjs'),
+        resolve(distWidgetDir, 'widget.umd.js')
+      );
+      copyFileSync(
+        resolve(__dirname, '../dist-widget/widget.css'),
+        resolve(distWidgetDir, 'widget.css')
+      );
+      
       console.log('📦 Widget files deployed:');
-      console.log('   ✓ public/widget/widget.umd.js');
-      console.log('   ✓ public/widget/widget.css');
+      console.log('   ✓ public/widget/widget.umd.js (local dev)');
+      console.log('   ✓ public/widget/widget.css (local dev)');
+      console.log('   ✓ dist/widget/widget.umd.js (production)');
+      console.log('   ✓ dist/widget/widget.css (production)');
       console.log('   ✓ public/embed.js');
       console.log('');
       console.log('✅ Widget will be automatically deployed with your app!');
