@@ -31,7 +31,6 @@ interface User {
   username: string;
   role: string;
   is_active: boolean;
-  avatar_url?: string;
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -69,7 +68,7 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
     queryKey: ['mobile-app-users-for-roles', organizationId],
     queryFn: async () => {
       const result = await fetchTableData('users', {
-        columns: 'id,full_name,username,role,is_active,avatar_url'
+        columns: 'id,full_name,username,role,is_active'
       });
       return result.data;
     },
@@ -205,7 +204,6 @@ export function MobileAppRolesManager({ organizationId }: MobileAppRolesManagerP
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={user?.avatar_url} />
                           <AvatarFallback>
                             {user?.full_name?.charAt(0).toUpperCase() || '?'}
                           </AvatarFallback>
