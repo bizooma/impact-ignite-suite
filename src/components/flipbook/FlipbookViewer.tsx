@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import HTMLFlipBook from 'react-pageflip';
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Download, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Download, X, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -23,6 +23,7 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1.0);
   const bookRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -110,6 +111,18 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
     link.click();
   };
 
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.1, 2.0));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(1.0);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[600px]">
@@ -172,6 +185,39 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-2xl font-bold">{title || 'Flipbook'}</h2>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 border rounded-md p-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleZoomOut}
+              disabled={zoomLevel <= 0.5}
+              className="h-8 w-8"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-medium min-w-[3.5rem] text-center">
+              {Math.round(zoomLevel * 100)}%
+            </span>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleZoomIn}
+              disabled={zoomLevel >= 2.0}
+              className="h-8 w-8"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </Button>
+            {zoomLevel !== 1.0 && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleResetZoom}
+                className="h-8 w-8"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
           <Button variant="outline" size="icon" onClick={handleDownload}>
             <Download className="h-4 w-4" />
           </Button>
@@ -187,8 +233,15 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
       </div>
 
       {/* Flipbook */}
-      <div className="flex items-center justify-center p-8 min-h-[600px]">
-        <HTMLFlipBook
+      <div className="flex items-center justify-center p-8 min-h-[600px] overflow-auto">
+        <div 
+          style={{ 
+            transform: `scale(${zoomLevel})`,
+            transition: 'transform 0.2s ease-in-out',
+            transformOrigin: 'center center'
+          }}
+        >
+          <HTMLFlipBook
           ref={bookRef}
           width={550}
           height={733}
@@ -226,7 +279,8 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
               </Card>
             </div>
           ))}
-        </HTMLFlipBook>
+          </HTMLFlipBook>
+        </div>
       </div>
 
       {/* Controls */}
