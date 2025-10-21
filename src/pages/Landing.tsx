@@ -367,13 +367,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <MessageSquare className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>AI Chatbots</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">AI Chatbots</CardTitle>
+                  <CardDescription className="font-bold">
                     Intelligent donor support that learns from your mission and engages supporters 24/7
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />24/7 Support</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Training</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Lead Generation</li>
@@ -391,13 +391,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <QrCode className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>Smart QR Codes</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">Smart QR Codes</CardTitle>
+                  <CardDescription className="font-bold">
                     Dynamic QR codes with tracking and analytics
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Real-time Analytics</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Branding</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Dynamic Links</li>
@@ -415,13 +415,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <Share2 className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>Social Automation</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">Social Automation</CardTitle>
+                  <CardDescription className="font-bold">
                     Schedule and manage all your social media from one place
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Multi-Platform</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Smart Scheduling</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Content Templates</li>
@@ -439,13 +439,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <BarChart3 className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>SEO Analytics</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">SEO Analytics</CardTitle>
+                  <CardDescription className="font-bold">
                     Comprehensive SEO audits and optimization recommendations
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Site Audits</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Keyword Tracking</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Competitor Analysis</li>
@@ -463,13 +463,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <Building className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>Google Business</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">Google Business</CardTitle>
+                  <CardDescription className="font-bold">
                     Optimize your Google Business Profile for community visibility
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Profile Management</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Review Tracking</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Local SEO</li>
@@ -487,13 +487,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <Users className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>CRM & Contacts</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">CRM & Contacts</CardTitle>
+                  <CardDescription className="font-bold">
                     Manage donors, volunteers, and supporters in one place
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Contact Management</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Segmentation</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Email Sync</li>
@@ -511,13 +511,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <CheckSquare className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>Task Management</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">Task Management</CardTitle>
+                  <CardDescription className="font-bold">
                     Organize workflows and collaborate with your team
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Team Collaboration</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Project Tracking</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Deadlines</li>
@@ -535,13 +535,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <TrendingUp className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>Analytics Dashboard</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">Analytics Dashboard</CardTitle>
+                  <CardDescription className="font-bold">
                     Track performance across all your digital initiatives
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Cross-Platform Metrics</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Reports</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Data Exports</li>
@@ -559,13 +559,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <Settings className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>Integrations</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">Integrations</CardTitle>
+                  <CardDescription className="font-bold">
                     Connect with external tools and services
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />API Access</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Third-Party Apps</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Webhooks</li>
@@ -583,13 +583,13 @@ const Landing = () => {
               <div className="relative z-10">
                 <CardHeader>
                   <Smartphone className="w-12 h-12 text-primary mb-4" />
-                  <CardTitle>Mobile App</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-bold">Mobile App</CardTitle>
+                  <CardDescription className="font-bold">
                     Native mobile experience for on-the-go management
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />iOS & Android</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Push Notifications</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Offline Access</li>
