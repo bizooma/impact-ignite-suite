@@ -16,21 +16,34 @@ export const useTeamMembers = (organizationId: string) => {
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
-        const { data, error } = await supabase
+        // First get all user_ids from memberships
+        const { data: memberships, error: membershipsError } = await supabase
           .from('memberships')
-          .select(`
-            user_id,
-            profiles!memberships_user_id_fkey(id, display_name, avatar_url)
-          `)
+          .select('user_id')
           .eq('organization_id', organizationId);
 
-        if (error) throw error;
+        if (membershipsError) throw membershipsError;
 
-        const members = data
-          .map((m: any) => ({
-            id: m.profiles.id,
-            display_name: m.profiles.display_name,
-            avatar_url: m.profiles.avatar_url,
+        if (!memberships || memberships.length === 0) {
+          setTeamMembers([]);
+          setLoading(false);
+          return;
+        }
+
+        // Then fetch profiles for those user_ids
+        const userIds = memberships.map((m) => m.user_id);
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, display_name, avatar_url, user_id')
+          .in('user_id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        const members = (profiles || [])
+          .map((p) => ({
+            id: p.user_id,
+            display_name: p.display_name,
+            avatar_url: p.avatar_url,
           }))
           .filter((m) => m.id);
 
