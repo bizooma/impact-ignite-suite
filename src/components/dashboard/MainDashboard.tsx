@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -22,6 +24,10 @@ import {
 interface MainDashboardProps {
   organizationId: string;
 }
+
+// Cal Farley's Boys Ranch brand colors
+const CAL_FARLEYS_NAVY = '#1e3a5f';
+const CAL_FARLEYS_GOLD = '#f4c542';
 
 const moduleCards = [
   {
@@ -104,6 +110,34 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
   const { embeds, isLoading: embedsLoading } = useFlipbookEmbeds(organizationId);
   const [selectedFlipbook, setSelectedFlipbook] = useState<any>(null);
 
+  // Fetch organization details for brand-specific styling
+  const { data: organization } = useQuery({
+    queryKey: ['organization', organizationId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('slug')
+        .eq('id', organizationId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Check if this is Cal Farley's organization
+  const isCalFarleys = organization?.slug === 'cal-farleys-boys-ranch';
+  
+  // Button styling for Cal Farley's
+  const calFarleysButtonClass = isCalFarleys 
+    ? 'bg-[#1e3a5f] text-white hover:bg-[#15294a] border-[#1e3a5f]' 
+    : '';
+  
+  // Outline button styling for Cal Farley's
+  const calFarleysOutlineClass = isCalFarleys
+    ? 'bg-[#1e3a5f] text-white hover:bg-[#15294a] border-[#1e3a5f]'
+    : '';
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -146,7 +180,7 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
                     {flipbook.description && (
                       <p className="text-muted-foreground">{flipbook.description}</p>
                     )}
-                    <Button className="w-full">
+                    <Button className={`w-full ${calFarleysButtonClass}`}>
                       View Flipbook
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
@@ -182,7 +216,7 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
                 <p className="text-muted-foreground">
                   {module.description}
                 </p>
-                <Button asChild className="w-full">
+                <Button asChild className={`w-full ${calFarleysButtonClass}`}>
                   <Link to={module.route}>
                     Get Started
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -228,40 +262,43 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
       )}
 
       {/* Call to Action */}
-      <Card className="bg-accent border-2 border-accent-foreground/20">
+      <Card 
+        className={isCalFarleys ? "border-2" : "bg-accent border-2 border-accent-foreground/20"}
+        style={isCalFarleys ? { backgroundColor: CAL_FARLEYS_GOLD } : undefined}
+      >
         <CardContent className="p-8 text-center">
-          <h3 className="text-xl font-semibold text-accent-foreground mb-4">
+          <h3 className={`text-xl font-semibold mb-4 ${isCalFarleys ? 'text-gray-900' : 'text-accent-foreground'}`}>
             Ready to amplify your impact?
           </h3>
-          <p className="text-accent-foreground/80 mb-6 max-w-md mx-auto">
+          <p className={`mb-6 max-w-md mx-auto ${isCalFarleys ? 'text-gray-800' : 'text-accent-foreground/80'}`}>
             Your complete nonprofit technology platform is now live! Start with any module to begin amplifying your mission and connecting with your community.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Button asChild>
+            <Button asChild className={calFarleysButtonClass}>
               <Link to="chatbots">
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Create Chatbot
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className={calFarleysOutlineClass}>
               <Link to="social">
                 <Calendar className="w-4 h-4 mr-2" />
                 Social Media
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className={calFarleysOutlineClass}>
               <Link to="qr-codes">
                 <QrCode className="w-4 h-4 mr-2" />
                 Generate QR Code
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className={calFarleysOutlineClass}>
               <Link to="seo">
                 <BarChart3 className="w-4 h-4 mr-2" />
                 SEO Audit
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className={calFarleysOutlineClass}>
               <Link to="gbp">
                 <Building className="w-4 h-4 mr-2" />
                 Google Business
