@@ -1059,6 +1059,98 @@ export type Database = {
           },
         ]
       }
+      flipbook_embeds: {
+        Row: {
+          created_at: string
+          flipbook_id: string
+          id: string
+          organization_id: string
+          position: number | null
+        }
+        Insert: {
+          created_at?: string
+          flipbook_id: string
+          id?: string
+          organization_id: string
+          position?: number | null
+        }
+        Update: {
+          created_at?: string
+          flipbook_id?: string
+          id?: string
+          organization_id?: string
+          position?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flipbook_embeds_flipbook_id_fkey"
+            columns: ["flipbook_id"]
+            isOneToOne: false
+            referencedRelation: "flipbooks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flipbook_embeds_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flipbooks: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          file_size: number | null
+          id: string
+          is_active: boolean | null
+          organization_id: string
+          page_count: number | null
+          pdf_url: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          file_size?: number | null
+          id?: string
+          is_active?: boolean | null
+          organization_id: string
+          page_count?: number | null
+          pdf_url: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          file_size?: number | null
+          id?: string
+          is_active?: boolean | null
+          organization_id?: string
+          page_count?: number | null
+          pdf_url?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flipbooks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gbp_profiles: {
         Row: {
           auto_response_enabled: boolean | null

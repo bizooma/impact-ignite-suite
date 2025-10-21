@@ -77,3 +77,9 @@ verify_jwt = false
 
 [functions.gbp-post-response]
 verify_jwt = false
+
+[functions.manage-flipbook]
+verify_jwt = true
+
+[functions.assign-flipbook-embed]
+verify_jwt = true

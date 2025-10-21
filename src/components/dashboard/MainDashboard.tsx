@@ -1,7 +1,10 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useFlipbookEmbeds } from '@/hooks/useFlipbooks';
+import { FlipbookViewer } from '@/components/flipbook/FlipbookViewer';
 import { 
   MessageCircle, 
   QrCode, 
@@ -12,7 +15,8 @@ import {
   CheckSquare, 
   TrendingUp, 
   Settings,
-  ArrowRight
+  ArrowRight,
+  BookOpen
 } from 'lucide-react';
 
 interface MainDashboardProps {
@@ -97,6 +101,8 @@ const moduleCards = [
 export function MainDashboard({ organizationId }: MainDashboardProps) {
   const activeModules = moduleCards.filter(m => m.status === 'active');
   const comingSoonModules = moduleCards.filter(m => m.status === 'coming-soon');
+  const { embeds, isLoading: embedsLoading } = useFlipbookEmbeds(organizationId);
+  const [selectedFlipbook, setSelectedFlipbook] = useState<any>(null);
 
   return (
     <div className="space-y-8">
@@ -110,6 +116,47 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
           Start with our active modules and build meaningful connections.
         </p>
       </div>
+
+      {/* Flipbooks Section */}
+      {embeds && embeds.length > 0 && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-semibold text-foreground">Resources & Flipbooks</h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {embeds.map((embed) => {
+              const flipbook = embed.flipbooks;
+              if (!flipbook) return null;
+              
+              return (
+                <Card
+                  key={embed.id}
+                  className="border-2 border-border/50 hover:border-primary/50 transition-all duration-200 hover:shadow-lg cursor-pointer"
+                  onClick={() => setSelectedFlipbook(flipbook)}
+                >
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <BookOpen className="w-6 h-6 text-primary" />
+                      </div>
+                      <CardTitle className="text-xl">{flipbook.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {flipbook.description && (
+                      <p className="text-muted-foreground">{flipbook.description}</p>
+                    )}
+                    <Button className="w-full">
+                      View Flipbook
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Active Modules */}
       <div className="space-y-6">
@@ -223,6 +270,19 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Flipbook Viewer Dialog */}
+      {selectedFlipbook && (
+        <Dialog open={!!selectedFlipbook} onOpenChange={() => setSelectedFlipbook(null)}>
+          <DialogContent className="max-w-[95vw] h-[95vh]">
+            <FlipbookViewer
+              pdfUrl={selectedFlipbook.pdf_url}
+              title={selectedFlipbook.title}
+              onClose={() => setSelectedFlipbook(null)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
