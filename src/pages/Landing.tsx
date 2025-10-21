@@ -363,7 +363,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${chatbotBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <MessageSquare className="w-12 h-12 text-primary mb-4" />
@@ -387,7 +387,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${qrCodeBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <QrCode className="w-12 h-12 text-primary mb-4" />
@@ -411,7 +411,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${socialAutomationBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <Share2 className="w-12 h-12 text-primary mb-4" />
@@ -435,7 +435,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${seoAnalyticsBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <BarChart3 className="w-12 h-12 text-primary mb-4" />
@@ -459,7 +459,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${googleBusinessBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <Building className="w-12 h-12 text-primary mb-4" />
@@ -483,7 +483,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${crmContactsBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <Users className="w-12 h-12 text-primary mb-4" />
@@ -507,7 +507,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${taskManagementBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <CheckSquare className="w-12 h-12 text-primary mb-4" />
@@ -531,7 +531,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${analyticsDashboardBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <TrendingUp className="w-12 h-12 text-primary mb-4" />
@@ -555,7 +555,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${integrationsBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <Settings className="w-12 h-12 text-primary mb-4" />
@@ -579,7 +579,7 @@ const Landing = () => {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                 style={{ backgroundImage: `url(${mobileAppBg})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
               <div className="relative z-10">
                 <CardHeader>
                   <Smartphone className="w-12 h-12 text-primary mb-4" />
