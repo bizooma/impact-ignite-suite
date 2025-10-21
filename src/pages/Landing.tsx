@@ -10,6 +10,16 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import heroBackground from "@/assets/hero-background.jpg";
 import causeioLogo from "@/assets/causeio-logo.png";
 import communityBackground from "@/assets/community-background.jpg";
+import chatbotBg from "@/assets/products/chatbot-bg.jpg";
+import qrCodeBg from "@/assets/products/qr-code-bg.jpg";
+import socialAutomationBg from "@/assets/products/social-automation-bg.jpg";
+import seoAnalyticsBg from "@/assets/products/seo-analytics-bg.jpg";
+import googleBusinessBg from "@/assets/products/google-business-bg.jpg";
+import crmContactsBg from "@/assets/products/crm-contacts-bg.jpg";
+import taskManagementBg from "@/assets/products/task-management-bg.jpg";
+import analyticsDashboardBg from "@/assets/products/analytics-dashboard-bg.jpg";
+import integrationsBg from "@/assets/products/integrations-bg.jpg";
+import mobileAppBg from "@/assets/products/mobile-app-bg.jpg";
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -348,174 +358,244 @@ const Landing = () => {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <MessageSquare className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>AI Chatbots</CardTitle>
-                <CardDescription>
-                  Intelligent donor support that learns from your mission and engages supporters 24/7
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />24/7 Support</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Training</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Lead Generation</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${chatbotBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <MessageSquare className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>AI Chatbots</CardTitle>
+                  <CardDescription>
+                    Intelligent donor support that learns from your mission and engages supporters 24/7
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />24/7 Support</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Training</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Lead Generation</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <QrCode className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Smart QR Codes</CardTitle>
-                <CardDescription>
-                  Dynamic QR codes with tracking and analytics
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Real-time Analytics</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Branding</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Dynamic Links</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${qrCodeBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <QrCode className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Smart QR Codes</CardTitle>
+                  <CardDescription>
+                    Dynamic QR codes with tracking and analytics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Real-time Analytics</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Branding</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Dynamic Links</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <Share2 className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Social Automation</CardTitle>
-                <CardDescription>
-                  Schedule and manage all your social media from one place
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Multi-Platform</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Smart Scheduling</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Content Templates</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${socialAutomationBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <Share2 className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Social Automation</CardTitle>
+                  <CardDescription>
+                    Schedule and manage all your social media from one place
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Multi-Platform</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Smart Scheduling</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Content Templates</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <BarChart3 className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>SEO Analytics</CardTitle>
-                <CardDescription>
-                  Comprehensive SEO audits and optimization recommendations
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Site Audits</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Keyword Tracking</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Competitor Analysis</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${seoAnalyticsBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <BarChart3 className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>SEO Analytics</CardTitle>
+                  <CardDescription>
+                    Comprehensive SEO audits and optimization recommendations
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Site Audits</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Keyword Tracking</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Competitor Analysis</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <Building className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Google Business</CardTitle>
-                <CardDescription>
-                  Optimize your Google Business Profile for community visibility
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Profile Management</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Review Tracking</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Local SEO</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${googleBusinessBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <Building className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Google Business</CardTitle>
+                  <CardDescription>
+                    Optimize your Google Business Profile for community visibility
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Profile Management</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Review Tracking</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Local SEO</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <Users className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>CRM & Contacts</CardTitle>
-                <CardDescription>
-                  Manage donors, volunteers, and supporters in one place
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Contact Management</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Segmentation</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Email Sync</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${crmContactsBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <Users className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>CRM & Contacts</CardTitle>
+                  <CardDescription>
+                    Manage donors, volunteers, and supporters in one place
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Contact Management</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Segmentation</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Email Sync</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <CheckSquare className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Task Management</CardTitle>
-                <CardDescription>
-                  Organize workflows and collaborate with your team
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Team Collaboration</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Project Tracking</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Deadlines</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${taskManagementBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <CheckSquare className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Task Management</CardTitle>
+                  <CardDescription>
+                    Organize workflows and collaborate with your team
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Team Collaboration</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Project Tracking</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Deadlines</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <TrendingUp className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Analytics Dashboard</CardTitle>
-                <CardDescription>
-                  Track performance across all your digital initiatives
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Cross-Platform Metrics</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Reports</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Data Exports</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${analyticsDashboardBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <TrendingUp className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Analytics Dashboard</CardTitle>
+                  <CardDescription>
+                    Track performance across all your digital initiatives
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Cross-Platform Metrics</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Reports</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Data Exports</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <Settings className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Integrations</CardTitle>
-                <CardDescription>
-                  Connect with external tools and services
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />API Access</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Third-Party Apps</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Webhooks</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${integrationsBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <Settings className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Integrations</CardTitle>
+                  <CardDescription>
+                    Connect with external tools and services
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />API Access</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Third-Party Apps</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Webhooks</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
 
-            <Card className="border-2 hover:border-primary/20 transition-all duration-200">
-              <CardHeader>
-                <Smartphone className="w-12 h-12 text-primary mb-4" />
-                <CardTitle>Mobile App</CardTitle>
-                <CardDescription>
-                  Native mobile experience for on-the-go management
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />iOS & Android</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Push Notifications</li>
-                  <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Offline Access</li>
-                </ul>
-              </CardContent>
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${mobileAppBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <Smartphone className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle>Mobile App</CardTitle>
+                  <CardDescription>
+                    Native mobile experience for on-the-go management
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />iOS & Android</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Push Notifications</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Offline Access</li>
+                  </ul>
+                </CardContent>
+              </div>
             </Card>
           </div>
         </div>
