@@ -155,7 +155,7 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
       {embeds && embeds.length > 0 && (
         <div className="space-y-6">
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-semibold text-foreground">Resources & Flipbooks</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Documents</h2>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {embeds.map((embed) => {
