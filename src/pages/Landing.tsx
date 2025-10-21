@@ -333,17 +333,6 @@ const Landing = () => {
             Empower your nonprofit with AI chatbots, dynamic QR codes, social media automation, and SEO optimization. 
             Everything you need to attract donors, recruit volunteers, and grow community support in one powerful platform.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/pricing">
-              <Button size="lg" className="text-lg px-8">
-                Start Free Trial
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8">
-              Watch Demo
-            </Button>
-          </div>
         </div>
       </section>
 
@@ -822,17 +811,6 @@ const Landing = () => {
           <p className="text-xl text-slate-300 mb-8">
             Join thousands of businesses already using Causeio to transform their operations.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/pricing">
-              <Button size="lg" className="text-lg px-8">
-                Start Your Free Trial
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8 border-white text-white bg-transparent hover:bg-white hover:text-slate-900">
-              Schedule Demo
-            </Button>
-          </div>
         </div>
       </section>
 
