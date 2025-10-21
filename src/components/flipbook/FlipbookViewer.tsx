@@ -35,12 +35,6 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
     loadPDF();
   }, [pdfUrl]);
 
-  useEffect(() => {
-    if (bookRef.current) {
-      bookRef.current.pageFlip().update();
-    }
-  }, [zoomLevel, isFullscreen]);
-
   const loadPDF = async () => {
     try {
       setIsLoading(true);
@@ -93,15 +87,13 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
   };
 
   const handlePrevPage = () => {
-    if (bookRef.current) {
-      bookRef.current.pageFlip().flipPrev();
-    }
+    const api = bookRef.current?.pageFlip?.();
+    api?.flipPrev();
   };
 
   const handleNextPage = () => {
-    if (bookRef.current) {
-      bookRef.current.pageFlip().flipNext();
-    }
+    const api = bookRef.current?.pageFlip?.();
+    api?.flipNext();
   };
 
   const toggleFullscreen = () => {
@@ -246,7 +238,7 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
       <div className="p-8 min-h-[600px] overflow-auto">
         <div className="flex items-center justify-center">
           <HTMLFlipBook
-          key={`flipbook-${zoomLevel}`}
+          key={`flipbook-${zoomLevel}-${isFullscreen ? 'fs' : 'nfs'}`}
           ref={bookRef}
           width={Math.round(BASE_WIDTH * zoomLevel)}
           height={Math.round(BASE_HEIGHT * zoomLevel)}
