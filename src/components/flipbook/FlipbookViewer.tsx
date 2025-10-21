@@ -27,6 +27,10 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
   const bookRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Base dimensions for the flipbook
+  const BASE_WIDTH = 550;
+  const BASE_HEIGHT = 733;
+
   useEffect(() => {
     loadPDF();
   }, [pdfUrl]);
@@ -234,22 +238,15 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
 
       {/* Flipbook */}
       <div className="flex items-center justify-center p-8 min-h-[600px] overflow-auto">
-        <div 
-          style={{ 
-            transform: `scale(${zoomLevel})`,
-            transition: 'transform 0.2s ease-in-out',
-            transformOrigin: 'center center'
-          }}
-        >
-          <HTMLFlipBook
+        <HTMLFlipBook
           ref={bookRef}
-          width={550}
-          height={733}
+          width={Math.round(BASE_WIDTH * zoomLevel)}
+          height={Math.round(BASE_HEIGHT * zoomLevel)}
           size="stretch"
-          minWidth={315}
-          maxWidth={1000}
-          minHeight={400}
-          maxHeight={1533}
+          minWidth={Math.round(315 * zoomLevel)}
+          maxWidth={Math.round(1000 * zoomLevel)}
+          minHeight={Math.round(400 * zoomLevel)}
+          maxHeight={Math.round(1533 * zoomLevel)}
           maxShadowOpacity={0.5}
           showCover={true}
           mobileScrollSupport={true}
@@ -279,8 +276,7 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
               </Card>
             </div>
           ))}
-          </HTMLFlipBook>
-        </div>
+        </HTMLFlipBook>
       </div>
 
       {/* Controls */}
