@@ -13,6 +13,10 @@ import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { FlipbookViewer } from '@/components/flipbook/FlipbookViewer';
+import * as pdfjsLib from 'pdfjs-dist';
+import type { PDFPageProxy } from 'pdfjs-dist';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export const FlipbookManager = () => {
   const { flipbooks, isLoading, uploadPDF, createFlipbook, deleteFlipbook, updateFlipbook } = useFlipbooks();
@@ -20,6 +24,7 @@ export const FlipbookManager = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [editingFlipbook, setEditingFlipbook] = useState<any>(null);
   const [viewingFlipbook, setViewingFlipbook] = useState<any>(null);
   const [selectedFlipbookForEmbed, setSelectedFlipbookForEmbed] = useState<string | null>(null);
@@ -55,23 +60,80 @@ export const FlipbookManager = () => {
     }
 
     setIsUploading(true);
+    setUploadProgress('Processing PDF...');
+    
     try {
+      // Extract PDF metadata
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pageCount = pdf.numPages;
+      
+      setUploadProgress(`Generating thumbnail from ${pageCount} pages...`);
+      
+      // Generate thumbnail from first page
+      let thumbnailUrl: string | undefined;
+      try {
+        const page: PDFPageProxy = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 0.5 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        if (context) {
+          await page.render({
+            canvasContext: context,
+            viewport: viewport,
+            canvas: canvas,
+          }).promise;
+
+          // Convert canvas to blob and upload
+          const blob = await new Promise<Blob>((resolve) => {
+            canvas.toBlob((blob) => resolve(blob!), 'image/jpeg', 0.8);
+          });
+          
+          const thumbnailFile = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
+          const thumbPath = `thumbnails/${Math.random().toString(36).substring(2)}.jpg`;
+          
+          const { error: thumbError } = await supabase.storage
+            .from('flipbooks')
+            .upload(thumbPath, thumbnailFile);
+
+          if (!thumbError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('flipbooks')
+              .getPublicUrl(thumbPath);
+            thumbnailUrl = publicUrl;
+          }
+        }
+      } catch (thumbError) {
+        console.error('Failed to generate thumbnail:', thumbError);
+        // Continue without thumbnail
+      }
+
+      setUploadProgress('Uploading PDF...');
       const uploadResult = await uploadPDF.mutateAsync(selectedFile);
       
+      setUploadProgress('Creating flipbook...');
       await createFlipbook.mutateAsync({
         title,
         description,
         pdf_url: uploadResult.publicUrl,
         file_size: selectedFile.size,
+        page_count: pageCount,
+        thumbnail_url: thumbnailUrl,
       });
 
       setSelectedFile(null);
       setTitle('');
       setDescription('');
+      setUploadProgress('');
     } catch (error) {
       console.error('Upload error:', error);
+      toast.error('Failed to process PDF. Please try again.');
     } finally {
       setIsUploading(false);
+      setUploadProgress('');
     }
   };
 
@@ -143,9 +205,12 @@ export const FlipbookManager = () => {
               onChange={handleFileSelect}
             />
           </div>
+          {uploadProgress && (
+            <p className="text-sm text-muted-foreground">{uploadProgress}</p>
+          )}
           <Button onClick={handleUpload} disabled={isUploading || !selectedFile || !title}>
             <Upload className="mr-2 h-4 w-4" />
-            {isUploading ? 'Uploading...' : 'Upload Flipbook'}
+            {isUploading ? uploadProgress || 'Uploading...' : 'Upload Flipbook'}
           </Button>
         </CardContent>
       </Card>

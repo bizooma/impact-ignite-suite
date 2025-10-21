@@ -21,6 +21,7 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
   const [totalPages, setTotalPages] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const bookRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -31,9 +32,16 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
   const loadPDF = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+      
       const loadingTask = pdfjsLib.getDocument(pdfUrl);
       const pdf = await loadingTask.promise;
       const numPages = pdf.numPages;
+      
+      if (numPages === 0) {
+        throw new Error('PDF has no pages');
+      }
+      
       setTotalPages(numPages);
 
       const pageImages: string[] = [];
@@ -58,10 +66,16 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
         }
       }
 
+      if (pageImages.length === 0) {
+        throw new Error('Failed to render any pages from the PDF');
+      }
+
       setPages(pageImages);
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading PDF:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load PDF';
+      setError(`Unable to load flipbook: ${errorMessage}. Please check the PDF file or try again.`);
       setIsLoading(false);
     }
   };
@@ -101,6 +115,51 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading flipbook...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[600px]">
+        <div className="text-center max-w-md">
+          <div className="rounded-full bg-destructive/10 p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <X className="h-8 w-8 text-destructive" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Failed to Load Flipbook</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <div className="flex gap-2 justify-center">
+            <Button onClick={loadPDF} variant="outline">
+              Try Again
+            </Button>
+            {onClose && (
+              <Button onClick={onClose} variant="default">
+                Close
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (pages.length === 0 || totalPages === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[600px]">
+        <div className="text-center max-w-md">
+          <div className="rounded-full bg-muted p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <X className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">No Pages Found</h3>
+          <p className="text-muted-foreground mb-4">
+            This flipbook appears to be empty or the PDF could not be processed correctly.
+          </p>
+          {onClose && (
+            <Button onClick={onClose} variant="default">
+              Close
+            </Button>
+          )}
         </div>
       </div>
     );
