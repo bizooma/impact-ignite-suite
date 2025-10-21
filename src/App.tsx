@@ -30,6 +30,7 @@ import IntegrationsDashboard from "./components/integrations/IntegrationsDashboa
 import { MobileAppDashboard } from "./components/mobile/MobileAppDashboard";
 import Profile from "./pages/Profile";
 import { MembershipManagement } from "./components/admin/MembershipManagement";
+import GoogleAdGrants from "./pages/GoogleAdGrants";
 
 const queryClient = new QueryClient();
 
@@ -224,6 +225,7 @@ const App = () => (
                               } />
                               <Route path="/members" element={<MembershipManagement organizationId={organizationId} />} />
                               <Route path="/profile" element={<Profile />} />
+                              <Route path="/resources/google-ad-grants" element={<GoogleAdGrants />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           )}

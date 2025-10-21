@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle } from 'lucide-react';
+import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign } from 'lucide-react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
 import {
   Sidebar,
@@ -39,6 +39,10 @@ const navigationItems: Array<{
   { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },
   { title: 'Integrations', url: '/dashboard/integrations', icon: Settings, alwaysShow: true },
   { title: 'Team Members', url: '/dashboard/members', icon: Users, alwaysShow: true },
+];
+
+const resourceItems = [
+  { title: 'Google Ad Grants', url: '/dashboard/resources/google-ad-grants', icon: DollarSign },
 ];
 
 export function AppSidebar() {
@@ -103,6 +107,27 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 );
               })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {resourceItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavCls}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
