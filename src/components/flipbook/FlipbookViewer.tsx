@@ -239,6 +239,7 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
       {/* Flipbook */}
       <div className="flex items-center justify-center p-8 min-h-[600px] overflow-auto">
         <HTMLFlipBook
+          key={`flipbook-${zoomLevel}`}
           ref={bookRef}
           width={Math.round(BASE_WIDTH * zoomLevel)}
           height={Math.round(BASE_HEIGHT * zoomLevel)}
@@ -252,12 +253,12 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
           mobileScrollSupport={true}
           onFlip={(e: any) => setCurrentPage(e.data)}
           className="flipbook"
-          startPage={0}
+          startPage={currentPage}
           drawShadow={true}
           flippingTime={1000}
           usePortrait={true}
           startZIndex={0}
-          autoSize={true}
+          autoSize={false}
           clickEventForward={true}
           useMouseEvents={true}
           swipeDistance={30}
