@@ -4,10 +4,11 @@ import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Download, X } from 'lu
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import * as pdfjsLib from 'pdfjs-dist';
+import workerSrc from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import type { PDFPageProxy } from 'pdfjs-dist';
 
-// Set up PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configure PDF.js worker locally (Vite)
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 interface FlipbookViewerProps {
   pdfUrl: string;

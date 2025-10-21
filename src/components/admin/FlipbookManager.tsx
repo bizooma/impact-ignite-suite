@@ -14,9 +14,10 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { FlipbookViewer } from '@/components/flipbook/FlipbookViewer';
 import * as pdfjsLib from 'pdfjs-dist';
+import workerSrc from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import type { PDFPageProxy } from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 export const FlipbookManager = () => {
   const { flipbooks, isLoading, uploadPDF, createFlipbook, deleteFlipbook, updateFlipbook } = useFlipbooks();
