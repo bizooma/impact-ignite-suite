@@ -811,6 +811,11 @@ const Landing = () => {
           <p className="text-xl text-slate-300 mb-8">
             Join thousands of businesses already using Causeio to transform their operations.
           </p>
+          <a href="https://calendly.com/joe-bizooma/30min" target="_blank" rel="noopener noreferrer">
+            <Button size="lg" className="text-lg px-8">
+              Schedule a Call
+            </Button>
+          </a>
         </div>
       </section>
 
