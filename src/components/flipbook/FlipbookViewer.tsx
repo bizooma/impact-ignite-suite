@@ -35,6 +35,12 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
     loadPDF();
   }, [pdfUrl]);
 
+  useEffect(() => {
+    if (bookRef.current) {
+      bookRef.current.pageFlip().update();
+    }
+  }, [zoomLevel, isFullscreen]);
+
   const loadPDF = async () => {
     try {
       setIsLoading(true);
@@ -237,8 +243,9 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
       </div>
 
       {/* Flipbook */}
-      <div className="flex items-center justify-center p-8 min-h-[600px] overflow-auto">
-        <HTMLFlipBook
+      <div className="p-8 min-h-[600px] overflow-auto">
+        <div className="flex items-center justify-center">
+          <HTMLFlipBook
           key={`flipbook-${zoomLevel}`}
           ref={bookRef}
           width={Math.round(BASE_WIDTH * zoomLevel)}
@@ -256,7 +263,7 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
           startPage={currentPage}
           drawShadow={true}
           flippingTime={1000}
-          usePortrait={true}
+          usePortrait={false}
           startZIndex={0}
           autoSize={false}
           clickEventForward={true}
@@ -277,7 +284,8 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
               </Card>
             </div>
           ))}
-        </HTMLFlipBook>
+          </HTMLFlipBook>
+        </div>
       </div>
 
       {/* Controls */}
