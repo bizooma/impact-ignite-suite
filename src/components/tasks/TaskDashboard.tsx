@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTasks } from '@/hooks/useTasks';
+import { useTeamMembers } from '@/hooks/useTeamMembers';
+import { TaskToolbar } from './TaskToolbar';
+import { TaskTableView } from './TaskTableView';
 import { CheckSquare, Clock, AlertCircle, Plus, Calendar, User } from 'lucide-react';
 
 interface TaskDashboardProps {
@@ -18,6 +21,12 @@ interface TaskDashboardProps {
 
 const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'board'>('table');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [groupBy, setGroupBy] = useState('status');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [assigneeFilter, setAssigneeFilter] = useState('all');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -28,11 +37,39 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
   });
 
   const { tasks, loading, createTask, updateTask, deleteTask } = useTasks(organizationId);
+  const { teamMembers, loading: loadingMembers } = useTeamMembers(organizationId);
 
-  const todoTasks = tasks.filter(t => t.status === 'todo');
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
-  const completedTasks = tasks.filter(t => t.status === 'completed');
-  const overdueTasks = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed');
+  // Filter and search tasks
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      // Search filter
+      if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+      
+      // Status filter
+      if (statusFilter !== 'all' && task.status !== statusFilter) {
+        return false;
+      }
+      
+      // Priority filter
+      if (priorityFilter !== 'all' && task.priority.toString() !== priorityFilter) {
+        return false;
+      }
+      
+      // Assignee filter
+      if (assigneeFilter !== 'all' && task.assignee_id !== assigneeFilter) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [tasks, searchQuery, statusFilter, priorityFilter, assigneeFilter]);
+
+  const todoTasks = filteredTasks.filter(t => t.status === 'todo');
+  const inProgressTasks = filteredTasks.filter(t => t.status === 'in_progress');
+  const completedTasks = filteredTasks.filter(t => t.status === 'completed');
+  const overdueTasks = filteredTasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,21 +208,131 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between px-4 pt-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Task Management</h2>
           <p className="text-muted-foreground">
             Manage tasks across all your modules and projects
           </p>
         </div>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Task
-            </Button>
-          </DialogTrigger>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 px-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+            <CheckSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{tasks.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{inProgressTasks.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CheckSquare className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">{completedTasks.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
+            <AlertCircle className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-destructive">{overdueTasks.length}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Toolbar */}
+      <TaskToolbar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        groupBy={groupBy}
+        onGroupByChange={setGroupBy}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        priorityFilter={priorityFilter}
+        onPriorityFilterChange={setPriorityFilter}
+        assigneeFilter={assigneeFilter}
+        onAssigneeFilterChange={setAssigneeFilter}
+        onCreateTask={() => setShowCreateDialog(true)}
+        teamMembers={teamMembers}
+      />
+
+      {/* Table or Board View */}
+      <div className="px-4 pb-4">
+        {viewMode === 'table' ? (
+          <TaskTableView
+            tasks={filteredTasks}
+            teamMembers={teamMembers}
+            groupBy={groupBy}
+            onUpdate={updateTask}
+            onDelete={deleteTask}
+          />
+        ) : (
+          <Tabs defaultValue="all" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="all">All Tasks</TabsTrigger>
+              <TabsTrigger value="todo">To Do ({todoTasks.length})</TabsTrigger>
+              <TabsTrigger value="in_progress">In Progress ({inProgressTasks.length})</TabsTrigger>
+              <TabsTrigger value="completed">Completed ({completedTasks.length})</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="space-y-4">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {filteredTasks.map((task) => <TaskCard key={task.id} task={task} />)}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="todo" className="space-y-4">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {todoTasks.map((task) => <TaskCard key={task.id} task={task} />)}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="in_progress" className="space-y-4">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {inProgressTasks.map((task) => <TaskCard key={task.id} task={task} />)}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="completed" className="space-y-4">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {completedTasks.map((task) => <TaskCard key={task.id} task={task} />)}
+              </div>
+            </TabsContent>
+          </Tabs>
+        )}
+      </div>
+
+      {/* Create Task Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogTrigger asChild>
+          <Button className="hidden">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Task
+          </Button>
+        </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Task</DialogTitle>
@@ -238,6 +385,25 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
                   />
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="assignee">Assign to</Label>
+                <Select
+                  value={formData.assignee_id}
+                  onValueChange={(value) => setFormData({ ...formData, assignee_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select team member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Unassigned</SelectItem>
+                    {teamMembers.map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.display_name || 'Unnamed'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
                   Cancel
@@ -249,97 +415,6 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
-            <CheckSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tasks.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{inProgressTasks.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckSquare className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{completedTasks.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-            <AlertCircle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{overdueTasks.length}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all">All Tasks</TabsTrigger>
-          <TabsTrigger value="todo">To Do ({todoTasks.length})</TabsTrigger>
-          <TabsTrigger value="in_progress">In Progress ({inProgressTasks.length})</TabsTrigger>
-          <TabsTrigger value="completed">Completed ({completedTasks.length})</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {tasks.map((task) => <TaskCard key={task.id} task={task} />)}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="todo" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {todoTasks.map((task) => <TaskCard key={task.id} task={task} />)}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="in_progress" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {inProgressTasks.map((task) => <TaskCard key={task.id} task={task} />)}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="completed" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {completedTasks.map((task) => <TaskCard key={task.id} task={task} />)}
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {tasks.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <CheckSquare className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No tasks yet</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Create your first task to get started with task management
-            </p>
-            <Button onClick={() => setShowCreateDialog(true)}>
-              Create Task
-            </Button>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
