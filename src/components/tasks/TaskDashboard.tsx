@@ -33,7 +33,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
     source_module: 'manual',
     priority: 1,
     due_date: '',
-    assignee_id: '',
+    assignee_id: 'unassigned',
   });
 
   const { tasks, loading, createTask, updateTask, deleteTask } = useTasks(organizationId);
@@ -79,7 +79,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
         organization_id: organizationId,
         priority: Number(formData.priority),
         due_date: formData.due_date || null,
-        assignee_id: formData.assignee_id || null,
+        assignee_id: formData.assignee_id === 'unassigned' ? null : formData.assignee_id,
         status: 'todo' as const,
         metadata: {},
       });
@@ -90,7 +90,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
         source_module: 'manual',
         priority: 1,
         due_date: '',
-        assignee_id: '',
+        assignee_id: 'unassigned',
       });
     } catch (error) {
       console.error('Error creating task:', error);
@@ -395,7 +395,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
                     <SelectValue placeholder="Select team member" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Unassigned</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
                     {teamMembers.map((member) => (
                       <SelectItem key={member.id} value={member.id}>
                         {member.display_name || 'Unnamed'}
