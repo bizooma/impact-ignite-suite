@@ -181,7 +181,7 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
                       <p className="text-muted-foreground">{flipbook.description}</p>
                     )}
                     <Button className={`w-full ${calFarleysButtonClass}`}>
-                      View Flipbook
+                      View Proposal
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </CardContent>
