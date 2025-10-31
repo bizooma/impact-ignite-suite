@@ -31,11 +31,11 @@ const blogPosts = [
   },
   {
     id: 3,
-    title: "Voice Search Optimization for Nonprofits in 2025",
-    excerpt: "Why voice SEO matters for nonprofits and how to optimize your content for Siri, Alexa, and Google Assistant to reach more supporters.",
+    title: "Recruit Volunteers Smarter: How Chatbots & Messaging Are Transforming Nonprofit Engagement in 2025",
+    excerpt: "Recruiting volunteers has always been a manual process — emails, forms, follow-ups — until now.",
     image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=800&auto=format&fit=crop&q=80",
-    author: "Emily Rodriguez",
-    date: "March 5, 2025",
+    author: "Joseph Murphy",
+    date: "Oct. 15, 2025",
     readTime: "6 min read",
     category: "SEO",
     slug: "#"
