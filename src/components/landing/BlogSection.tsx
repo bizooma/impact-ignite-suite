@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowRight, User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Sample blog posts - in a real app, this would come from a CMS or API
 const blogPosts = [
@@ -12,8 +13,9 @@ const blogPosts = [
     image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80",
     author: "Joseph Murphy",
     date: "Sept. 15, 2025",
-    readTime: "5 min read",
-    category: "AI & Automation"
+    readTime: "8 min read",
+    category: "AI & Automation",
+    slug: "/blog/ai-video-multichannel-nonprofits-2025"
   },
   {
     id: 2,
@@ -23,7 +25,8 @@ const blogPosts = [
     author: "Michael Chen",
     date: "March 10, 2025",
     readTime: "4 min read",
-    category: "Marketing"
+    category: "Marketing",
+    slug: "#"
   },
   {
     id: 3,
@@ -33,7 +36,8 @@ const blogPosts = [
     author: "Emily Rodriguez",
     date: "March 5, 2025",
     readTime: "6 min read",
-    category: "SEO"
+    category: "SEO",
+    slug: "#"
   }
 ];
 
@@ -97,13 +101,15 @@ export function BlogSection() {
                   </div>
                 </div>
 
-                <Button 
-                  variant="ghost" 
-                  className="w-full group-hover:bg-primary/10 transition-colors"
-                >
-                  Read Article
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link to={post.slug}>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full group-hover:bg-primary/10 transition-colors"
+                  >
+                    Read Article
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))}
