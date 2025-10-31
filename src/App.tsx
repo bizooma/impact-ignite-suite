@@ -11,6 +11,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { ProtectedProductRoute } from "@/components/upgrade/ProtectedProductRoute";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Landing from "./pages/Landing";
 import BlogPost from "./pages/BlogPost";
 import BlogPostGoogleGrants from "./pages/BlogPostGoogleGrants";
@@ -46,6 +47,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <SidebarProvider>
                 <Routes>
                 {/* Marketing and public pages */}
