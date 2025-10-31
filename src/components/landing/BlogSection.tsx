@@ -25,9 +25,9 @@ const blogPosts = [
     image: googleAdGrantsImage,
     author: "Joseph Murphy",
     date: "Oct. 1, 2025",
-    readTime: "4 min read",
+    readTime: "6 min read",
     category: "Marketing",
-    slug: "#"
+    slug: "/blog/google-ad-grants-nonprofits-2025"
   },
   {
     id: 3,
