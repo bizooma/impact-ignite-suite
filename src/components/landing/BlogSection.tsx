@@ -19,11 +19,11 @@ const blogPosts = [
   },
   {
     id: 2,
-    title: "QR Codes for Good: How Charities Drive Engagement",
+    title: "Making Google Ad Grants Work for You: How Nonprofits Can Turn Free Ad Dollars into Real Impact in 2025",
     excerpt: "Learn how dynamic QR codes are helping charities track campaign performance and connect with donors at events and in the field.",
     image: "https://images.unsplash.com/photo-1606166325683-7e92d3f0e71f?w=800&auto=format&fit=crop&q=80",
-    author: "Michael Chen",
-    date: "March 10, 2025",
+    author: "Joseph Murphy",
+    date: "Oct. 1, 2025",
     readTime: "4 min read",
     category: "Marketing",
     slug: "#"
