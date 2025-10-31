@@ -119,10 +119,12 @@ export function BlogSection() {
         </div>
 
         <div className="text-center">
-          <Button size="lg" variant="outline">
-            View All Articles
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          <Link to="/blog">
+            <Button size="lg" variant="outline">
+              View All Articles
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
