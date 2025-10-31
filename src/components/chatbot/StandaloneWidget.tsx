@@ -84,8 +84,8 @@ export function StandaloneWidget({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chatbot_id: chatbotId,
-            event_type: eventType,
+            chatbotId: chatbotId,
+            eventType: eventType,
           }),
         }
       );
