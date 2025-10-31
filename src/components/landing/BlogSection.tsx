@@ -7,8 +7,8 @@ import { Calendar, Clock, ArrowRight, User } from "lucide-react";
 const blogPosts = [
   {
     id: 1,
-    title: "10 Ways AI Chatbots Are Transforming Nonprofit Fundraising",
-    excerpt: "Discover how nonprofits are using AI-powered chatbots to increase donor engagement and streamline volunteer recruitment efforts.",
+    title: "Harnessing AI, Video & the Multi-Channel Push: Big Digital Wins for Nonprofits in 2025",
+    excerpt: "2025 is shaping up to be a pivotal year for nonprofits that get serious about digital marketing.",
     image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80",
     author: "Sarah Johnson",
     date: "March 15, 2025",
