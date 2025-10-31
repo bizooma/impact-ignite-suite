@@ -13,6 +13,7 @@ import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { ProtectedProductRoute } from "@/components/upgrade/ProtectedProductRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Landing from "./pages/Landing";
+import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import BlogPostGoogleGrants from "./pages/BlogPostGoogleGrants";
 import BlogPostVolunteerRecruitment from "./pages/BlogPostVolunteerRecruitment";
@@ -52,6 +53,7 @@ const App = () => (
                 <Routes>
                 {/* Marketing and public pages */}
                 <Route path="/" element={<Landing />} />
+                <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/ai-video-multichannel-nonprofits-2025" element={<BlogPost />} />
                 <Route path="/blog/google-ad-grants-nonprofits-2025" element={<BlogPostGoogleGrants />} />
                 <Route path="/blog/volunteer-recruitment-chatbots-2025" element={<BlogPostVolunteerRecruitment />} />
