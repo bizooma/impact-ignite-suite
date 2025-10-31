@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SEOHead } from "@/components/seo/SEOHead";
 import causeioLogo from "@/assets/causeio-logo.png";
+import aiVideoMultichannelImage from "@/assets/blog/ai-video-multichannel-nonprofits.jpg";
 
 const BlogPost = () => {
   return (
@@ -67,7 +68,7 @@ const BlogPost = () => {
         {/* Featured Image */}
         <div className="mb-12 rounded-xl overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&auto=format&fit=crop&q=80"
+            src={aiVideoMultichannelImage}
             alt="Digital marketing for nonprofits in 2025"
             className="w-full h-[400px] object-cover"
           />

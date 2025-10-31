@@ -5,6 +5,7 @@ import { Calendar, Clock, ArrowRight, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import googleAdGrantsImage from "@/assets/blog/google-ad-grants-nonprofits.jpg";
 import volunteerChatbotsImage from "@/assets/blog/volunteer-recruitment-chatbots.jpg";
+import aiVideoMultichannelImage from "@/assets/blog/ai-video-multichannel-nonprofits.jpg";
 
 // Sample blog posts - in a real app, this would come from a CMS or API
 const blogPosts = [
@@ -12,7 +13,7 @@ const blogPosts = [
     id: 1,
     title: "Harnessing AI, Video & the Multi-Channel Push: Big Digital Wins for Nonprofits in 2025",
     excerpt: "2025 is shaping up to be a pivotal year for nonprofits that get serious about digital marketing.",
-    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80",
+    image: aiVideoMultichannelImage,
     author: "Joseph Murphy",
     date: "Sept. 15, 2025",
     readTime: "8 min read",
