@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { BlogSection } from "@/components/landing/BlogSection";
 import heroBackground from "@/assets/hero-background.jpg";
 import causeioLogo from "@/assets/causeio-logo.png";
 import communityBackground from "@/assets/community-background.jpg";
@@ -716,6 +717,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Blog Section */}
+      <BlogSection />
 
       {/* FAQ Section */}
       <section className="w-full py-20 px-6">
