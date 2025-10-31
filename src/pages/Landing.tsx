@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, Users, Check, Star, Building, FileText, CheckSquare, TrendingUp, Settings, Smartphone } from "lucide-react";
+import { ArrowRight, MessageSquare, QrCode, Share2, BarChart3, Zap, Shield, Users, Check, Star, Building, FileText, CheckSquare, TrendingUp, Settings, Smartphone, Globe, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
@@ -580,6 +580,56 @@ const Landing = () => {
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />iOS & Android</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Push Notifications</li>
                     <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Offline Access</li>
+                  </ul>
+                </CardContent>
+              </div>
+            </Card>
+
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <Badge className="absolute top-4 right-4 z-20 bg-destructive text-destructive-foreground">Coming Soon</Badge>
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${integrationsBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <Globe className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle className="font-bold">Website Builder</CardTitle>
+                  <CardDescription className="font-bold">
+                    Create beautiful, mobile-responsive websites for your nonprofit
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Drag & Drop Editor</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Custom Templates</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Mobile Optimized</li>
+                  </ul>
+                </CardContent>
+              </div>
+            </Card>
+
+            <Card className="border-2 hover:border-primary/20 transition-all duration-200 overflow-hidden relative group">
+              <Badge className="absolute top-4 right-4 z-20 bg-destructive text-destructive-foreground">Coming Soon</Badge>
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
+                style={{ backgroundImage: `url(${analyticsDashboardBg})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/80" />
+              <div className="relative z-10">
+                <CardHeader>
+                  <Target className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle className="font-bold">PPC Management</CardTitle>
+                  <CardDescription className="font-bold">
+                    Maximize your Google Ad Grants and paid advertising ROI
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground font-bold">
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Campaign Optimization</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Keyword Research</li>
+                    <li className="flex items-center"><Check className="w-4 h-4 mr-2 text-primary" />Budget Management</li>
                   </ul>
                 </CardContent>
               </div>
