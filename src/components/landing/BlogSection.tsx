@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowRight, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import googleAdGrantsImage from "@/assets/blog/google-ad-grants-nonprofits.jpg";
+import volunteerChatbotsImage from "@/assets/blog/volunteer-recruitment-chatbots.jpg";
 
 // Sample blog posts - in a real app, this would come from a CMS or API
 const blogPosts = [
@@ -33,12 +34,12 @@ const blogPosts = [
     id: 3,
     title: "Recruit Volunteers Smarter: How Chatbots & Messaging Are Transforming Nonprofit Engagement in 2025",
     excerpt: "Recruiting volunteers has always been a manual process — emails, forms, follow-ups — until now.",
-    image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=800&auto=format&fit=crop&q=80",
+    image: volunteerChatbotsImage,
     author: "Joseph Murphy",
     date: "Oct. 15, 2025",
-    readTime: "6 min read",
-    category: "SEO",
-    slug: "#"
+    readTime: "7 min read",
+    category: "Volunteer Engagement",
+    slug: "/blog/volunteer-recruitment-chatbots-2025"
   }
 ];
 

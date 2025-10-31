@@ -14,6 +14,7 @@ import { ProtectedProductRoute } from "@/components/upgrade/ProtectedProductRout
 import Landing from "./pages/Landing";
 import BlogPost from "./pages/BlogPost";
 import BlogPostGoogleGrants from "./pages/BlogPostGoogleGrants";
+import BlogPostVolunteerRecruitment from "./pages/BlogPostVolunteerRecruitment";
 import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="/" element={<Landing />} />
                 <Route path="/blog/ai-video-multichannel-nonprofits-2025" element={<BlogPost />} />
                 <Route path="/blog/google-ad-grants-nonprofits-2025" element={<BlogPostGoogleGrants />} />
+                <Route path="/blog/volunteer-recruitment-chatbots-2025" element={<BlogPostVolunteerRecruitment />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/payment-cancel" element={<PaymentCancel />} />
