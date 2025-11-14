@@ -24,6 +24,9 @@ verify_jwt = false
 [functions.submit-volunteer]
 verify_jwt = false
 
+[functions.sync-beta-to-crm]
+verify_jwt = false
+
 [functions.track-event]
 verify_jwt = false
 

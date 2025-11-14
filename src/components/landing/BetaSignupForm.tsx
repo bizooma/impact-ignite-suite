@@ -35,13 +35,13 @@ export const BetaSignupForm = () => {
       });
 
       // Submit to database
-      const { error } = await supabase.from("beta_signups").insert([
+      const { data: signupData, error } = await supabase.from("beta_signups").insert([
         {
           email: validatedData.email,
           name: validatedData.name,
           organization: validatedData.organization,
         },
-      ]);
+      ]).select().single();
 
       if (error) {
         if (error.code === "23505") {
@@ -55,6 +55,16 @@ export const BetaSignupForm = () => {
           throw error;
         }
       } else {
+        // Sync to CRM (non-blocking)
+        try {
+          await supabase.functions.invoke('sync-beta-to-crm', {
+            body: { betaSignup: signupData },
+          });
+        } catch (crmError) {
+          console.error('CRM sync failed (non-critical):', crmError);
+          // Don't show error to user, CRM sync is background operation
+        }
+
         setSubmitted(true);
         toast({
           title: "Welcome to the Beta! 🎉",
