@@ -2215,6 +2215,10 @@ export type Database = {
         Returns: boolean
       }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      recalculate_crm_list_contact_count: {
+        Args: { list_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "owner" | "admin" | "editor" | "viewer"
