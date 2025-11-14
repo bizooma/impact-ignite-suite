@@ -665,7 +665,6 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold">Jane Smith</div>
-                    <div className="text-sm text-muted-foreground">Executive Director, Hope Foundation</div>
                   </div>
                 </div>
               </CardContent>
@@ -687,7 +686,6 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold">Mike Davis</div>
-                    <div className="text-sm text-muted-foreground">Development Director, Community Cares</div>
                   </div>
                 </div>
               </CardContent>
@@ -709,7 +707,6 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="font-semibold">Anna Lee</div>
-                    <div className="text-sm text-muted-foreground">Communications Director, Youth Alliance</div>
                   </div>
                 </div>
               </CardContent>
