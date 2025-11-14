@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Users } from 'lucide-react';
 import { CrmList } from '@/hooks/useCrm';
+import { ListMembersDialog } from './ListMembersDialog';
 
 interface ListsManagerProps {
   lists: CrmList[];
@@ -11,6 +13,7 @@ interface ListsManagerProps {
 }
 
 export function ListsManager({ lists, loading, organizationId }: ListsManagerProps) {
+  const [selectedList, setSelectedList] = useState<CrmList | null>(null);
   if (loading) {
     return <div className="text-center p-8">Loading lists...</div>;
   }
@@ -34,7 +37,11 @@ export function ListsManager({ lists, loading, organizationId }: ListsManagerPro
           </Card>
         ) : (
           lists.map((list) => (
-            <Card key={list.id} className="cursor-pointer hover:shadow-lg transition-shadow">
+            <Card 
+              key={list.id} 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => setSelectedList(list)}
+            >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{list.name}</CardTitle>
@@ -58,6 +65,13 @@ export function ListsManager({ lists, loading, organizationId }: ListsManagerPro
           ))
         )}
       </div>
+
+      <ListMembersDialog
+        list={selectedList}
+        open={!!selectedList}
+        onOpenChange={(open) => !open && setSelectedList(null)}
+        organizationId={organizationId}
+      />
     </div>
   );
 }
