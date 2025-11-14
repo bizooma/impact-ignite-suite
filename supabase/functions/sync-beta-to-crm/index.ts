@@ -62,6 +62,11 @@ Deno.serve(async (req) => {
       if (betaSignup.organization) {
         updateData.custom_fields = {
           beta_organization: betaSignup.organization,
+          source_detail: 'beta_signup',
+        };
+      } else {
+        updateData.custom_fields = {
+          source_detail: 'beta_signup',
         };
       }
 
@@ -88,7 +93,7 @@ Deno.serve(async (req) => {
         first_name: firstName,
         last_name: lastName,
         email: betaSignup.email,
-        source: 'beta_signup',
+        source: 'form',
         source_id: betaSignup.id,
         lifecycle_stage: 'lead',
         last_interaction_at: new Date().toISOString(),
@@ -97,6 +102,11 @@ Deno.serve(async (req) => {
       if (betaSignup.organization) {
         insertData.custom_fields = {
           beta_organization: betaSignup.organization,
+          source_detail: 'beta_signup',
+        };
+      } else {
+        insertData.custom_fields = {
+          source_detail: 'beta_signup',
         };
       }
 
