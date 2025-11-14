@@ -21,7 +21,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           target_id: string | null
           target_type: string | null
           user_agent: string | null
@@ -32,7 +32,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_id?: string | null
           target_type?: string | null
           user_agent?: string | null
@@ -43,7 +43,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_id?: string | null
           target_type?: string | null
           user_agent?: string | null
@@ -96,6 +96,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      beta_signups: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          organization: string | null
+          subscribed: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          organization?: string | null
+          subscribed?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          organization?: string | null
+          subscribed?: boolean
+        }
+        Relationships: []
       }
       campaigns: {
         Row: {
@@ -265,7 +292,7 @@ export type Database = {
           event_data: Json | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           session_id: string | null
           user_agent: string | null
         }
@@ -275,7 +302,7 @@ export type Database = {
           event_data?: Json | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           session_id?: string | null
           user_agent?: string | null
         }
@@ -285,7 +312,7 @@ export type Database = {
           event_data?: Json | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           session_id?: string | null
           user_agent?: string | null
         }
@@ -1556,7 +1583,7 @@ export type Database = {
           created_at: string | null
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           operation_type: string | null
           organization_id: string
           table_name: string | null
@@ -1568,7 +1595,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           operation_type?: string | null
           organization_id: string
           table_name?: string | null
@@ -1580,7 +1607,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           operation_type?: string | null
           organization_id?: string
           table_name?: string | null
@@ -1850,7 +1877,7 @@ export type Database = {
         Row: {
           device_info: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           location_data: Json | null
           qr_code_id: string
           referrer: string | null
@@ -1860,7 +1887,7 @@ export type Database = {
         Insert: {
           device_info?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           location_data?: Json | null
           qr_code_id: string
           referrer?: string | null
@@ -1870,7 +1897,7 @@ export type Database = {
         Update: {
           device_info?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           location_data?: Json | null
           qr_code_id?: string
           referrer?: string | null
@@ -2082,7 +2109,7 @@ export type Database = {
           days: string[] | null
           email: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           name: string
           phone: string | null
           public_key: string | null
@@ -2094,7 +2121,7 @@ export type Database = {
           days?: string[] | null
           email: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           name: string
           phone?: string | null
           public_key?: string | null
@@ -2106,7 +2133,7 @@ export type Database = {
           days?: string[] | null
           email?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           name?: string
           phone?: string | null
           public_key?: string | null
@@ -2174,10 +2201,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      grant_platform_admin: {
-        Args: { _email: string }
-        Returns: boolean
-      }
+      grant_platform_admin: { Args: { _email: string }; Returns: boolean }
       has_org_role: {
         Args: {
           _org_id: string
@@ -2190,10 +2214,7 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
-      is_platform_admin: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
+      is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "owner" | "admin" | "editor" | "viewer"

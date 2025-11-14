@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BlogSection } from "@/components/landing/BlogSection";
+import { BetaSignupForm } from "@/components/landing/BetaSignupForm";
 import heroBackground from "@/assets/hero-background.jpg";
 import causeioLogo from "@/assets/causeio-logo.png";
 import communityBackground from "@/assets/community-background.jpg";
@@ -331,6 +332,13 @@ const Landing = () => {
             Empower your nonprofit with AI chatbots, dynamic QR codes, social media automation, and SEO optimization. 
             Everything you need to attract donors, recruit volunteers, and grow community support in one powerful platform.
           </p>
+        </div>
+      </section>
+
+      {/* Beta Signup Section */}
+      <section className="w-full py-20 px-6 bg-gradient-to-b from-background to-muted/20">
+        <div className="w-full max-w-7xl mx-auto">
+          <BetaSignupForm />
         </div>
       </section>
 
