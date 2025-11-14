@@ -6,7 +6,8 @@ import { PlatformAnalytics } from './PlatformAnalytics';
 import { AdminAuditLogs } from './AdminAuditLogs';
 import { MobileAppSeeding } from './MobileAppSeeding';
 import { FlipbookManager } from './FlipbookManager';
-import { Shield, Users, Building2, BarChart3, FileText, Smartphone, BookOpen } from 'lucide-react';
+import { BetaSignupsManager } from './BetaSignupsManager';
+import { Shield, Users, Building2, BarChart3, FileText, Smartphone, BookOpen, Mail } from 'lucide-react';
 
 export function AdminDashboard() {
   return (
@@ -76,7 +77,7 @@ export function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
@@ -84,6 +85,10 @@ export function AdminDashboard() {
           <TabsTrigger value="organizations" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             Organizations
+          </TabsTrigger>
+          <TabsTrigger value="beta-signups" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Beta Signups
           </TabsTrigger>
           <TabsTrigger value="mobile-apps" className="flex items-center gap-2">
             <Smartphone className="h-4 w-4" />
@@ -109,6 +114,10 @@ export function AdminDashboard() {
 
         <TabsContent value="organizations" className="space-y-4">
           <OrganizationManagement />
+        </TabsContent>
+
+        <TabsContent value="beta-signups" className="space-y-4">
+          <BetaSignupsManager />
         </TabsContent>
 
         <TabsContent value="mobile-apps" className="space-y-4">
