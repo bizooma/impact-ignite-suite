@@ -644,7 +644,7 @@ const Landing = () => {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Trusted by Nonprofits Making a Difference</h2>
             <p className="text-xl text-muted-foreground">
-              Join thousands of nonprofits using Causeio to amplify their impact
+              Join our beta testing group and receive a substantial discount on our platform when we "Go Live"
             </p>
           </div>
           
