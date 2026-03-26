@@ -167,7 +167,7 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section -- warm gradient with side-by-side layout */}
-      <section className="w-full py-16 md:py-24 px-6 bg-gradient-to-br from-[hsl(142,50%,88%)] via-[hsl(142,40%,94%)] to-background overflow-hidden">
+      <section className="w-full py-16 md:py-24 px-6 bg-gradient-to-br from-[#57cc99]/20 via-[#57cc99]/5 to-background overflow-hidden">
         <div className="w-full max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-foreground hero-title">
