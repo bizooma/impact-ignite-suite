@@ -12,7 +12,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 const tiers = {
   starter: {
     name: "Starter",
-    price: "$29",
+    price: "$49.95",
     description: "Perfect for small businesses getting started",
     priceId: "price_1SBmQSEV6sbsDlR8ntj0hADS",
     popular: false,
