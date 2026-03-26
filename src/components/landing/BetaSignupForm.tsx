@@ -14,7 +14,11 @@ const betaSignupSchema = z.object({
   organization: z.string().trim().max(200).optional(),
 });
 
-export const BetaSignupForm = () => {
+interface BetaSignupFormProps {
+  compact?: boolean;
+}
+
+export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [organization, setOrganization] = useState("");
@@ -27,14 +31,12 @@ export const BetaSignupForm = () => {
     setLoading(true);
 
     try {
-      // Validate input
       const validatedData = betaSignupSchema.parse({
         email,
         name,
         organization: organization || undefined,
       });
 
-      // Submit to database
       const { data: signupData, error } = await supabase.from("beta_signups").insert([
         {
           email: validatedData.email,
@@ -45,7 +47,6 @@ export const BetaSignupForm = () => {
 
       if (error) {
         if (error.code === "23505") {
-          // Unique constraint violation
           toast({
             title: "Already Registered",
             description: "This email is already on our beta list!",
@@ -55,14 +56,12 @@ export const BetaSignupForm = () => {
           throw error;
         }
       } else {
-        // Sync to CRM (non-blocking)
         try {
           await supabase.functions.invoke('sync-beta-to-crm', {
             body: { betaSignup: signupData },
           });
         } catch (crmError) {
           console.error('CRM sync failed (non-critical):', crmError);
-          // Don't show error to user, CRM sync is background operation
         }
 
         setSubmitted(true);
@@ -93,19 +92,16 @@ export const BetaSignupForm = () => {
 
   if (submitted) {
     return (
-      <Card className="w-full max-w-2xl mx-auto border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-        <CardContent className="pt-12 pb-12 text-center">
-          <div className="mb-6 flex justify-center">
-            <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-              <Check className="h-10 w-10 text-primary" />
+      <Card className={`w-full ${compact ? '' : 'max-w-2xl mx-auto'} border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10`}>
+        <CardContent className="pt-10 pb-10 text-center">
+          <div className="mb-5 flex justify-center">
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Check className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h3 className="text-2xl font-bold mb-3">You're On The List! 🎉</h3>
-          <p className="text-muted-foreground text-lg mb-2">
-            Welcome to the exclusive Causeio beta testing group.
-          </p>
+          <h3 className="text-2xl font-bold mb-2">You're On The List! 🎉</h3>
           <p className="text-muted-foreground">
-            Watch your inbox for your special discount code and early access details.
+            Welcome to the Causeio beta. Watch your inbox for early access details and your discount code.
           </p>
         </CardContent>
       </Card>
@@ -113,22 +109,22 @@ export const BetaSignupForm = () => {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-background shadow-xl">
-      <CardHeader className="text-center pb-4">
-        <div className="flex justify-center mb-4">
-          <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <Sparkles className="h-8 w-8 text-primary" />
+    <Card className={`w-full ${compact ? '' : 'max-w-2xl mx-auto'} border-2 border-primary/20 bg-card shadow-lg`}>
+      <CardHeader className={`text-center ${compact ? 'pb-2 pt-6' : 'pb-4'}`}>
+        <div className="flex justify-center mb-3">
+          <div className={`${compact ? 'h-12 w-12' : 'h-16 w-16'} rounded-full bg-primary/10 flex items-center justify-center`}>
+            <Sparkles className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-primary`} />
           </div>
         </div>
-        <CardTitle className="text-3xl font-bold">Join Our Beta Testing Group</CardTitle>
-        <CardDescription className="text-lg mt-2">
-          Be among the first to experience Causeio and lock in your{" "}
-          <span className="text-primary font-semibold">exclusive early bird discount</span> when we launch!
+        <CardTitle className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold`}>Join Our Beta Testing Group</CardTitle>
+        <CardDescription className={`${compact ? 'text-sm' : 'text-lg'} mt-1`}>
+          Get early access and lock in your{" "}
+          <span className="text-primary font-semibold">exclusive early bird discount</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className={`${compact ? 'space-y-3' : 'space-y-4'}`}>
+          <div className="space-y-1.5">
             <Label htmlFor="beta-name">Name *</Label>
             <Input
               id="beta-name"
@@ -141,7 +137,7 @@ export const BetaSignupForm = () => {
               disabled={loading}
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="beta-email">Email *</Label>
             <Input
               id="beta-email"
@@ -154,7 +150,7 @@ export const BetaSignupForm = () => {
               disabled={loading}
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="beta-organization">Organization (Optional)</Label>
             <Input
               id="beta-organization"
@@ -166,13 +162,13 @@ export const BetaSignupForm = () => {
               disabled={loading}
             />
           </div>
-          <div className="pt-2">
-            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+          <div className="pt-1">
+            <Button type="submit" className="w-full" size={compact ? "default" : "lg"} disabled={loading}>
               {loading ? "Joining..." : "Secure My Beta Access & Discount"}
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground text-center">
-            By signing up, you'll receive early access and a substantial discount when we go live.
+          <p className="text-xs text-muted-foreground text-center">
+            Free beta access. No credit card required.
           </p>
         </form>
       </CardContent>
