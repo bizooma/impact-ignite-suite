@@ -28,7 +28,7 @@ const tiers = {
   },
   professional: {
     name: "Professional", 
-    price: "$79",
+    price: "$99.95",
     description: "Advanced features for growing businesses",
     priceId: "price_1SBmQkEV6sbsDlR8lNv4aa7A",
     popular: true,
