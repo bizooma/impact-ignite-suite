@@ -94,7 +94,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
   if (!mounted || !isOpen) return null;
 
   const widget = (
-    <div className="fixed bottom-20 right-6 z-[200] w-[400px] h-[600px] animate-slide-in-right">
+    <div className="fixed bottom-20 right-6 z-[9999] w-[400px] h-[600px] animate-slide-in-right">
       <div className="w-full h-full bg-background 
         rounded-lg shadow-elevated flex flex-col overflow-hidden border">
         
