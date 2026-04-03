@@ -81,7 +81,7 @@ export const ChatbotLauncher: React.FC<ChatbotLauncherProps> = ({
   const launcher = (
     <button
       onClick={onClick}
-      className={`fixed ${positionStyles[position]} z-[100] group flex items-center gap-3 
+      className={`fixed ${positionStyles[position]} z-[9998] group flex items-center gap-3 
         bg-primary text-primary-foreground rounded-full shadow-elevated
         hover:shadow-glow transition-all duration-300 hover:scale-105 animate-fade-in`}
       aria-label="Open chat"
