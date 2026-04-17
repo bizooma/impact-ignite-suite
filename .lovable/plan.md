@@ -1,76 +1,40 @@
 
+The user wants the QR code's overall silhouette to take the form of the selected shape (heart, star, circle, hexagon, etc.) — not a square QR with a shape outline overlay. The QR modules themselves should fill/conform to the chosen shape.
 
-# Landing Page Redesign -- Warm & Mission-Driven
+## Approach
 
-## Current Issues
-- Dense, repetitive card grid (12 product cards all look the same with background images behind overlays -- hard to scan)
-- Hero section is basic text over a photo with a generic badge
-- Beta signup form feels disconnected from the hero
-- Sections blend together with no visual rhythm
-- Testimonials are plain cards with no personality
-- "Why Choose Causeio" section uses generic SaaS claims (SOC 2, 99.9% uptime) that don't match the nonprofit audience
-- Footer links point to `#` (dead links)
+Use SVG clipping: render the standard square QR module grid, then clip it to the silhouette of the chosen shape. The background also takes the shape (no surrounding square). For decorative shapes (heart, star, cloud), this means the QR "fills" the heart/star outline.
 
-## Redesign Approach
+### Technical plan
 
-### 1. Hero Section -- Emotionally Engaging
-- Remove the parallax background image and dark overlay
-- Use a warm gradient background (teal-to-white) with the Causeio logo prominently placed
-- Larger, more human headline: keep the mission language but make it warmer
-- Embed the beta signup form directly in the hero (side-by-side on desktop: headline left, form right) instead of having it in a separate section below
-- Remove the generic "rocket emoji" badge
+Update `src/lib/qrShapeRenderer.ts`:
 
-### 2. Social Proof Strip
-- Add a thin strip below the hero with trust indicators: "Built for nonprofits", "12 tools in one platform", "Free beta access"
-- Simple icons + text, no cards
+1. **Define silhouette paths** for each shape at the SVG viewBox scale (`total x total`):
+   - `square` — full rect (current behavior)
+   - `circle` / `dots` — circle inscribed in viewBox
+   - `rounded` — rect with large border-radius
+   - `hexagon`, `triangle` — polygon
+   - `heart`, `star`, `cloud`, `sparkle` — path/polygon silhouette
 
-### 3. Product Features -- Grouped & Scannable
-- Instead of 12 identical cards, group products into 3-4 categories with a visual distinction:
-  - **Engage**: Chatbots, CRM, Mobile App
-  - **Promote**: Social Media, QR Codes, SEO, Google Business, PPC (coming soon)
-  - **Operate**: Tasks, Analytics, Integrations, Website Builder (coming soon)
-- Each category gets a heading, brief description, and a horizontal row of compact feature tiles (icon + name + one-liner)
-- "Coming Soon" items get a subtle badge, not a separate card style
-- Remove background images from cards -- use clean icons on light tinted backgrounds instead
+2. **Restructure SVG output**:
+   - Add `<defs><clipPath id="qrClip"><path d="<silhouette>"/></clipPath></defs>`
+   - Background `<path d="<silhouette>" fill="${backgroundColor}"/>` (replaces square `<rect>`)
+   - Wrap all module rects in `<g clip-path="url(#qrClip)">` so modules outside the silhouette are clipped away
+   - Remove the old decorative overlay (no longer needed — silhouette IS the shape)
 
-### 4. How It Works -- 3-Step Visual
-- New section: "Get Started in Minutes"
-- Three numbered steps with icons: Sign Up -> Build Your Tools -> Amplify Your Mission
-- Horizontal layout on desktop, vertical on mobile
+3. **Module rendering**: keep modules as squares (best scannability) since the clip handles the silhouette. Drop the per-module shape variants except keep `dots`/`rounded` as module styles when shape is `dots`/`rounded` (those shapes are about module style, not silhouette).
+   - Clarification: `dots` and `rounded` will keep current "module style" behavior on a square canvas.
+   - True silhouette shapes: `circle`, `heart`, `star`, `hexagon`, `triangle`, `cloud`, `sparkle`.
 
-### 5. Testimonials -- Warmer Design
-- Add a soft tinted background section
-- Use larger quote marks, warmer card styling with a left accent border in primary color
-- Keep the existing 3 testimonials
+4. **Increase QR error correction & margin** for silhouette shapes so clipped modules at the edges don't break scannability. Use `errorCorrectionLevel: 'H'` (already set) and add extra padding inside the silhouette so the QR grid sits in the largest inscribed rect of the shape — guaranteeing no data modules are clipped, only the background extends to form the silhouette.
 
-### 6. Why Causeio -- Mission-Aligned
-- Rewrite the benefits to focus on nonprofit outcomes instead of generic SaaS claims:
-  - "Save Staff Time" instead of "Lightning Fast"
-  - "Nonprofit-Friendly Pricing" instead of "Enterprise Security"
-  - "Built for Your Mission" instead of "Expert Support"
-- Replace the "10x Faster Growth" stat block with 3 smaller stat cards (e.g., "12 Tools", "24/7 Chatbot Support", "Free Beta Access")
+   Strategy: compute an inscribed rect for each silhouette (e.g., for heart, use ~70% centered; for circle, `size/√2`), scale modules to fit inside it, then draw the silhouette as background extending beyond the modules. This keeps the QR fully scannable AND gives the overall artwork the chosen shape.
 
-### 7. Blog Section -- Keep As-Is
-- Already working well, no changes needed
+5. **Update `QrPreview` and `handleDownload`** in `QrCodeDashboard.tsx` — no changes needed, they already pass `shape` through.
 
-### 8. FAQ -- Minor Polish
-- Reduce from 10 to 6-7 most important questions
-- Add slightly more padding and a subtle card wrapper
+### Files to edit
+- `src/lib/qrShapeRenderer.ts` — rewrite SVG construction with clipPath + inscribed-rect module placement + silhouette background
 
-### 9. CTA Section -- Warmer Tone
-- Change dark slate background to a warm primary gradient
-- Keep the Calendly link
-
-### 10. Footer -- Fix Dead Links
-- Point footer links to actual routes (`/blog`, `/pricing`) or remove dead ones
-- Keep the Bizooma attribution
-
-## Technical Details
-
-**Files modified:**
-- `src/pages/Landing.tsx` -- Complete rewrite of the JSX structure and layout. Keep all imports, schemas, and logic. Reorganize sections as described above.
-- `src/components/landing/BetaSignupForm.tsx` -- Minor styling tweaks to work within the hero layout (make it more compact, remove the outer Card wrapper when embedded in hero)
-- `src/index.css` -- No changes needed; existing color system works well for warm/mission-driven
-
-**No new files or dependencies needed.** All product background image imports can be removed since we're switching to clean icon-based cards.
-
+### Tradeoffs
+- For irregular silhouettes (heart, star, cloud), the QR grid will be visibly smaller relative to the artwork, with the colored silhouette extending around it. This is the standard approach used by branded QR generators (it preserves scannability).
+- Alternative (clipping the QR itself) would corrupt the code and make it unscannable — not recommended.
