@@ -17,130 +17,106 @@ interface RenderOptions {
   shape?: QrShapeName | string;
   primaryColor?: string;
   backgroundColor?: string;
-  size?: number; // pixel size of output PNG
+  size?: number;
   margin?: number;
 }
 
 /**
  * Render a QR code as a PNG data URL with optional shape transformations.
- * Works in the browser by generating SVG, transforming it, then rasterizing.
  */
 export async function renderShapedQrPng(opts: RenderOptions): Promise<string> {
+  const svg = buildShapedSvg(opts);
+  return svgToPngDataUrl(svg, opts.size ?? 512);
+}
+
+/**
+ * Build a styled SVG string for a QR code by getting the raw module matrix
+ * and rendering each "dark" module as the chosen shape.
+ */
+export function buildShapedSvg(opts: RenderOptions): string {
   const {
     url,
     shape = 'square',
     primaryColor = '#000000',
     backgroundColor = '#ffffff',
-    size = 512,
-    margin = 1,
+    margin = 2,
   } = opts;
 
-  // Generate SVG string from qrcode lib
-  const svg = await QRCode.toString(url, {
-    type: 'svg',
-    errorCorrectionLevel: 'H',
-    margin,
-    color: { dark: primaryColor, light: backgroundColor },
-  });
+  // Use the qrcode library's create() to get the raw matrix
+  const qr = QRCode.create(url || ' ', { errorCorrectionLevel: 'H' });
+  const moduleCount: number = qr.modules.size;
+  const data: Uint8Array = qr.modules.data;
 
-  const shaped = applyShapeToSvg(svg, shape, primaryColor);
+  const total = moduleCount + margin * 2;
+  const cell = 1; // each module is 1 unit; viewBox handles scaling
 
-  return svgToPngDataUrl(shaped, size);
+  let modulesSvg = '';
+  const isDecorative =
+    shape === 'heart' || shape === 'star' || shape === 'cloud' || shape === 'sparkle';
+
+  for (let row = 0; row < moduleCount; row++) {
+    for (let col = 0; col < moduleCount; col++) {
+      const isDark = data[row * moduleCount + col] === 1;
+      if (!isDark) continue;
+      const x = col + margin;
+      const y = row + margin;
+      modulesSvg += renderModule(shape, x, y, cell, primaryColor, isDecorative);
+    }
+  }
+
+  const overlay = isDecorative
+    ? buildDecorativeOverlay(shape, total, primaryColor)
+    : '';
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="${
+    shape === 'square' || shape === 'rounded' ? 'crispEdges' : 'geometricPrecision'
+  }"><rect width="${total}" height="${total}" fill="${backgroundColor}"/>${modulesSvg}${overlay}</svg>`;
 }
 
-function applyShapeToSvg(svgString: string, shape: string, color: string): string {
+function renderModule(
+  shape: string,
+  x: number,
+  y: number,
+  s: number,
+  color: string,
+  decorativeUsesSquare: boolean
+): string {
+  if (decorativeUsesSquare) {
+    return `<rect x="${x}" y="${y}" width="${s}" height="${s}" fill="${color}"/>`;
+  }
   switch (shape) {
     case 'circle':
-      return svgString.replace(
-        /<rect([^>]*?)width="([^"]*)"([^>]*?)height="([^"]*)"([^>]*?)\/>/g,
-        (_m, before, width, middle, height, after) => {
-          const xMatch = (before + middle + after).match(/x="([^"]+)"/);
-          const yMatch = (before + middle + after).match(/y="([^"]+)"/);
-          const x = xMatch ? parseFloat(xMatch[1]) : 0;
-          const y = yMatch ? parseFloat(yMatch[1]) : 0;
-          const w = parseFloat(width);
-          const h = parseFloat(height);
-          if (x === 0 && y === 0 && w > 20 && h > 20) {
-            return `<rect${before}width="${width}"${middle}height="${height}"${after}/>`;
-          }
-          const r = Math.min(w, h) / 2;
-          return `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${r}" fill="${color}"/>`;
-        }
-      );
+    case 'dots': {
+      const r = shape === 'dots' ? s * 0.45 : s * 0.5;
+      return `<circle cx="${x + s / 2}" cy="${y + s / 2}" r="${r}" fill="${color}"/>`;
+    }
     case 'rounded':
-      return svgString.replace(/<rect /g, '<rect rx="0.3" ry="0.3" ');
-    case 'dots':
-      return svgString.replace(
-        /<rect([^>]*?)width="([^"]*)"([^>]*?)height="([^"]*)"([^>]*?)\/>/g,
-        (_m, before, width, middle, height, after) => {
-          const xMatch = (before + middle + after).match(/x="([^"]+)"/);
-          const yMatch = (before + middle + after).match(/y="([^"]+)"/);
-          const x = xMatch ? parseFloat(xMatch[1]) : 0;
-          const y = yMatch ? parseFloat(yMatch[1]) : 0;
-          const w = parseFloat(width);
-          const h = parseFloat(height);
-          if (x === 0 && y === 0 && w > 20 && h > 20) {
-            return `<rect${before}width="${width}"${middle}height="${height}"${after}/>`;
-          }
-          const r = Math.min(w, h) * 0.45;
-          return `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${r}" fill="${color}"/>`;
-        }
-      );
-    case 'hexagon':
-      return svgString.replace(
-        /<rect([^>]*?)width="([^"]*)"([^>]*?)height="([^"]*)"([^>]*?)\/>/g,
-        (_m, before, width, middle, height, after) => {
-          const xMatch = (before + middle + after).match(/x="([^"]+)"/);
-          const yMatch = (before + middle + after).match(/y="([^"]+)"/);
-          const x = xMatch ? parseFloat(xMatch[1]) : 0;
-          const y = yMatch ? parseFloat(yMatch[1]) : 0;
-          const w = parseFloat(width);
-          const h = parseFloat(height);
-          if (x === 0 && y === 0 && w > 20 && h > 20) {
-            return `<rect${before}width="${width}"${middle}height="${height}"${after}/>`;
-          }
-          const pts = `${x + w * 0.25},${y} ${x + w * 0.75},${y} ${x + w},${y + h * 0.5} ${x + w * 0.75},${y + h} ${x + w * 0.25},${y + h} ${x},${y + h * 0.5}`;
-          return `<polygon points="${pts}" fill="${color}"/>`;
-        }
-      );
-    case 'triangle':
-      return svgString.replace(
-        /<rect([^>]*?)width="([^"]*)"([^>]*?)height="([^"]*)"([^>]*?)\/>/g,
-        (_m, before, width, middle, height, after) => {
-          const xMatch = (before + middle + after).match(/x="([^"]+)"/);
-          const yMatch = (before + middle + after).match(/y="([^"]+)"/);
-          const x = xMatch ? parseFloat(xMatch[1]) : 0;
-          const y = yMatch ? parseFloat(yMatch[1]) : 0;
-          const w = parseFloat(width);
-          const h = parseFloat(height);
-          if (x === 0 && y === 0 && w > 20 && h > 20) {
-            return `<rect${before}width="${width}"${middle}height="${height}"${after}/>`;
-          }
-          const pts = `${x + w / 2},${y} ${x + w},${y + h} ${x},${y + h}`;
-          return `<polygon points="${pts}" fill="${color}"/>`;
-        }
-      );
-    case 'heart':
-    case 'star':
-    case 'cloud':
-    case 'sparkle':
-      return addDecorativeFrame(svgString, shape, color);
+      return `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="${s * 0.3}" ry="${s * 0.3}" fill="${color}"/>`;
+    case 'hexagon': {
+      const pts = `${x + s * 0.25},${y} ${x + s * 0.75},${y} ${x + s},${y + s * 0.5} ${x + s * 0.75},${y + s} ${x + s * 0.25},${y + s} ${x},${y + s * 0.5}`;
+      return `<polygon points="${pts}" fill="${color}"/>`;
+    }
+    case 'triangle': {
+      const pts = `${x + s / 2},${y} ${x + s},${y + s} ${x},${y + s}`;
+      return `<polygon points="${pts}" fill="${color}"/>`;
+    }
     case 'square':
     default:
-      return svgString;
+      return `<rect x="${x}" y="${y}" width="${s}" height="${s}" fill="${color}"/>`;
   }
 }
 
-function addDecorativeFrame(svg: string, shape: string, color: string): string {
-  const vbMatch = svg.match(/viewBox="([^"]*)"/);
-  if (!vbMatch) return svg;
-  const [, , w, h] = vbMatch[1].split(/\s+/).map(Number);
+function buildDecorativeOverlay(shape: string, total: number, color: string): string {
+  const w = total;
+  const h = total;
   const cx = w / 2;
   const cy = h / 2;
-  let overlay = '';
+  const sw = Math.max(w, h) * 0.012;
+
   if (shape === 'heart') {
-    overlay = `<path d="M${cx},${h * 0.95} C${cx},${h * 0.95} ${w * 0.05},${h * 0.55} ${w * 0.05},${h * 0.3} C${w * 0.05},${h * 0.05} ${w * 0.3},${-h * 0.05} ${cx},${h * 0.18} C${w * 0.7},${-h * 0.05} ${w * 0.95},${h * 0.05} ${w * 0.95},${h * 0.3} C${w * 0.95},${h * 0.55} ${cx},${h * 0.95} ${cx},${h * 0.95} Z" fill="none" stroke="${color}" stroke-width="${Math.max(w, h) * 0.015}" opacity="0.4"/>`;
-  } else if (shape === 'star') {
+    return `<path d="M${cx},${h * 0.95} C${cx},${h * 0.95} ${w * 0.05},${h * 0.55} ${w * 0.05},${h * 0.3} C${w * 0.05},${h * 0.05} ${w * 0.3},${-h * 0.05} ${cx},${h * 0.18} C${w * 0.7},${-h * 0.05} ${w * 0.95},${h * 0.05} ${w * 0.95},${h * 0.3} C${w * 0.95},${h * 0.55} ${cx},${h * 0.95} ${cx},${h * 0.95} Z" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.5"/>`;
+  }
+  if (shape === 'star') {
     const outer = Math.min(w, h) * 0.49;
     const inner = outer * 0.45;
     let pts = '';
@@ -149,25 +125,27 @@ function addDecorativeFrame(svg: string, shape: string, color: string): string {
       const r = i % 2 === 0 ? outer : inner;
       pts += `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)} `;
     }
-    overlay = `<polygon points="${pts.trim()}" fill="none" stroke="${color}" stroke-width="${Math.max(w, h) * 0.015}" opacity="0.4"/>`;
-  } else if (shape === 'cloud') {
-    overlay = `<path d="M${w * 0.2},${h * 0.75} Q${w * 0.05},${h * 0.75} ${w * 0.05},${h * 0.55} Q${w * 0.05},${h * 0.3} ${w * 0.28},${h * 0.25} Q${w * 0.3},${h * 0.1} ${w * 0.5},${h * 0.1} Q${w * 0.7},${h * 0.1} ${w * 0.72},${h * 0.25} Q${w * 0.95},${h * 0.3} ${w * 0.95},${h * 0.55} Q${w * 0.95},${h * 0.75} ${w * 0.8},${h * 0.75} Z" fill="none" stroke="${color}" stroke-width="${Math.max(w, h) * 0.015}" opacity="0.4"/>`;
-  } else if (shape === 'sparkle') {
-    const sparks = [
+    return `<polygon points="${pts.trim()}" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.5"/>`;
+  }
+  if (shape === 'cloud') {
+    return `<path d="M${w * 0.2},${h * 0.78} Q${w * 0.05},${h * 0.78} ${w * 0.05},${h * 0.55} Q${w * 0.05},${h * 0.3} ${w * 0.28},${h * 0.25} Q${w * 0.3},${h * 0.08} ${w * 0.5},${h * 0.08} Q${w * 0.7},${h * 0.08} ${w * 0.72},${h * 0.25} Q${w * 0.95},${h * 0.3} ${w * 0.95},${h * 0.55} Q${w * 0.95},${h * 0.78} ${w * 0.8},${h * 0.78} Z" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.5"/>`;
+  }
+  if (shape === 'sparkle') {
+    const sparks: [number, number, number][] = [
       [w * 0.08, h * 0.08, w * 0.04],
       [w * 0.92, h * 0.08, w * 0.035],
       [w * 0.08, h * 0.92, w * 0.035],
       [w * 0.92, h * 0.92, w * 0.04],
       [w * 0.5, h * 0.04, w * 0.025],
     ];
-    overlay = sparks
+    return sparks
       .map(
-        ([x, y, s]) =>
-          `<path d="M${x},${y - s} L${x},${y + s} M${x - s},${y} L${x + s},${y} M${x - s * 0.7},${y - s * 0.7} L${x + s * 0.7},${y + s * 0.7} M${x - s * 0.7},${y + s * 0.7} L${x + s * 0.7},${y - s * 0.7}" stroke="${color}" stroke-width="${Math.max(w, h) * 0.005}" opacity="0.5"/>`
+        ([x, y, sz]) =>
+          `<path d="M${x},${y - sz} L${x},${y + sz} M${x - sz},${y} L${x + sz},${y} M${x - sz * 0.7},${y - sz * 0.7} L${x + sz * 0.7},${y + sz * 0.7} M${x - sz * 0.7},${y + sz * 0.7} L${x + sz * 0.7},${y - sz * 0.7}" stroke="${color}" stroke-width="${sw * 0.5}" opacity="0.6"/>`
       )
       .join('');
   }
-  return svg.replace('</svg>', `${overlay}</svg>`);
+  return '';
 }
 
 function svgToPngDataUrl(svg: string, size: number): Promise<string> {
