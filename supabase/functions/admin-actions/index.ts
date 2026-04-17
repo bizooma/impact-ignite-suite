@@ -102,6 +102,68 @@ serve(async (req) => {
         break;
       }
 
+      case 'feature_usage': {
+        const tables = ['chatbots', 'qr_codes', 'social_posts', 'seo_audits'] as const;
+        const counts: Record<string, number> = {};
+        for (const t of tables) {
+          const { count } = await supabaseClient.from(t).select('*', { count: 'exact', head: true });
+          counts[t] = count ?? 0;
+        }
+        const max = Math.max(1, ...Object.values(counts));
+        result = {
+          features: [
+            { name: 'Chatbots', count: counts.chatbots, percentage: Math.round((counts.chatbots / max) * 100) },
+            { name: 'QR Codes', count: counts.qr_codes, percentage: Math.round((counts.qr_codes / max) * 100) },
+            { name: 'Social Media', count: counts.social_posts, percentage: Math.round((counts.social_posts / max) * 100) },
+            { name: 'SEO Audits', count: counts.seo_audits, percentage: Math.round((counts.seo_audits / max) * 100) },
+          ],
+        };
+        break;
+      }
+
+      case 'user_growth': {
+        // Last 6 months of new user signups
+        const months: { label: string; count: number; start: Date; end: Date }[] = [];
+        const now = new Date();
+        for (let i = 5; i >= 0; i--) {
+          const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+          months.push({
+            label: start.toLocaleString('en-US', { month: 'short' }),
+            count: 0,
+            start,
+            end,
+          });
+        }
+        let page = 1;
+        const perPage = 1000;
+        while (true) {
+          const { data, error } = await supabaseClient.auth.admin.listUsers({ page, perPage });
+          if (error) throw error;
+          for (const u of data.users) {
+            const created = new Date(u.created_at);
+            for (const m of months) {
+              if (created >= m.start && created < m.end) { m.count++; break; }
+            }
+          }
+          if (data.users.length < perPage) break;
+          page++;
+        }
+        result = months.map(({ label, count }) => ({ month: label, users: count }));
+        break;
+      }
+
+      case 'recent_activity': {
+        const { data, error } = await supabaseClient
+          .from('admin_audit_logs')
+          .select('id, action, target_type, details, created_at')
+          .order('created_at', { ascending: false })
+          .limit(10);
+        if (error) throw error;
+        result = data ?? [];
+        break;
+      }
+
       case 'list_users':
         // Fetch users from auth.users with profile data
         const { data: authUsers, error: listUsersError } = await supabaseClient.auth.admin.listUsers();
