@@ -187,15 +187,15 @@ const Landing = () => {
             </h1>
             <div className="flex flex-wrap gap-6 mb-6">
               <div className="flex items-center gap-2 text-sm font-bold text-white" style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
-                <Heart className="w-4 h-4 text-primary" />
+                <Heart className="w-5 h-5 text-black" />
                 <span>Built for nonprofits</span>
               </div>
               <div className="flex items-center gap-2 text-sm font-bold text-white" style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
-                <Sparkles className="w-4 h-4 text-primary" />
+                <Sparkles className="w-5 h-5 text-black" />
                 <span>12 tools in one</span>
               </div>
               <div className="flex items-center gap-2 text-sm font-bold text-white" style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
-                <DollarSign className="w-4 h-4 text-primary" />
+                <DollarSign className="w-5 h-5 text-black" />
                 <span>Free beta access</span>
               </div>
             </div>
