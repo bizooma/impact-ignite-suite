@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useQrCodes } from '@/hooks/useQrCodes';
 import type { Database } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
 import { QrShapePicker, type QrShape } from './QrShapePicker';
@@ -17,10 +16,10 @@ interface QrSettingsDialogProps {
   onClose: () => void;
   qrCode?: QrCodeRow;
   organizationId: string;
+  updateQrCode: (id: string, updates: Partial<QrCodeRow>) => Promise<any>;
 }
 
-export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClose, qrCode, organizationId }) => {
-  const { updateQrCode } = useQrCodes(organizationId);
+export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClose, qrCode, organizationId, updateQrCode }) => {
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
