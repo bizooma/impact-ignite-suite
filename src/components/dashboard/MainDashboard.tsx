@@ -128,15 +128,11 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
   // Check if this is Cal Farley's organization
   const isCalFarleys = organization?.slug === 'cal-farleys-boys-ranch';
   
-  // Button styling for Cal Farley's
-  const calFarleysButtonClass = isCalFarleys 
-    ? 'bg-[#1e3a5f] text-white hover:bg-[#15294a] border-[#1e3a5f]' 
-    : '';
-  
-  // Outline button styling for Cal Farley's
-  const calFarleysOutlineClass = isCalFarleys
-    ? 'bg-[#1e3a5f] text-white hover:bg-[#15294a] border-[#1e3a5f]'
-    : '';
+  // Logo blue button styling for all dashboard buttons
+  const calFarleysButtonClass = 'bg-[hsl(217_91%_35%)] text-white hover:bg-[hsl(217_91%_28%)] border-[hsl(217_91%_35%)]';
+
+  // Outline button styling — also use logo blue for consistency
+  const calFarleysOutlineClass = 'bg-[hsl(217_91%_35%)] text-white hover:bg-[hsl(217_91%_28%)] border-[hsl(217_91%_35%)]';
 
   return (
     <div className="space-y-8">
