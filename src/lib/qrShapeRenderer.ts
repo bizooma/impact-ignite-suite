@@ -68,7 +68,8 @@ export function buildShapedSvg(opts: RenderOptions): string {
     ? buildDecorativeOverlay(shape, total, primaryColor)
     : '';
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="${
+  const px = opts.size ?? 512;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 ${total} ${total}" shape-rendering="${
     shape === 'square' || shape === 'rounded' ? 'crispEdges' : 'geometricPrecision'
   }"><rect width="${total}" height="${total}" fill="${backgroundColor}"/>${modulesSvg}${overlay}</svg>`;
 }
