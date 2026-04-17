@@ -8,35 +8,39 @@ import { QrCodeGenerator } from './QrCodeGenerator';
 import { useToast } from '@/hooks/use-toast';
 import { QrAnalyticsDialog } from './QrAnalyticsDialog';
 import { QrSettingsDialog } from './QrSettingsDialog';
-import { renderShapedQrPng } from '@/lib/qrShapeRenderer';
+import { renderShapedQrPng, buildShapedSvg } from '@/lib/qrShapeRenderer';
 
 interface QrCodeDashboardProps {
   organizationId: string;
 }
 
 const QrPreview: React.FC<{ url: string; brandConfig?: any }> = ({ url, brandConfig }) => {
-  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [svgMarkup, setSvgMarkup] = useState<string>('');
 
   useEffect(() => {
     if (!url) return;
-    let cancelled = false;
-    renderShapedQrPng({
-      url,
-      shape: brandConfig?.shape || 'square',
-      primaryColor: brandConfig?.primaryColor || '#000000',
-      backgroundColor: brandConfig?.backgroundColor || '#ffffff',
-      size: 240,
-    })
-      .then((d) => { if (!cancelled) setQrDataUrl(d); })
-      .catch(console.error);
-    return () => { cancelled = true; };
-  }, [url, brandConfig]);
+    try {
+      const svg = buildShapedSvg({
+        url,
+        shape: brandConfig?.shape || 'square',
+        primaryColor: brandConfig?.primaryColor || '#000000',
+        backgroundColor: brandConfig?.backgroundColor || '#ffffff',
+        size: 240,
+      });
+      setSvgMarkup(svg);
+    } catch (e) {
+      console.error('QR preview error:', e);
+    }
+  }, [url, brandConfig?.shape, brandConfig?.primaryColor, brandConfig?.backgroundColor]);
 
-  if (!qrDataUrl) return <div className="w-20 h-20 bg-muted rounded animate-pulse" />;
-  
+  if (!svgMarkup) return <div className="w-20 h-20 bg-muted rounded animate-pulse" />;
+
   return (
     <div className="relative">
-      <img src={qrDataUrl} alt="QR preview" className="w-20 h-20 rounded border border-border" />
+      <div
+        className="w-20 h-20 rounded border border-border overflow-hidden [&>svg]:w-full [&>svg]:h-full"
+        dangerouslySetInnerHTML={{ __html: svgMarkup }}
+      />
       {brandConfig?.shape && brandConfig.shape !== 'square' && (
         <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-medium">
           {brandConfig.shape}
