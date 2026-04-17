@@ -229,11 +229,11 @@ const Landing = () => {
       </section>
 
       {/* Features -- Grouped by Category */}
-      <section className="w-full py-20 px-6">
+      <section className="w-full py-20 px-6" style={{ backgroundColor: "#1f5f7e" }}>
         <div className="w-full max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3 key-features">Everything Your Nonprofit Needs</h2>
-            <p className="text-lg text-muted-foreground">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3 key-features text-white">Everything Your Nonprofit Needs</h2>
+            <p className="text-lg text-white/80">
               Powerful, purpose-built tools so your team can focus on what matters most
             </p>
           </div>
