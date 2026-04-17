@@ -9,6 +9,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { BlogSection } from "@/components/landing/BlogSection";
 import { BetaSignupForm } from "@/components/landing/BetaSignupForm";
 import causeioLogo from "@/assets/causeio-logo.png";
+import heroBackground from "@/assets/hero-volunteers.jpg";
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -167,8 +168,14 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section -- warm gradient with side-by-side layout */}
-      <section className="w-full py-16 md:py-24 px-6 bg-gradient-to-b from-[#57cc99] via-[#57cc99]/30 to-background overflow-hidden">
-        <div className="w-full max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <section className="relative w-full py-16 md:py-24 px-6 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroBackground})` }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#57cc99] via-[#57cc99]/70 to-background" aria-hidden="true" />
+        <div className="relative w-full max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-foreground hero-title">
               Your nonprofit deserves tools that{" "}
