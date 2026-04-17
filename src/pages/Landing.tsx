@@ -186,15 +186,15 @@ const Landing = () => {
               <span className="text-white">match your mission</span>
             </h1>
             <div className="flex flex-wrap gap-6 mb-6">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm font-bold text-white" style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
                 <Heart className="w-4 h-4 text-primary" />
                 <span>Built for nonprofits</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm font-bold text-white" style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span>12 tools in one</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm font-bold text-white" style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>
                 <DollarSign className="w-4 h-4 text-primary" />
                 <span>Free beta access</span>
               </div>
