@@ -158,7 +158,7 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
             />
           </div>
           <div className="pt-1">
-            <Button type="submit" className="w-full" size={compact ? "default" : "lg"} disabled={loading}>
+            <Button type="submit" className="w-full bg-[hsl(217_91%_35%)] hover:bg-[hsl(217_91%_28%)] text-white" size={compact ? "default" : "lg"} disabled={loading}>
               {loading ? "Joining..." : "Secure My Beta Access & Discount"}
             </Button>
           </div>
