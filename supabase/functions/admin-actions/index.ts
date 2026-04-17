@@ -98,6 +98,7 @@ serve(async (req) => {
           activeSessions,
           systemHealth: 100,
         };
+        console.log('platform_stats result:', JSON.stringify(result));
         break;
       }
 
