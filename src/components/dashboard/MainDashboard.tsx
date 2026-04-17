@@ -197,20 +197,30 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
         </div>
       )}
 
-      {/* Active Modules */}
+      {/* Modules */}
       <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-semibold text-foreground">Ready to Use</h2>
-          <div className="w-3 h-3 bg-success rounded-full animate-pulse" />
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-semibold text-foreground">Ready to Use</h2>
+            <div className="w-3 h-3 bg-success rounded-full animate-pulse" />
+          </div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-semibold text-foreground">In Development</h2>
+            <div className="w-3 h-3 bg-destructive rounded-full" />
+          </div>
         </div>
-        
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {activeModules.map((module) => (
             <Card key={module.route} className="border-2 border-border/50 hover:border-primary/50 transition-all duration-200 hover:shadow-lg">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 bg-${module.color}/10 rounded-lg flex items-center justify-center`}>
-                    <module.icon className={`w-6 h-6 text-${module.color}`} />
+                  <div className="w-12 h-12 flex items-center justify-center">
+                    <div
+                      className={`w-4 h-4 rounded-full ${
+                        module.ready ? 'bg-success animate-pulse' : 'bg-destructive'
+                      }`}
+                    />
                   </div>
                   <div className="flex-1">
                     <CardTitle className="text-xl">{module.title}</CardTitle>
