@@ -36,7 +36,8 @@ const moduleCards = [
     icon: MessageCircle,
     route: 'chatbots',
     status: 'active',
-    color: 'primary'
+    color: 'primary',
+    ready: false
   },
   {
     title: 'QR Codes',
@@ -44,7 +45,8 @@ const moduleCards = [
     icon: QrCode,
     route: 'qr-codes',
     status: 'active',
-    color: 'success'
+    color: 'success',
+    ready: true
   },
   {
     title: 'Social Media',
@@ -52,7 +54,8 @@ const moduleCards = [
     icon: Calendar,
     route: 'social',
     status: 'active',
-    color: 'warning'
+    color: 'warning',
+    ready: false
   },
   {
     title: 'SEO Audits',
@@ -60,7 +63,8 @@ const moduleCards = [
     icon: BarChart3,
     route: 'seo',
     status: 'active',
-    color: 'primary'
+    color: 'primary',
+    ready: false
   },
   {
     title: 'Google Business',
@@ -68,7 +72,8 @@ const moduleCards = [
     icon: Building,
     route: 'gbp',
     status: 'active',
-    color: 'success'
+    color: 'success',
+    ready: false
   },
   {
     title: 'Content Templates',
@@ -76,7 +81,8 @@ const moduleCards = [
     icon: FileText,
     route: 'content',
     status: 'active',
-    color: 'warning'
+    color: 'warning',
+    ready: false
   },
   {
     title: 'Tasks',
@@ -84,7 +90,8 @@ const moduleCards = [
     icon: CheckSquare,
     route: 'tasks',
     status: 'active',
-    color: 'primary'
+    color: 'primary',
+    ready: false
   },
   {
     title: 'Analytics',
@@ -92,7 +99,8 @@ const moduleCards = [
     icon: TrendingUp,
     route: 'analytics',
     status: 'active',
-    color: 'success'
+    color: 'success',
+    ready: false
   },
   {
     title: 'Integrations',
@@ -100,7 +108,8 @@ const moduleCards = [
     icon: Settings,
     route: 'integrations',
     status: 'active',
-    color: 'warning'
+    color: 'warning',
+    ready: false
   }
 ];
 
