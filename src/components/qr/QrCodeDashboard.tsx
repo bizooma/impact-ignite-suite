@@ -5,10 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { useQrCodes } from '@/hooks/useQrCodes';
 import { QrCode, Eye, Download, Settings, Plus, BarChart3 } from 'lucide-react';
 import { QrCodeGenerator } from './QrCodeGenerator';
-import QRCode from 'qrcode';
 import { useToast } from '@/hooks/use-toast';
 import { QrAnalyticsDialog } from './QrAnalyticsDialog';
 import { QrSettingsDialog } from './QrSettingsDialog';
+import { renderShapedQrPng } from '@/lib/qrShapeRenderer';
 
 interface QrCodeDashboardProps {
   organizationId: string;
@@ -19,19 +19,17 @@ const QrPreview: React.FC<{ url: string; brandConfig?: any }> = ({ url, brandCon
 
   useEffect(() => {
     if (!url) return;
-    
-    const options: any = {
-      width: 120,
-      margin: 1,
-      color: {
-        dark: brandConfig?.primaryColor || '#000000',
-        light: brandConfig?.backgroundColor || '#ffffff'
-      }
-    };
-    
-    QRCode.toDataURL(url, options)
-      .then(setQrDataUrl)
+    let cancelled = false;
+    renderShapedQrPng({
+      url,
+      shape: brandConfig?.shape || 'square',
+      primaryColor: brandConfig?.primaryColor || '#000000',
+      backgroundColor: brandConfig?.backgroundColor || '#ffffff',
+      size: 240,
+    })
+      .then((d) => { if (!cancelled) setQrDataUrl(d); })
       .catch(console.error);
+    return () => { cancelled = true; };
   }, [url, brandConfig]);
 
   if (!qrDataUrl) return <div className="w-20 h-20 bg-muted rounded animate-pulse" />;
@@ -59,17 +57,13 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
 
   const handleDownload = async (id: string, name: string, url?: string | null, brandConfig?: any) => {
     try {
-      const data = url || '';
-      const options: any = {
-        width: 1024,
-        margin: 1,
-        color: {
-          dark: brandConfig?.primaryColor || '#000000',
-          light: brandConfig?.backgroundColor || '#ffffff'
-        }
-      };
-      
-      const dataUrl = await QRCode.toDataURL(data, options);
+      const dataUrl = await renderShapedQrPng({
+        url: url || '',
+        shape: brandConfig?.shape || 'square',
+        primaryColor: brandConfig?.primaryColor || '#000000',
+        backgroundColor: brandConfig?.backgroundColor || '#ffffff',
+        size: 1024,
+      });
       const a = document.createElement('a');
       a.href = dataUrl;
       a.download = `${name.replace(/\s+/g, '-').toLowerCase()}-qr.png`;
