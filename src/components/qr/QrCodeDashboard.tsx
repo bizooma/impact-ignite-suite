@@ -8,7 +8,7 @@ import { QrCodeGenerator } from './QrCodeGenerator';
 import { useToast } from '@/hooks/use-toast';
 import { QrAnalyticsDialog } from './QrAnalyticsDialog';
 import { QrSettingsDialog } from './QrSettingsDialog';
-import { renderShapedQrPng } from '@/lib/qrShapeRenderer';
+import { renderShapedQrPng, buildShapedSvg } from '@/lib/qrShapeRenderer';
 
 interface QrCodeDashboardProps {
   organizationId: string;
