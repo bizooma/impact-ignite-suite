@@ -68,7 +68,8 @@ export function buildShapedSvg(opts: RenderOptions): string {
     ? buildDecorativeOverlay(shape, total, primaryColor)
     : '';
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="${
+  const px = opts.size ?? 512;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 ${total} ${total}" shape-rendering="${
     shape === 'square' || shape === 'rounded' ? 'crispEdges' : 'geometricPrecision'
   }"><rect width="${total}" height="${total}" fill="${backgroundColor}"/>${modulesSvg}${overlay}</svg>`;
 }
@@ -111,10 +112,10 @@ function buildDecorativeOverlay(shape: string, total: number, color: string): st
   const h = total;
   const cx = w / 2;
   const cy = h / 2;
-  const sw = Math.max(w, h) * 0.012;
+  const sw = Math.max(w, h) * 0.04;
 
   if (shape === 'heart') {
-    return `<path d="M${cx},${h * 0.95} C${cx},${h * 0.95} ${w * 0.05},${h * 0.55} ${w * 0.05},${h * 0.3} C${w * 0.05},${h * 0.05} ${w * 0.3},${-h * 0.05} ${cx},${h * 0.18} C${w * 0.7},${-h * 0.05} ${w * 0.95},${h * 0.05} ${w * 0.95},${h * 0.3} C${w * 0.95},${h * 0.55} ${cx},${h * 0.95} ${cx},${h * 0.95} Z" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.5"/>`;
+    return `<path d="M${cx},${h * 0.95} C${cx},${h * 0.95} ${w * 0.05},${h * 0.55} ${w * 0.05},${h * 0.3} C${w * 0.05},${h * 0.05} ${w * 0.3},${-h * 0.05} ${cx},${h * 0.18} C${w * 0.7},${-h * 0.05} ${w * 0.95},${h * 0.05} ${w * 0.95},${h * 0.3} C${w * 0.95},${h * 0.55} ${cx},${h * 0.95} ${cx},${h * 0.95} Z" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.9"/>`;
   }
   if (shape === 'star') {
     const outer = Math.min(w, h) * 0.49;
@@ -125,10 +126,10 @@ function buildDecorativeOverlay(shape: string, total: number, color: string): st
       const r = i % 2 === 0 ? outer : inner;
       pts += `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)} `;
     }
-    return `<polygon points="${pts.trim()}" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.5"/>`;
+    return `<polygon points="${pts.trim()}" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.9"/>`;
   }
   if (shape === 'cloud') {
-    return `<path d="M${w * 0.2},${h * 0.78} Q${w * 0.05},${h * 0.78} ${w * 0.05},${h * 0.55} Q${w * 0.05},${h * 0.3} ${w * 0.28},${h * 0.25} Q${w * 0.3},${h * 0.08} ${w * 0.5},${h * 0.08} Q${w * 0.7},${h * 0.08} ${w * 0.72},${h * 0.25} Q${w * 0.95},${h * 0.3} ${w * 0.95},${h * 0.55} Q${w * 0.95},${h * 0.78} ${w * 0.8},${h * 0.78} Z" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.5"/>`;
+    return `<path d="M${w * 0.2},${h * 0.78} Q${w * 0.05},${h * 0.78} ${w * 0.05},${h * 0.55} Q${w * 0.05},${h * 0.3} ${w * 0.28},${h * 0.25} Q${w * 0.3},${h * 0.08} ${w * 0.5},${h * 0.08} Q${w * 0.7},${h * 0.08} ${w * 0.72},${h * 0.25} Q${w * 0.95},${h * 0.3} ${w * 0.95},${h * 0.55} Q${w * 0.95},${h * 0.78} ${w * 0.8},${h * 0.78} Z" fill="none" stroke="${color}" stroke-width="${sw}" opacity="0.9"/>`;
   }
   if (shape === 'sparkle') {
     const sparks: [number, number, number][] = [
