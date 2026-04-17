@@ -15,6 +15,7 @@ interface User {
   display_name?: string;
   is_platform_admin: boolean;
   created_at: string;
+  last_sign_in_at?: string | null;
   organizations: Array<{
     id: string;
     name: string;
@@ -22,6 +23,12 @@ interface User {
     role: string;
   }>;
 }
+
+const formatLastLogin = (value?: string | null) => {
+  if (!value) return 'Never';
+  const d = new Date(value);
+  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+};
 
 export function UserManagement() {
   const { logAdminAction } = usePlatformAdmin();
@@ -149,13 +156,14 @@ export function UserManagement() {
               <TableHead>Organizations</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Created</TableHead>
+              <TableHead>Last Login</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
+                <TableCell colSpan={7} className="text-center text-muted-foreground">
                   No users found
                 </TableCell>
               </TableRow>
@@ -191,6 +199,9 @@ export function UserManagement() {
                   <TableCell>
                     {new Date(user.created_at).toLocaleDateString()}
                   </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {formatLastLogin(user.last_sign_in_at)}
+                  </TableCell>
                   <TableCell>
                     <Dialog>
                       <DialogTrigger asChild>
@@ -216,6 +227,7 @@ export function UserManagement() {
                               <p><strong>Name:</strong> {selectedUser.display_name || 'No name set'}</p>
                               <p><strong>Email:</strong> {selectedUser.email}</p>
                               <p><strong>Created:</strong> {new Date(selectedUser.created_at).toLocaleString()}</p>
+                              <p><strong>Last Login:</strong> {formatLastLogin(selectedUser.last_sign_in_at)}</p>
                               <p><strong>Platform Admin:</strong> {selectedUser.is_platform_admin ? 'Yes' : 'No'}</p>
                             </div>
                             

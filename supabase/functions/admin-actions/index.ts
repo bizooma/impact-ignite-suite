@@ -86,6 +86,7 @@ serve(async (req) => {
             display_name: profile?.display_name || authUser.user_metadata?.display_name,
             is_platform_admin: profile?.is_platform_admin || false,
             created_at: authUser.created_at,
+            last_sign_in_at: authUser.last_sign_in_at,
             organizations: userMemberships.map(m => ({
               id: (m.organizations as any)?.id,
               name: (m.organizations as any)?.name,
