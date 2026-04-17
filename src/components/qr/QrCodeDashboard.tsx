@@ -258,6 +258,7 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
         onClose={() => setSettingsQr(null)}
         qrCode={settingsQr || undefined}
         organizationId={organizationId}
+        updateQrCode={updateQrCode}
       />
     </div>
   );
