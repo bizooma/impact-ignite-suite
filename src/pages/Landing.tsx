@@ -246,24 +246,24 @@ const Landing = () => {
                     <category.icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold">{category.title}</h3>
+                    <h3 className="text-2xl font-bold text-white">{category.title}</h3>
                   </div>
                 </div>
-                <p className="text-muted-foreground mb-6 ml-[52px]">{category.description}</p>
+                <p className="text-white/70 mb-6 ml-[52px]">{category.description}</p>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ml-0 md:ml-[52px]">
                   {category.features.map((feature) => (
-                    <Card key={feature.name} className="border hover:border-primary/30 transition-colors group relative">
+                    <Card key={feature.name} className="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all group relative shadow-lg">
                       {feature.comingSoon && (
                         <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5">
                           Coming Soon
                         </Badge>
                       )}
                       <CardContent className="p-5">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/15 transition-colors">
-                          <feature.icon className="w-5 h-5 text-primary" />
+                        <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors">
+                          <feature.icon className="w-5 h-5 text-white" />
                         </div>
-                        <h4 className="font-semibold mb-1">{feature.name}</h4>
-                        <p className="text-sm text-muted-foreground">{feature.desc}</p>
+                        <h4 className="font-semibold mb-1 text-white">{feature.name}</h4>
+                        <p className="text-sm text-white/70">{feature.desc}</p>
                       </CardContent>
                     </Card>
                   ))}
