@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Database } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
-import { QrShapePicker, type QrShape } from './QrShapePicker';
+
 
 export type QrCodeRow = Database['public']['Tables']['qr_codes']['Row'];
 
@@ -24,7 +24,6 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [active, setActive] = useState(true);
-  const [shape, setShape] = useState<QrShape>('square');
   const [primaryColor, setPrimaryColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [logoUrl, setLogoUrl] = useState('');
@@ -41,7 +40,6 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
       setUrl(qrCode.destination_url || '');
       setActive(!!qrCode.is_active);
       const bc = (qrCode.brand_config as any) || {};
-      setShape((bc.shape as QrShape) || 'square');
       setPrimaryColor(bc.primaryColor || '#000000');
       setBackgroundColor(bc.backgroundColor || '#FFFFFF');
       setLogoUrl(bc.logoUrl || '');
@@ -68,7 +66,7 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
       name,
       destination_url: url,
       is_active: active,
-      brand_config: { shape, primaryColor, backgroundColor, logoUrl } as any,
+      brand_config: { primaryColor, backgroundColor, logoUrl } as any,
       utm_params: utm_params as any,
     } as Partial<QrCodeRow>);
     setSaving(false);
@@ -117,7 +115,6 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
           </TabsContent>
 
           <TabsContent value="design" className="space-y-4 pt-4">
-            <QrShapePicker value={shape} onChange={setShape} />
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="qr-color">Foreground Color</Label>
