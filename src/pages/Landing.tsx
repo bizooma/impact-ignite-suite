@@ -335,11 +335,14 @@ const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="w-full py-20 px-6 bg-accent/30">
+      <section
+        className="w-full py-20 px-6"
+        style={{ background: "linear-gradient(135deg, hsl(185 62% 45%), hsl(185 62% 35%))" }}
+      >
         <div className="w-full max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3">What Our Beta Testers Say</h2>
-            <p className="text-lg text-muted-foreground">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3 text-white">What Our Beta Testers Say</h2>
+            <p className="text-lg text-white/80">
               Join our beta testing group and receive a substantial discount when we "Go Live"
             </p>
           </div>
@@ -349,20 +352,20 @@ const Landing = () => {
               { initials: "MD", name: "Mike Davis", quote: "The QR code analytics helped us track which fundraising materials drive the most donations. Game changer!" },
               { initials: "AL", name: "Anna Lee", quote: "Managing all our social media from one dashboard saved us 20 hours per week." },
             ].map((t) => (
-              <Card key={t.initials} className="border-l-4 border-l-primary border-t-0 border-r-0 border-b-0 shadow-sm">
+              <Card key={t.initials} className="bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
                 <CardContent className="pt-6 pb-6">
-                  <div className="text-3xl text-primary/30 mb-2">"</div>
+                  <div className="text-3xl text-white/40 mb-2">"</div>
                   <div className="flex mb-3">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4 text-sm leading-relaxed">{t.quote}</p>
+                  <p className="text-white/90 mb-4 text-sm leading-relaxed">{t.quote}</p>
                   <div className="flex items-center">
-                    <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-semibold mr-3">
+                    <div className="w-9 h-9 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white text-xs font-semibold mr-3">
                       {t.initials}
                     </div>
-                    <div className="font-semibold text-sm">{t.name}</div>
+                    <div className="font-semibold text-sm text-white">{t.name}</div>
                   </div>
                 </CardContent>
               </Card>
