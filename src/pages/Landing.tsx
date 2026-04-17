@@ -207,11 +207,11 @@ const Landing = () => {
         <div className="w-full max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-3">Get Started in Minutes</h2>
-            <p className="text-muted-foreground text-lg mb-4">Three simple steps to amplify your impact</p>
-            <p className="text-base md:text-lg text-foreground max-w-3xl mx-auto leading-relaxed value-proposition">
+            <p className="text-base md:text-lg text-foreground max-w-3xl mx-auto leading-relaxed mb-4 value-proposition">
               Causeio brings AI chatbots, social media management, donor CRM, QR codes, SEO, and more into one
               platform built specifically for nonprofits, charities, and foundations.
             </p>
+            <p className="text-muted-foreground text-lg">Three simple steps to amplify your impact</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step) => (
