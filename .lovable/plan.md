@@ -1,24 +1,23 @@
 
-Remove shape selection from the QR code feature entirely. Keep colors, logo, and tracking — only strip out shape UI and shape rendering logic. Default all QR codes to standard square rendering.
+Add a readiness status system to the Mission Dashboard cards.
 
 ## Changes
 
-1. **`src/components/qr/QrSettingsDialog.tsx`** — Remove `QrShapePicker` import and the shape field from the Design tab. Stop writing `shape` into `brand_config` on save.
+**`src/components/dashboard/MainDashboard.tsx`**
 
-2. **`src/components/qr/QrCodeGenerator.tsx`** — Remove `QrShapePicker` import and shape state/UI. Stop including `shape` in submitted `brandConfig`.
+1. Add a `ready: boolean` field to each entry in `moduleCards`. Set `qr-codes` → `true`. All others → `false`.
 
-3. **`src/components/qr/QrCodeDashboard.tsx`** — 
-   - `QrPreview`: replace `buildShapedSvg` with the standard `qrcode` library to render a plain square QR (data URL via `<img>`).
-   - `handleDownload`: replace `renderShapedQrPng` with standard `qrcode.toDataURL` for square PNG export.
-   - Remove the "shape" badge overlay and the "Shape" row in each card.
-   - Drop `renderShapedQrPng` / `buildShapedSvg` imports.
+2. Replace the existing "Ready to Use" section heading block with two stacked headings:
+   - "Ready to Use" with green pulsing dot (existing style)
+   - "In Development" with red dot (new)
 
-4. **`src/lib/qrShapeRenderer.ts`** — Delete the file (no longer referenced).
+3. In each card's `CardHeader`, replace the icon block (`<div className="w-12 h-12 bg-{color}/10 ..."><module.icon /></div>`) with a status dot:
+   - Green pulsing dot (`bg-success`) if `module.ready`
+   - Red dot (`bg-destructive`) if not
+   - Use a small wrapper (e.g. `w-12 h-12` flex-center) so card layout stays identical
+   - Drop the `module.icon` and `module.color` rendering on the card face (icons remain imported for the CTA section at the bottom)
 
-5. **`src/components/qr/QrShapePicker.tsx`** — Delete the file (no longer referenced).
-
-6. **`supabase/functions/generate-qr/index.ts`** — Leave server-side shape logic in place but it will simply never receive a `shape` value (defaults to square). No change needed.
+4. Keep all 9 cards in a single grid (no split into two grids) — the two headings sit above the same grid, since the dots on each card already communicate status per-card. The headings act as a legend.
 
 ## Outcome
-
-QR codes render as standard scannable squares everywhere (preview, download, generator). Shape UI is gone from both the create and edit dialogs. Existing `brand_config.shape` values in the DB are harmlessly ignored.
+Each dashboard card shows a colored status dot in place of its icon: green = ready (QR Codes only for now), red = in development (everything else). A legend above the grid explains the two colors.
