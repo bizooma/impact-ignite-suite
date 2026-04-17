@@ -8,45 +8,37 @@ import { QrCodeGenerator } from './QrCodeGenerator';
 import { useToast } from '@/hooks/use-toast';
 import { QrAnalyticsDialog } from './QrAnalyticsDialog';
 import { QrSettingsDialog } from './QrSettingsDialog';
-import { renderShapedQrPng, buildShapedSvg } from '@/lib/qrShapeRenderer';
+import QRCode from 'qrcode';
 
 interface QrCodeDashboardProps {
   organizationId: string;
 }
 
 const QrPreview: React.FC<{ url: string; brandConfig?: any }> = ({ url, brandConfig }) => {
-  const [svgMarkup, setSvgMarkup] = useState<string>('');
+  const [dataUrl, setDataUrl] = useState<string>('');
 
   useEffect(() => {
     if (!url) return;
-    try {
-      const svg = buildShapedSvg({
-        url,
-        shape: brandConfig?.shape || 'square',
-        primaryColor: brandConfig?.primaryColor || '#000000',
-        backgroundColor: brandConfig?.backgroundColor || '#ffffff',
-        size: 240,
-      });
-      setSvgMarkup(svg);
-    } catch (e) {
-      console.error('QR preview error:', e);
-    }
-  }, [url, brandConfig?.shape, brandConfig?.primaryColor, brandConfig?.backgroundColor]);
+    QRCode.toDataURL(url, {
+      width: 240,
+      margin: 1,
+      color: {
+        dark: brandConfig?.primaryColor || '#000000',
+        light: brandConfig?.backgroundColor || '#ffffff',
+      },
+    })
+      .then(setDataUrl)
+      .catch((e) => console.error('QR preview error:', e));
+  }, [url, brandConfig?.primaryColor, brandConfig?.backgroundColor]);
 
-  if (!svgMarkup) return <div className="w-20 h-20 bg-muted rounded animate-pulse" />;
+  if (!dataUrl) return <div className="w-20 h-20 bg-muted rounded animate-pulse" />;
 
   return (
-    <div className="relative">
-      <div
-        className="w-20 h-20 rounded border border-border overflow-hidden [&>svg]:w-full [&>svg]:h-full"
-        dangerouslySetInnerHTML={{ __html: svgMarkup }}
-      />
-      {brandConfig?.shape && brandConfig.shape !== 'square' && (
-        <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-medium">
-          {brandConfig.shape}
-        </div>
-      )}
-    </div>
+    <img
+      src={dataUrl}
+      alt="QR code preview"
+      className="w-20 h-20 rounded border border-border"
+    />
   );
 };
 
@@ -61,12 +53,13 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
 
   const handleDownload = async (id: string, name: string, url?: string | null, brandConfig?: any) => {
     try {
-      const dataUrl = await renderShapedQrPng({
-        url: url || '',
-        shape: brandConfig?.shape || 'square',
-        primaryColor: brandConfig?.primaryColor || '#000000',
-        backgroundColor: brandConfig?.backgroundColor || '#ffffff',
-        size: 1024,
+      const dataUrl = await QRCode.toDataURL(url || '', {
+        width: 1024,
+        margin: 2,
+        color: {
+          dark: brandConfig?.primaryColor || '#000000',
+          light: brandConfig?.backgroundColor || '#ffffff',
+        },
       });
       const a = document.createElement('a');
       a.href = dataUrl;
@@ -196,13 +189,6 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
                   <span className="text-muted-foreground">Type</span>
                   <span className="font-medium capitalize">{qrCode.type || 'dynamic'}</span>
                 </div>
-
-                {(qrCode.brand_config as any)?.shape && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Shape</span>
-                    <span className="font-medium capitalize">{(qrCode.brand_config as any).shape}</span>
-                  </div>
-                )}
 
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Scans</span>
