@@ -181,10 +181,6 @@ const Landing = () => {
               Your nonprofit deserves tools that{" "}
               <span className="text-white">match your mission</span>
             </h1>
-            <p className="text-lg md:text-xl font-bold text-white mb-8 leading-relaxed value-proposition">
-              Causeio brings AI chatbots, social media management, donor CRM, QR codes, SEO, and more into one
-              platform built specifically for nonprofits, charities, and foundations.
-            </p>
             <div className="flex flex-wrap gap-6 mb-6">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Heart className="w-4 h-4 text-primary" />
@@ -211,7 +207,11 @@ const Landing = () => {
         <div className="w-full max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-3">Get Started in Minutes</h2>
-            <p className="text-muted-foreground text-lg">Three simple steps to amplify your impact</p>
+            <p className="text-muted-foreground text-lg mb-4">Three simple steps to amplify your impact</p>
+            <p className="text-base md:text-lg text-foreground max-w-3xl mx-auto leading-relaxed value-proposition">
+              Causeio brings AI chatbots, social media management, donor CRM, QR codes, SEO, and more into one
+              platform built specifically for nonprofits, charities, and foundations.
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step) => (
