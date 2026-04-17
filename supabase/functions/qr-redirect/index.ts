@@ -31,8 +31,9 @@ serve(async (req) => {
     // Extract scan data from request
     const userAgent = req.headers.get('user-agent');
     const referrer = req.headers.get('referer');
-    const ipAddress = req.headers.get('x-forwarded-for') || 
-                     req.headers.get('x-real-ip') || 
+    const forwardedFor = req.headers.get('x-forwarded-for');
+    const ipAddress = (forwardedFor?.split(',')[0]?.trim()) ||
+                     req.headers.get('x-real-ip')?.trim() ||
                      '127.0.0.1';
 
     // Parse device info from user agent
