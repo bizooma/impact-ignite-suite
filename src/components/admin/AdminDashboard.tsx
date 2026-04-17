@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserManagement } from './UserManagement';
@@ -8,8 +9,42 @@ import { MobileAppSeeding } from './MobileAppSeeding';
 import { FlipbookManager } from './FlipbookManager';
 import { BetaSignupsManager } from './BetaSignupsManager';
 import { Shield, Users, Building2, BarChart3, FileText, Smartphone, BookOpen, Mail } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface PlatformStats {
+  totalUsers: number;
+  userGrowthPct: number;
+  totalOrganizations: number;
+  orgGrowthPct: number;
+  activeSessions: number;
+  systemHealth: number;
+}
+
+const formatPct = (n: number) => `${n >= 0 ? '+' : ''}${n}%`;
 
 export function AdminDashboard() {
+  const [stats, setStats] = useState<PlatformStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('admin-actions', {
+          body: { action: 'platform_stats' },
+        });
+        if (error) throw error;
+        setStats(data?.data ?? null);
+      } catch (err) {
+        console.error('Failed to load platform stats', err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const display = (v: number | undefined) =>
+    loading ? '—' : (v ?? 0).toLocaleString();
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-3">
@@ -29,22 +64,22 @@ export function AdminDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
+            <div className="text-2xl font-bold">{display(stats?.totalUsers)}</div>
             <p className="text-xs text-muted-foreground">
-              +20% from last month
+              {loading ? 'Loading…' : `${formatPct(stats?.userGrowthPct ?? 0)} from last month`}
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Organizations</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">89</div>
+            <div className="text-2xl font-bold">{display(stats?.totalOrganizations)}</div>
             <p className="text-xs text-muted-foreground">
-              +5% from last month
+              {loading ? 'Loading…' : `${formatPct(stats?.orgGrowthPct ?? 0)} from last month`}
             </p>
           </CardContent>
         </Card>
@@ -55,9 +90,9 @@ export function AdminDashboard() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">456</div>
+            <div className="text-2xl font-bold">{display(stats?.activeSessions)}</div>
             <p className="text-xs text-muted-foreground">
-              Current active users
+              Active in last 15 minutes
             </p>
           </CardContent>
         </Card>
@@ -68,7 +103,7 @@ export function AdminDashboard() {
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">100%</div>
+            <div className="text-2xl font-bold text-green-600">{loading ? '—' : `${stats?.systemHealth ?? 100}%`}</div>
             <p className="text-xs text-muted-foreground">
               All systems operational
             </p>

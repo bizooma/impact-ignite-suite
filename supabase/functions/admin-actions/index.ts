@@ -44,6 +44,63 @@ serve(async (req) => {
     let result;
 
     switch (action) {
+      case 'platform_stats': {
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString();
+        const fifteenMinAgo = new Date(now.getTime() - 15 * 60 * 1000).toISOString();
+
+        // Total users + active sessions (paginate auth users)
+        let totalUsers = 0;
+        let usersLast30 = 0;
+        let usersPrev30 = 0;
+        let activeSessions = 0;
+        let page = 1;
+        const perPage = 1000;
+        while (true) {
+          const { data, error } = await supabaseClient.auth.admin.listUsers({ page, perPage });
+          if (error) throw error;
+          const batch = data.users;
+          totalUsers += batch.length;
+          for (const u of batch) {
+            if (u.created_at >= thirtyDaysAgo) usersLast30++;
+            else if (u.created_at >= sixtyDaysAgo) usersPrev30++;
+            if (u.last_sign_in_at && u.last_sign_in_at >= fifteenMinAgo) activeSessions++;
+          }
+          if (batch.length < perPage) break;
+          page++;
+        }
+
+        // Organizations counts
+        const { count: totalOrgs } = await supabaseClient
+          .from('organizations')
+          .select('*', { count: 'exact', head: true });
+        const { count: orgsLast30 } = await supabaseClient
+          .from('organizations')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', thirtyDaysAgo);
+        const { count: orgsPrev30 } = await supabaseClient
+          .from('organizations')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', sixtyDaysAgo)
+          .lt('created_at', thirtyDaysAgo);
+
+        const pctChange = (curr: number, prev: number) => {
+          if (prev === 0) return curr > 0 ? 100 : 0;
+          return Math.round(((curr - prev) / prev) * 100);
+        };
+
+        result = {
+          totalUsers,
+          userGrowthPct: pctChange(usersLast30, usersPrev30),
+          totalOrganizations: totalOrgs ?? 0,
+          orgGrowthPct: pctChange(orgsLast30 ?? 0, orgsPrev30 ?? 0),
+          activeSessions,
+          systemHealth: 100,
+        };
+        break;
+      }
+
       case 'list_users':
         // Fetch users from auth.users with profile data
         const { data: authUsers, error: listUsersError } = await supabaseClient.auth.admin.listUsers();
