@@ -174,7 +174,7 @@ const Landing = () => {
           style={{ backgroundImage: `url(${heroBackground})` }}
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#57cc99] via-[#57cc99]/70 to-background" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#57cc99]/70 via-[#57cc99]/40 to-background/90" aria-hidden="true" />
         <div className="relative w-full max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-foreground hero-title">
