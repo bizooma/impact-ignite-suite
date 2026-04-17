@@ -181,7 +181,7 @@ const Landing = () => {
               Your nonprofit deserves tools that{" "}
               <span className="text-white">match your mission</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed value-proposition">
+            <p className="text-lg md:text-xl font-bold text-white mb-8 leading-relaxed value-proposition">
               Causeio brings AI chatbots, social media management, donor CRM, QR codes, SEO, and more into one
               platform built specifically for nonprofits, charities, and foundations.
             </p>
