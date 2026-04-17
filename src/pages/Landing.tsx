@@ -179,7 +179,7 @@ const Landing = () => {
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-foreground hero-title">
               Your nonprofit deserves tools that{" "}
-              <span className="text-primary">match your mission</span>
+              <span className="text-white">match your mission</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed value-proposition">
               Causeio brings AI chatbots, social media management, donor CRM, QR codes, SEO, and more into one
