@@ -347,6 +347,13 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
             </form>
           </DialogContent>
         </Dialog>
+
+      <TaskDetailDialog
+        task={detailTask}
+        organizationId={organizationId}
+        open={!!detailTask}
+        onOpenChange={(o) => !o && setDetailTask(null)}
+      />
     </div>
   );
 };

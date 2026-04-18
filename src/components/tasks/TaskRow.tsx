@@ -20,6 +20,7 @@ interface TaskRowProps {
   onToggleSelect: () => void;
   onUpdate: (taskId: string, updates: any) => void;
   onDelete: (taskId: string) => void;
+  onOpen?: () => void;
 }
 
 export const TaskRow: React.FC<TaskRowProps> = ({
@@ -29,6 +30,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   onToggleSelect,
   onUpdate,
   onDelete,
+  onOpen,
 }) => {
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');

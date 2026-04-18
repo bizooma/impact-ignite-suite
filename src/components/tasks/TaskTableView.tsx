@@ -23,6 +23,7 @@ interface TaskTableViewProps {
   groupBy: string;
   onUpdate: (taskId: string, updates: any) => void;
   onDelete: (taskId: string) => void;
+  onTaskClick?: (task: any) => void;
 }
 
 export const TaskTableView: React.FC<TaskTableViewProps> = ({
@@ -31,6 +32,7 @@ export const TaskTableView: React.FC<TaskTableViewProps> = ({
   groupBy,
   onUpdate,
   onDelete,
+  onTaskClick,
 }) => {
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['all']));
@@ -216,6 +218,7 @@ export const TaskTableView: React.FC<TaskTableViewProps> = ({
                         onToggleSelect={() => toggleTaskSelection(task.id)}
                         onUpdate={onUpdate}
                         onDelete={onDelete}
+                        onOpen={onTaskClick ? () => onTaskClick(task) : undefined}
                       />
                     ))}
                   </div>
