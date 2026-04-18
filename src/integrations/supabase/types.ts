@@ -623,6 +623,75 @@ export type Database = {
           },
         ]
       }
+      crm_grants: {
+        Row: {
+          amount_awarded: number | null
+          amount_requested: number | null
+          contact_id: string | null
+          created_at: string
+          deadline: string | null
+          decision_date: string | null
+          foundation_name: string
+          grant_name: string
+          id: string
+          notes: string | null
+          organization_id: string
+          owner_id: string | null
+          stage: Database["public"]["Enums"]["grant_stage"]
+          submitted_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_awarded?: number | null
+          amount_requested?: number | null
+          contact_id?: string | null
+          created_at?: string
+          deadline?: string | null
+          decision_date?: string | null
+          foundation_name: string
+          grant_name: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          owner_id?: string | null
+          stage?: Database["public"]["Enums"]["grant_stage"]
+          submitted_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_awarded?: number | null
+          amount_requested?: number | null
+          contact_id?: string | null
+          created_at?: string
+          deadline?: string | null
+          decision_date?: string | null
+          foundation_name?: string
+          grant_name?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          owner_id?: string | null
+          stage?: Database["public"]["Enums"]["grant_stage"]
+          submitted_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_grants_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_grants_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_interactions: {
         Row: {
           contact_id: string
@@ -2328,6 +2397,15 @@ export type Database = {
       approval_action: "approved" | "rejected" | "edited" | "posted"
       audit_severity: "low" | "medium" | "high" | "critical"
       chatbot_status: "draft" | "active" | "paused"
+      grant_stage:
+        | "researching"
+        | "loi"
+        | "proposal_drafting"
+        | "submitted"
+        | "awarded"
+        | "declined"
+        | "reporting"
+        | "closed"
       integration_provider:
         | "facebook"
         | "instagram"
@@ -2481,6 +2559,16 @@ export const Constants = {
       approval_action: ["approved", "rejected", "edited", "posted"],
       audit_severity: ["low", "medium", "high", "critical"],
       chatbot_status: ["draft", "active", "paused"],
+      grant_stage: [
+        "researching",
+        "loi",
+        "proposal_drafting",
+        "submitted",
+        "awarded",
+        "declined",
+        "reporting",
+        "closed",
+      ],
       integration_provider: [
         "facebook",
         "instagram",
