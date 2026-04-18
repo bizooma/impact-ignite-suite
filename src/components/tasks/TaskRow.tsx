@@ -153,8 +153,10 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             />
           ) : (
             <div
-              onClick={() => startEdit('title', task.title)}
-              className="truncate cursor-text hover:bg-accent/50 px-2 py-1 rounded text-sm"
+              onClick={() => onOpen?.()}
+              onDoubleClick={() => startEdit('title', task.title)}
+              className="truncate cursor-pointer hover:bg-accent/50 px-2 py-1 rounded text-sm"
+              title="Click to open · Double-click to rename"
             >
               {task.title}
             </div>
