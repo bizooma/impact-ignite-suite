@@ -64,7 +64,7 @@ const moduleCards = [
     route: 'seo',
     status: 'active',
     color: 'primary',
-    ready: false
+    ready: true
   },
   {
     title: 'Google Business',
