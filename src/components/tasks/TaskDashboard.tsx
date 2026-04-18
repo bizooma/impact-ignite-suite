@@ -53,7 +53,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
       }
       
       // Priority filter
-      if (priorityFilter !== 'all' && task.priority.toString() !== priorityFilter) {
+      if (priorityFilter !== 'all' && (task.priority ?? 1).toString() !== priorityFilter) {
         return false;
       }
       

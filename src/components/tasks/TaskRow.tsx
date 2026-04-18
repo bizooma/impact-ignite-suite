@@ -207,7 +207,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
         {/* Priority - 10% */}
         <div className="flex-[0_0_10%] min-w-0">
           <Select
-            value={task.priority.toString()}
+            value={(task.priority ?? 1).toString()}
             onValueChange={(value) => onUpdate(task.id, { priority: Number(value) })}
           >
             <SelectTrigger className="h-8 border-0 shadow-none hover:bg-accent/50">
