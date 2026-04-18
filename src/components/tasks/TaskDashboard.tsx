@@ -162,83 +162,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
     );
   }
 
-  const TaskCard = ({ task }: { task: any }) => (
-    <Card key={task.id} className="relative">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <CheckSquare className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-lg">{task.title}</CardTitle>
-          </div>
-          <div className="flex items-center gap-1">
-            <Badge className={getStatusColor(task.status)}>
-              {task.status.replace('_', ' ')}
-            </Badge>
-            {task.priority > 2 && (
-              <AlertCircle className={`h-4 w-4 ${getPriorityColor(task.priority)}`} />
-            )}
-          </div>
-        </div>
-        <CardDescription>
-          {task.description || 'No description provided'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Module</span>
-          <Badge variant="outline" className="text-xs">
-            {task.source_module}
-          </Badge>
-        </div>
 
-        {task.due_date && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Due Date</span>
-            <div className={`flex items-center gap-1 ${new Date(task.due_date) < new Date() && task.status !== 'completed' ? 'text-destructive' : ''}`}>
-              <Calendar className="h-3 w-3" />
-              <span>{new Date(task.due_date).toLocaleDateString()}</span>
-            </div>
-          </div>
-        )}
-
-        {task.assignee_profile && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Assignee</span>
-            <div className="flex items-center gap-2">
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={task.assignee_profile.avatar_url} />
-                <AvatarFallback className="text-xs">
-                  {task.assignee_profile.display_name?.charAt(0) || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-xs">{task.assignee_profile.display_name}</span>
-            </div>
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          <Select value={task.status} onValueChange={(value) => updateTask(task.id, { status: value as any })}>
-            <SelectTrigger className="h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todo">To Do</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button 
-            size="sm" 
-            variant="outline"
-            onClick={() => deleteTask(task.id)}
-            className="text-destructive hover:text-destructive"
-          >
-            Delete
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="space-y-4">
@@ -321,41 +245,16 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
             groupBy={groupBy}
             onUpdate={updateTask}
             onDelete={deleteTask}
+            onTaskClick={setDetailTask}
           />
         ) : (
-          <Tabs defaultValue="all" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="all">All Tasks</TabsTrigger>
-              <TabsTrigger value="todo">To Do ({todoTasks.length})</TabsTrigger>
-              <TabsTrigger value="in_progress">In Progress ({inProgressTasks.length})</TabsTrigger>
-              <TabsTrigger value="completed">Completed ({completedTasks.length})</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="all" className="space-y-4">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filteredTasks.map((task) => <TaskCard key={task.id} task={task} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="todo" className="space-y-4">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {todoTasks.map((task) => <TaskCard key={task.id} task={task} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="in_progress" className="space-y-4">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {inProgressTasks.map((task) => <TaskCard key={task.id} task={task} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="completed" className="space-y-4">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {completedTasks.map((task) => <TaskCard key={task.id} task={task} />)}
-              </div>
-            </TabsContent>
-          </Tabs>
+          <KanbanBoardView
+            tasks={filteredTasks}
+            onUpdate={updateTask}
+            onTaskClick={setDetailTask}
+          />
         )}
+
       </div>
 
       {/* Create Task Dialog */}
