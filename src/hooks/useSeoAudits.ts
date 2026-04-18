@@ -59,8 +59,12 @@ export const useSeoAudits = (organizationId?: string) => {
           organization_id: organizationId,
           domain,
           status: 'completed',
-          pages_crawled: 1,
-          overall_score: Math.max(0, 100 - (auditData.issues.length * 10))
+          pages_crawled: auditData.pages_crawled ?? 1,
+          overall_score: auditData.overall_score ?? 0,
+          technical_score: auditData.technical_score ?? null,
+          content_score: auditData.content_score ?? null,
+          schema_score: auditData.schema_score ?? null,
+          voice_seo_score: auditData.voice_seo_score ?? null,
         })
         .select()
         .single();
@@ -74,8 +78,8 @@ export const useSeoAudits = (organizationId?: string) => {
           .insert(
             auditData.issues.map((issue: any) => ({
               audit_id: audit.id,
-              page_url: domain,
-              category: issue.issue_type,
+              page_url: issue.page_url || domain,
+              category: issue.category || issue.issue_type,
               severity: issue.severity,
               issue: issue.description,
               recommendation: issue.recommendation
@@ -159,7 +163,12 @@ export const useSeoAudits = (organizationId?: string) => {
         .from('seo_audits')
         .update({
           status: 'completed',
-          overall_score: Math.max(0, 100 - (auditData.issues.length * 10)),
+          pages_crawled: auditData.pages_crawled ?? 1,
+          overall_score: auditData.overall_score ?? 0,
+          technical_score: auditData.technical_score ?? null,
+          content_score: auditData.content_score ?? null,
+          schema_score: auditData.schema_score ?? null,
+          voice_seo_score: auditData.voice_seo_score ?? null,
           updated_at: new Date().toISOString()
         })
         .eq('id', auditId);
@@ -173,8 +182,8 @@ export const useSeoAudits = (organizationId?: string) => {
           .insert(
             auditData.issues.map((issue: any) => ({
               audit_id: auditId,
-              page_url: domain,
-              category: issue.issue_type,
+              page_url: issue.page_url || domain,
+              category: issue.category || issue.issue_type,
               severity: issue.severity,
               issue: issue.description,
               recommendation: issue.recommendation
