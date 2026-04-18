@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Mail, Phone, Calendar, Pencil, Trash2, Plus, Pin, PinOff } from 'lucide-react';
+import { Mail, Phone, Calendar, Pencil, Trash2, Plus, Pin, PinOff, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { ContactForm } from './ContactForm';
@@ -34,10 +34,13 @@ export function ContactProfile({ contact, open, onClose, organizationId }: Conta
   const [showDelete, setShowDelete] = useState(false);
   const [showLogInteraction, setShowLogInteraction] = useState(false);
   const [showRecordDonation, setShowRecordDonation] = useState(false);
+  const [showTaxStatement, setShowTaxStatement] = useState(false);
+  const [draftDonation, setDraftDonation] = useState<any | null>(null);
   const [noteContent, setNoteContent] = useState('');
 
   const { donations } = useCrmDonations(organizationId, contact.id);
   const { notes, createNote, togglePin, deleteNote } = useCrmNotes(organizationId, contact.id);
+  const { organization } = useOrganization();
 
   const { data: interactions } = useQuery({
     queryKey: ['crm-interactions', contact.id],
