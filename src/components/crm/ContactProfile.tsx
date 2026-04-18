@@ -15,6 +15,7 @@ import { InteractionLogDialog } from './InteractionLogDialog';
 import { DonationFormDialog } from './DonationFormDialog';
 import { useCrmDonations } from '@/hooks/useCrmDonations';
 import { useCrmNotes } from '@/hooks/useCrmNotes';
+import { ConstituentTimeline } from './ConstituentTimeline';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -156,13 +157,18 @@ export function ContactProfile({ contact, open, onClose, organizationId }: Conta
               </Card>
             </div>
 
-            <Tabs defaultValue="overview">
+            <Tabs defaultValue="timeline">
               <TabsList>
+                <TabsTrigger value="timeline">Timeline</TabsTrigger>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="interactions">Interactions</TabsTrigger>
                 <TabsTrigger value="donations">Donations</TabsTrigger>
                 <TabsTrigger value="notes">Notes</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="timeline">
+                <ConstituentTimeline contactId={contact.id} organizationId={organizationId} />
+              </TabsContent>
 
               <TabsContent value="overview" className="space-y-4">
                 <Card>
