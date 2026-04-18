@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Users } from 'lucide-react';
 import { CrmList } from '@/hooks/useCrm';
 import { ListMembersDialog } from './ListMembersDialog';
+import { ListFormDialog } from './ListFormDialog';
 
 interface ListsManagerProps {
   lists: CrmList[];
@@ -14,6 +15,7 @@ interface ListsManagerProps {
 
 export function ListsManager({ lists, loading, organizationId }: ListsManagerProps) {
   const [selectedList, setSelectedList] = useState<CrmList | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
   if (loading) {
     return <div className="text-center p-8">Loading lists...</div>;
   }
@@ -22,7 +24,7 @@ export function ListsManager({ lists, loading, organizationId }: ListsManagerPro
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Contact Lists</h2>
-        <Button>
+        <Button onClick={() => setShowCreate(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Create List
         </Button>
@@ -70,6 +72,12 @@ export function ListsManager({ lists, loading, organizationId }: ListsManagerPro
         list={selectedList}
         open={!!selectedList}
         onOpenChange={(open) => !open && setSelectedList(null)}
+        organizationId={organizationId}
+      />
+
+      <ListFormDialog
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
         organizationId={organizationId}
       />
     </div>
