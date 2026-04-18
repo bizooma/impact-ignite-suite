@@ -1,86 +1,86 @@
 
+Building all 5 nonprofit CRM enhancements. Order chosen so each builds on the prior data.
 
-## CRM Audit — Findings
+## 1. Donor Segmentation & Retention
+- New hook `useCrmDonorAnalytics(orgId)` — pulls all donations, groups by contact, computes:
+  - **Major Donor**: lifetime giving ≥ $1,000 (configurable later)
+  - **Sustaining**: any `is_recurring = true` donation
+  - **LYBUNT**: gave last calendar year, not this year
+  - **SYBUNT**: gave any prior year, not this year
+  - **New donor this year**, **Lapsed** (no gift in 24+ months)
+  - **Retention rate**: % of last year's donors who gave again this year
+- New component `DonorSegmentsDashboard.tsx` — 6 segment cards + a "View list" drawer that shows matching contacts and lets the user bulk-add them to a CRM list (uses existing `addContactToList`).
+- Add a new tab "Segments" in `CrmDashboard`.
 
-### 🔴 Mock data / placeholders found
-1. **CrmDashboard "Engagement 78%"** stat card — hardcoded fake number with "Response rate" label.
-2. **CrmDashboard Donations tab** — "Donation tracking coming soon..." placeholder. (`crm_donations` table exists, empty.)
-3. **CrmDashboard Volunteer Hours tab** — "Volunteer hour tracking coming soon..." placeholder. (`crm_volunteer_hours` table exists, empty.)
-4. **ContactProfile Interactions tab** — "Interaction history coming soon..." placeholder. (`crm_interactions` table exists, has data; `getContactInteractions` already implemented but unused.)
-5. **ContactProfile Donations tab** — "Donation history coming soon..." placeholder.
-6. **ContactProfile Notes tab** — "Notes coming soon..." placeholder. (`crm_notes` table exists.)
+## 2. Acknowledgments & Year-End Tax Statements
+- DB: already have `acknowledgment_sent` / `acknowledgment_sent_at` on `crm_donations`. No schema change.
+- New component `AcknowledgmentsManager.tsx`:
+  - Filterable table of donations where `acknowledgment_sent = false`
+  - "Mark as acknowledged" (single + bulk) updates the row
+  - "Send thank-you email" button → calls new edge function `send-donation-acknowledgment` (uses Lovable Email infra)
+- New edge function `generate-giving-statement`:
+  - Input: `contact_id`, `year`
+  - Queries `crm_donations` for that contact + year, generates a PDF (using `pdf-lib` from esm.sh), returns base64
+  - Frontend downloads it
+- Add "Tax Statement" button on `ContactProfile` Donations tab → year picker → download
+- Add tab "Acknowledgments" inside the Donations tab area (sub-tabs).
 
-### 🟡 Broken / non-functional UI
-7. **ContactsTable dropdown menu**: "Edit", "Add to List", "Delete" items have **no onClick handlers** — purely decorative.
-8. **ListsManager "Create List" button** — no onClick, opens nothing.
-9. **ContactProfile** — no Edit / Delete buttons at all (read-only).
+→ **Email infra**: Need to check email domain status before scaffolding the thank-you function. Will trigger setup dialog if not configured.
 
-### 🟢 Already working (verified)
-- Contacts CRUD hook (`useCrm`), list fetching, list members dialog, Mailchimp sync (real edge functions), ContactForm create.
+## 3. Constituent 360 Timeline
+- New hook `useConstituent360(contactId, orgId)` — parallel-fetches `crm_donations`, `crm_volunteer_hours`, `crm_interactions`, `crm_notes` for the contact, normalizes each to `{ id, type, date, title, description, icon, color, metadata }`, sorts desc by date.
+- New component `ConstituentTimeline.tsx` — vertical timeline with type filter chips (All / Donations / Hours / Interactions / Notes), color-coded markers, expandable details.
+- Add as the first tab in `ContactProfile` (replaces "Overview" position; Overview becomes second).
 
----
+## 4. Grant Pipeline
+- DB migration — new tables:
+  ```
+  crm_grants (
+    id, organization_id, foundation_name, grant_name, amount_requested,
+    amount_awarded, stage, deadline, submitted_date, decision_date,
+    contact_id (FK crm_contacts, nullable — the program officer),
+    owner_id (FK auth.users), notes, created_at, updated_at
+  )
+  ```
+  - `stage` enum: `researching | loi | proposal_drafting | submitted | awarded | declined | reporting | closed`
+  - RLS: same org-admin pattern as other crm_ tables
+- New hook `useCrmGrants(orgId)` — full CRUD.
+- New components:
+  - `GrantPipelineKanban.tsx` — reuse `@dnd-kit` (already installed for tasks/calendar) with columns per stage, drag to update stage
+  - `GrantFormDialog.tsx` — create/edit
+  - `GrantDetailDialog.tsx` — full record + linked contact + deadline countdown
+- New tab "Grants" in `CrmDashboard`.
 
-## Plan — Build everything for real
+## 5. Stripe → CRM Donation Sync
+- New edge function `stripe-donation-webhook`:
+  - Verifies Stripe webhook signature using `STRIPE_SECRET_KEY` (already in secrets) + new `STRIPE_WEBHOOK_SECRET`
+  - On `payment_intent.succeeded` and `charge.succeeded`:
+    - Look up `crm_contacts` by email (case-insensitive); auto-create lead if missing
+    - Insert into `crm_donations` with `transaction_id = stripe_id`, `payment_method = 'stripe'`, `amount`, `donation_date`, currency
+    - Detect recurring: if linked to a subscription, set `is_recurring = true`, `recurrence_frequency` from price interval
+    - Use Stripe metadata `organization_id` to route to correct org (required), and optional `campaign_id`
+  - Idempotent — skip if `transaction_id` already exists
+  - `verify_jwt = false` in config.toml
+- New component `StripeWebhookSettings.tsx` (in CRM Settings area):
+  - Shows the webhook URL to paste into Stripe Dashboard
+  - Shows last 20 sync events from a small new log table OR queried from `crm_donations` filtered by `payment_method='stripe'`
+- Add small section under Donations tab "Auto-sync from Stripe" with status + URL.
 
-### 1. Replace fake "Engagement" stat
-Replace with a real metric: **Active this month** (contacts with `last_interaction_at` in current month).
+→ **Need from user**: `STRIPE_WEBHOOK_SECRET` (will request via add_secret after they confirm).
 
-### 2. Wire up Contact row actions
-- **Edit** → open `ContactForm` in edit mode (extend it to accept an existing contact).
-- **Delete** → confirm dialog → `deleteContact` mutation.
-- **Add to List** → submenu of available lists → `addContactToList`.
+## Files
 
-### 3. Wire up "Create List" button
-New `ListFormDialog` (name, description, color, type=static). Use existing `createList` mutation.
+**New components**: `DonorSegmentsDashboard.tsx`, `AcknowledgmentsManager.tsx`, `ConstituentTimeline.tsx`, `GrantPipelineKanban.tsx`, `GrantFormDialog.tsx`, `GrantDetailDialog.tsx`, `StripeWebhookSettings.tsx`
 
-### 4. ContactProfile — make all tabs functional + add Edit/Delete header buttons
-- **Overview**: add address display, opt-in toggles that persist via `updateContact`.
-- **Interactions tab**: real list from `crm_interactions` (use existing `getContactInteractions`) + "Log interaction" button (type, subject, description) using existing `logInteraction`.
-- **Donations tab**: list from `crm_donations` filtered by `contact_id` + "Record donation" form (amount, date, campaign, payment_method, notes) writing to `crm_donations`.
-- **Notes tab**: list from `crm_notes` (newest first, pinned first) + textarea to add note → insert with `author_id = auth.uid()`.
+**New hooks**: `useCrmDonorAnalytics.ts`, `useConstituent360.ts`, `useCrmGrants.ts`
 
-### 5. CrmDashboard — Donations tab
-Real component `DonationsManager`:
-- Aggregates: total raised this year, donor count, recurring count, avg gift.
-- Table of all donations (contact name, amount, date, campaign, method) with date filters.
-- "Record Donation" button opens form (with contact picker).
+**Edge functions**: `send-donation-acknowledgment`, `generate-giving-statement`, `stripe-donation-webhook`
 
-### 6. CrmDashboard — Volunteer Hours tab
-Real component `VolunteerHoursManager`:
-- Aggregates: total hours this month/year, top volunteers, pending approval count.
-- Table (contact, activity, hours, date, status) with approve/reject actions for admins.
-- "Log Hours" button opens form (contact picker, activity, hours, date, location, supervisor, notes).
+**Edited**: `CrmDashboard.tsx` (3 new tabs), `ContactProfile.tsx` (timeline + tax statement button), `DonationsManager.tsx` (acknowledgments sub-section)
 
-### 7. New hooks
-- `useCrmDonations(orgId)` — fetch + create + update.
-- `useCrmVolunteerHours(orgId)` — fetch + create + approve.
-- `useCrmNotes(contactId, orgId)` — fetch + create + delete + pin.
-- Extend `useCrm` to expose `getContactDonations(contactId)` and `getContactNotes(contactId)`.
+**Migration**: `crm_grants` table + RLS
 
-### 8. Database
-No schema changes needed — all tables (`crm_donations`, `crm_volunteer_hours`, `crm_notes`, `crm_interactions`) already exist with proper RLS.
+## Order of execution
+1. Donor segmentation (no deps) → 2. Constituent 360 (no deps) → 3. Grant pipeline (migration) → 4. Acknowledgments + tax PDF (needs email domain check first) → 5. Stripe webhook (needs webhook secret)
 
-### Files to edit
-- `src/components/crm/CrmDashboard.tsx`
-- `src/components/crm/ContactsTable.tsx`
-- `src/components/crm/ContactProfile.tsx`
-- `src/components/crm/ContactForm.tsx` (add edit mode)
-- `src/components/crm/ListsManager.tsx`
-- `src/hooks/useCrm.ts`
-
-### Files to create
-- `src/components/crm/ListFormDialog.tsx`
-- `src/components/crm/DonationsManager.tsx`
-- `src/components/crm/DonationFormDialog.tsx`
-- `src/components/crm/VolunteerHoursManager.tsx`
-- `src/components/crm/VolunteerHoursFormDialog.tsx`
-- `src/components/crm/InteractionLogDialog.tsx`
-- `src/components/crm/AddToListDialog.tsx`
-- `src/components/crm/DeleteContactDialog.tsx`
-- `src/hooks/useCrmDonations.ts`
-- `src/hooks/useCrmVolunteerHours.ts`
-- `src/hooks/useCrmNotes.ts`
-
-### Outcome
-Every tab, button, and menu item in the CRM will hit real Supabase data. No placeholders, no fake numbers, no dead clicks.
-
+I'll pause before #4 to handle email domain setup if needed, and before #5 to request the Stripe webhook secret.
