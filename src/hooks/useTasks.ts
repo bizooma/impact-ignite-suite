@@ -75,12 +75,15 @@ export const useTasks = (organizationId: string) => {
 
   const updateTask = async (id: string, updates: Partial<Task>) => {
     try {
+      // Only touch completed_at when status is explicitly being changed
+      const payload: Record<string, any> = { ...updates };
+      if (updates.status !== undefined) {
+        payload.completed_at = updates.status === 'completed' ? new Date().toISOString() : null;
+      }
+
       const { data, error } = await supabase
         .from('tasks')
-        .update({
-          ...updates,
-          completed_at: updates.status === 'completed' ? new Date().toISOString() : null,
-        })
+        .update(payload)
         .eq('id', id)
         .select(`
           *,
