@@ -29,6 +29,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
+  const [detailTask, setDetailTask] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -38,8 +39,38 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
     assignee_id: 'unassigned',
   });
 
-  const { tasks, loading, createTask, updateTask, deleteTask } = useTasks(organizationId);
+  const { tasks, loading, createTask, updateTask: updateTaskRaw, deleteTask } = useTasks(organizationId);
   const { teamMembers, loading: loadingMembers } = useTeamMembers(organizationId);
+
+  // Wrap updateTask to log status/assignee changes to activity feed
+  const updateTask = async (id: string, updates: any) => {
+    const before = tasks.find((t) => t.id === id);
+    const result = await updateTaskRaw(id, updates);
+    if (before) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const entries: any[] = [];
+      if (updates.status !== undefined && updates.status !== before.status) {
+        entries.push({
+          task_id: id,
+          organization_id: organizationId,
+          actor_id: user?.id ?? null,
+          action: 'status_changed',
+          details: { from: before.status, to: updates.status },
+        });
+      }
+      if (updates.assignee_id !== undefined && updates.assignee_id !== before.assignee_id) {
+        entries.push({
+          task_id: id,
+          organization_id: organizationId,
+          actor_id: user?.id ?? null,
+          action: 'assignee_changed',
+          details: { from: before.assignee_id, to: updates.assignee_id },
+        });
+      }
+      if (entries.length) await supabase.from('task_activity').insert(entries);
+    }
+    return result;
+  };
 
   // Filter and search tasks
   const filteredTasks = useMemo(() => {
