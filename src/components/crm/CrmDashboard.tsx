@@ -1,10 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Users, Heart, Clock, TrendingUp, Plus } from 'lucide-react';
+import { UserCircle, Users, Heart, Clock, Activity, Plus } from 'lucide-react';
 import { ContactsTable } from './ContactsTable';
 import { ListsManager } from './ListsManager';
 import { MailchimpSyncSettings } from './MailchimpSyncSettings';
+import { DonationsManager } from './DonationsManager';
+import { VolunteerHoursManager } from './VolunteerHoursManager';
 import { useCrm } from '@/hooks/useCrm';
 import { useState } from 'react';
 import { ContactForm } from './ContactForm';
@@ -17,15 +19,14 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
   const { contacts, contactsLoading, lists, listsLoading } = useCrm(organizationId);
   const [showContactForm, setShowContactForm] = useState(false);
 
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const stats = {
     totalContacts: contacts?.length || 0,
     volunteers: contacts?.filter(c => c.lifecycle_stage === 'volunteer').length || 0,
     donors: contacts?.filter(c => c.lifecycle_stage === 'donor').length || 0,
-    newThisMonth: contacts?.filter(c => {
-      const createdAt = new Date(c.created_at);
-      const now = new Date();
-      return createdAt.getMonth() === now.getMonth() && createdAt.getFullYear() === now.getFullYear();
-    }).length || 0,
+    newThisMonth: contacts?.filter(c => new Date(c.created_at) >= monthStart).length || 0,
+    activeThisMonth: contacts?.filter(c => c.last_interaction_at && new Date(c.last_interaction_at) >= monthStart).length || 0,
   };
 
   return (
@@ -88,13 +89,13 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Engagement</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Active This Month</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">78%</div>
+            <div className="text-2xl font-bold">{stats.activeThisMonth}</div>
             <p className="text-xs text-muted-foreground">
-              Response rate
+              Contacts with recent activity
             </p>
           </CardContent>
         </Card>
@@ -133,25 +134,11 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
         </TabsContent>
 
         <TabsContent value="donations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Donations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Donation tracking coming soon...</p>
-            </CardContent>
-          </Card>
+          <DonationsManager organizationId={organizationId} />
         </TabsContent>
 
         <TabsContent value="volunteers">
-          <Card>
-            <CardHeader>
-              <CardTitle>Volunteer Hours</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Volunteer hour tracking coming soon...</p>
-            </CardContent>
-          </Card>
+          <VolunteerHoursManager organizationId={organizationId} />
         </TabsContent>
       </Tabs>
 
