@@ -19,7 +19,7 @@ export const TaskGroupHeader: React.FC<TaskGroupHeaderProps> = ({
   color = 'bg-muted',
 }) => {
   return (
-    <div className={`flex items-center gap-2 px-4 py-2 ${color} sticky top-0 z-10 border-b`}>
+    <div className={`flex items-center gap-2 px-4 py-2 ${color} border-b`}>
       <Button
         variant="ghost"
         size="sm"

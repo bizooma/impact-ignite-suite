@@ -10,6 +10,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { GripVertical, Calendar as CalendarIcon, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface TaskRowProps {
   task: any;
