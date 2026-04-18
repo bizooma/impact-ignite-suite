@@ -7,6 +7,8 @@ import { ListsManager } from './ListsManager';
 import { MailchimpSyncSettings } from './MailchimpSyncSettings';
 import { DonationsManager } from './DonationsManager';
 import { VolunteerHoursManager } from './VolunteerHoursManager';
+import { DonorSegmentsDashboard } from './DonorSegmentsDashboard';
+import { GrantPipelineKanban } from './GrantPipelineKanban';
 import { useCrm } from '@/hooks/useCrm';
 import { useState } from 'react';
 import { ContactForm } from './ContactForm';
@@ -106,8 +108,10 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="lists">Lists</TabsTrigger>
           <TabsTrigger value="mailchimp">Mailchimp Sync</TabsTrigger>
+          <TabsTrigger value="segments">Segments</TabsTrigger>
           <TabsTrigger value="donations">Donations</TabsTrigger>
           <TabsTrigger value="volunteers">Volunteer Hours</TabsTrigger>
+          <TabsTrigger value="grants">Grants</TabsTrigger>
         </TabsList>
 
         <TabsContent value="contacts">
@@ -137,8 +141,16 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
           <DonationsManager organizationId={organizationId} />
         </TabsContent>
 
+        <TabsContent value="segments">
+          <DonorSegmentsDashboard organizationId={organizationId} />
+        </TabsContent>
+
         <TabsContent value="volunteers">
           <VolunteerHoursManager organizationId={organizationId} />
+        </TabsContent>
+
+        <TabsContent value="grants">
+          <GrantPipelineKanban organizationId={organizationId} />
         </TabsContent>
       </Tabs>
 
