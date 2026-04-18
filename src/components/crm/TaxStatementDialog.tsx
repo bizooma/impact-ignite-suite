@@ -19,7 +19,7 @@ interface Props {
 
 export function TaxStatementDialog({ open, onClose, contact, organizationId }: Props) {
   const { donations } = useCrmDonations(organizationId, contact.id);
-  const { currentOrganization } = useOrganization();
+  const { organization } = useOrganization();
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(String(currentYear - 1));
 
@@ -37,7 +37,7 @@ export function TaxStatementDialog({ open, onClose, contact, organizationId }: P
   );
 
   const total = yearDonations.reduce((s, d) => s + Number(d.amount), 0);
-  const orgName = currentOrganization?.name || 'Our Organization';
+  const orgName = organization?.name || 'Our Organization';
   const donorName = contact.contact_type === 'organization'
     ? contact.organization_name || 'Donor'
     : `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || 'Donor';

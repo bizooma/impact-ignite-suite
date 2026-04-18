@@ -18,7 +18,7 @@ interface Props { organizationId: string; }
 export function AcknowledgmentsManager({ organizationId }: Props) {
   const { donations, isLoading, markAcknowledged } = useCrmDonations(organizationId);
   const { contacts } = useCrm(organizationId);
-  const { currentOrganization } = useOrganization();
+  const { organization } = useOrganization();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [draftFor, setDraftFor] = useState<{ donation: any; contact: CrmContact } | null>(null);
 
@@ -143,7 +143,7 @@ export function AcknowledgmentsManager({ organizationId }: Props) {
           onClose={() => setDraftFor(null)}
           donation={draftFor.donation}
           contact={draftFor.contact}
-          organizationName={currentOrganization?.name || 'our organization'}
+          organizationName={organization?.name || 'our organization'}
           onMarkSent={() => {
             markAcknowledged.mutate([draftFor.donation.id]);
             setDraftFor(null);
