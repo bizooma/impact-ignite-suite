@@ -20,6 +20,7 @@ interface TaskRowProps {
   onToggleSelect: () => void;
   onUpdate: (taskId: string, updates: any) => void;
   onDelete: (taskId: string) => void;
+  onOpen?: () => void;
 }
 
 export const TaskRow: React.FC<TaskRowProps> = ({
@@ -29,6 +30,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   onToggleSelect,
   onUpdate,
   onDelete,
+  onOpen,
 }) => {
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -151,8 +153,10 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             />
           ) : (
             <div
-              onClick={() => startEdit('title', task.title)}
-              className="truncate cursor-text hover:bg-accent/50 px-2 py-1 rounded text-sm"
+              onClick={() => onOpen?.()}
+              onDoubleClick={() => startEdit('title', task.title)}
+              className="truncate cursor-pointer hover:bg-accent/50 px-2 py-1 rounded text-sm"
+              title="Click to open · Double-click to rename"
             >
               {task.title}
             </div>
