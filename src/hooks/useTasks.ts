@@ -27,6 +27,7 @@ export const useTasks = (organizationId: string) => {
           assignee_profile:profiles!tasks_assignee_id_fkey(id, display_name, avatar_url)
         `)
         .eq('organization_id', organizationId)
+        .order('sort_order', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
