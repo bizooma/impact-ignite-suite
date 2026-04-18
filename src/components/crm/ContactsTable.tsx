@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
 import { ContactProfile } from './ContactProfile';
+import { ContactForm } from './ContactForm';
+import { DeleteContactDialog } from './DeleteContactDialog';
+import { AddToListDialog } from './AddToListDialog';
 
 interface ContactsTableProps {
   contacts: CrmContact[];
@@ -22,6 +25,9 @@ interface ContactsTableProps {
 
 export function ContactsTable({ contacts, loading, organizationId }: ContactsTableProps) {
   const [selectedContact, setSelectedContact] = useState<CrmContact | null>(null);
+  const [editContact, setEditContact] = useState<CrmContact | null>(null);
+  const [deleteContactState, setDeleteContactState] = useState<CrmContact | null>(null);
+  const [addToListContact, setAddToListContact] = useState<CrmContact | null>(null);
 
   const getLifecycleColor = (stage: string) => {
     const colors: Record<string, string> = {
@@ -80,7 +86,7 @@ export function ContactsTable({ contacts, loading, organizationId }: ContactsTab
               </TableRow>
             ) : (
               contacts.map((contact) => (
-                <TableRow 
+                <TableRow
                   key={contact.id}
                   className="cursor-pointer hover:bg-muted/50"
                   onClick={() => setSelectedContact(contact)}
@@ -146,15 +152,21 @@ export function ContactsTable({ contacts, loading, organizationId }: ContactsTab
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedContact(contact);
-                        }}>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedContact(contact); }}>
                           View Profile
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Add to List</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditContact(contact); }}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setAddToListContact(contact); }}>
+                          Add to List
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={(e) => { e.stopPropagation(); setDeleteContactState(contact); }}
+                        >
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -173,6 +185,27 @@ export function ContactsTable({ contacts, loading, organizationId }: ContactsTab
           organizationId={organizationId}
         />
       )}
+
+      <ContactForm
+        open={!!editContact}
+        onClose={() => setEditContact(null)}
+        organizationId={organizationId}
+        contact={editContact}
+      />
+
+      <DeleteContactDialog
+        contact={deleteContactState}
+        open={!!deleteContactState}
+        onClose={() => setDeleteContactState(null)}
+        organizationId={organizationId}
+      />
+
+      <AddToListDialog
+        contact={addToListContact}
+        open={!!addToListContact}
+        onClose={() => setAddToListContact(null)}
+        organizationId={organizationId}
+      />
     </>
   );
 }
