@@ -107,7 +107,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createTask({
+      const created = await createTask({
         ...formData,
         organization_id: organizationId,
         priority: Number(formData.priority),
@@ -116,6 +116,16 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
         status: 'todo' as const,
         metadata: {},
       });
+      if (created?.id) {
+        const { data: { user } } = await supabase.auth.getUser();
+        await supabase.from('task_activity').insert({
+          task_id: created.id,
+          organization_id: organizationId,
+          actor_id: user?.id ?? null,
+          action: 'created',
+          details: {},
+        });
+      }
       setShowCreateDialog(false);
       setFormData({
         title: '',
