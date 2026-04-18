@@ -1,23 +1,30 @@
 
-Add a readiness status system to the Mission Dashboard cards.
+Upgrade the SEO audit engine to perform a real, multi-page, multi-category audit using Firecrawl for JS-rendered crawling, and populate the previously-empty Technical / Content / Schema / Voice SEO sub-scores.
 
-## Changes
+## Approach
 
-**`src/components/dashboard/MainDashboard.tsx`**
+Rebuild `supabase/functions/seo-audit/index.ts` to:
 
-1. Add a `ready: boolean` field to each entry in `moduleCards`. Set `qr-codes` → `true`. All others → `false`.
+1. **Discover pages** — fetch `/sitemap.xml` (fall back to homepage-only if missing), cap at 10 URLs.
+2. **Fetch each page via Firecrawl** (`/v2/scrape`, formats: `html`, `markdown`, `links`, `metadata`) so SPA/JS-rendered sites work. Fall back to plain `fetch` if Firecrawl key missing.
+3. **Run categorized checks** on each page:
+   - **Technical**: status code, response time, robots.txt presence, canonical tag, viewport meta, HTTPS, broken internal links (sample), image alt attributes
+   - **Content**: title length (30–60), meta description length (120–160), exactly one H1, heading hierarchy, word count, readability hint
+   - **Schema**: presence of JSON-LD, Organization/LocalBusiness/FAQ/BreadcrumbList schemas, Open Graph tags, Twitter Card tags
+   - **Voice SEO**: FAQ schema, conversational/question-style headings, speakable schema, content readability, concise answer paragraphs near questions
+4. **Compute sub-scores** (0–100) per category as `100 - weighted_penalties`, then `overall_score = avg(4 sub-scores)`.
+5. **Persist** `technical_score`, `content_score`, `schema_score`, `voice_seo_score`, `pages_crawled` (real count), `overall_score`, and detailed `audit_issues` rows tagged with `category` (technical/content/schema/voice) and `page_url`.
 
-2. Replace the existing "Ready to Use" section heading block with two stacked headings:
-   - "Ready to Use" with green pulsing dot (existing style)
-   - "In Development" with red dot (new)
+## Frontend
 
-3. In each card's `CardHeader`, replace the icon block (`<div className="w-12 h-12 bg-{color}/10 ..."><module.icon /></div>`) with a status dot:
-   - Green pulsing dot (`bg-success`) if `module.ready`
-   - Red dot (`bg-destructive`) if not
-   - Use a small wrapper (e.g. `w-12 h-12` flex-center) so card layout stays identical
-   - Drop the `module.icon` and `module.color` rendering on the card face (icons remain imported for the CTA section at the bottom)
+`src/hooks/useSeoAudits.ts` — pass through the new score fields the edge function returns instead of computing `overall_score` on the client.
 
-4. Keep all 9 cards in a single grid (no split into two grids) — the two headings sit above the same grid, since the dots on each card already communicate status per-card. The headings act as a legend.
+`src/components/seo/SeoAuditDashboard.tsx` — already renders Technical/Content/Schema/Voice columns; will now show real values instead of nulls. No structural change needed.
+
+## Secrets
+
+Requires `FIRECRAWL_API_KEY`. Will connect the Firecrawl connector if not already linked, then deploy the updated function. If user declines Firecrawl, falls back to plain-fetch mode (works but limited on SPAs — same caveat as today, just with the expanded check set).
 
 ## Outcome
-Each dashboard card shows a colored status dot in place of its icon: green = ready (QR Codes only for now), red = in development (everything else). A legend above the grid explains the two colors.
+
+The SEO Audit dashboard shows real, populated scores across all four categories, crawls multiple pages from the sitemap, and lists categorized, actionable issues — no mock or hardcoded values.
