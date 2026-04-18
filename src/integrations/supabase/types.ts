@@ -2047,6 +2047,7 @@ export type Database = {
           metadata: Json | null
           organization_id: string
           priority: number | null
+          sort_order: number | null
           source_id: string | null
           source_module: string
           status: Database["public"]["Enums"]["task_status"] | null
@@ -2063,6 +2064,7 @@ export type Database = {
           metadata?: Json | null
           organization_id: string
           priority?: number | null
+          sort_order?: number | null
           source_id?: string | null
           source_module: string
           status?: Database["public"]["Enums"]["task_status"] | null
@@ -2079,6 +2081,7 @@ export type Database = {
           metadata?: Json | null
           organization_id?: string
           priority?: number | null
+          sort_order?: number | null
           source_id?: string | null
           source_module?: string
           status?: Database["public"]["Enums"]["task_status"] | null

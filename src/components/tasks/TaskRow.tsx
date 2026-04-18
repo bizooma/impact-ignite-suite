@@ -10,6 +10,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { GripVertical, Calendar as CalendarIcon, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface TaskRowProps {
   task: any;
@@ -31,6 +33,14 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
   const handleSave = (field: string) => {
     if (editValue !== task[field]) {
@@ -89,10 +99,20 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   return (
     <>
       <div
-        className="group flex items-center gap-2 px-4 py-2 border-b hover:bg-accent/50 transition-colors"
+        ref={setNodeRef}
+        style={style}
+        className="group flex items-center gap-2 px-4 py-2 border-b hover:bg-accent/50 transition-colors bg-card"
       >
         {/* Drag Handle */}
-        <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity touch-none"
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
         
         {/* Checkbox */}
         <Checkbox
