@@ -58,5 +58,37 @@ export function useCrmDonations(organizationId: string, contactId?: string) {
     onError: (e: any) => toast.error(`Failed: ${e.message}`),
   });
 
-  return { donations, isLoading, createDonation };
+  const updateDonation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<CrmDonation> }) => {
+      const { data, error } = await supabase
+        .from('crm_donations')
+        .update(updates as any)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['crm-donations', organizationId] });
+    },
+    onError: (e: any) => toast.error(`Failed: ${e.message}`),
+  });
+
+  const markAcknowledged = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('crm_donations')
+        .update({ acknowledgment_sent: true, acknowledgment_sent_at: new Date().toISOString() } as any)
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: (_, ids) => {
+      qc.invalidateQueries({ queryKey: ['crm-donations', organizationId] });
+      toast.success(`${ids.length} donation${ids.length === 1 ? '' : 's'} marked acknowledged`);
+    },
+    onError: (e: any) => toast.error(`Failed: ${e.message}`),
+  });
+
+  return { donations, isLoading, createDonation, updateDonation, markAcknowledged };
 }

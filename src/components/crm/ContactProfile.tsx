@@ -6,15 +6,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Mail, Phone, Calendar, Pencil, Trash2, Plus, Pin, PinOff } from 'lucide-react';
+import { Mail, Phone, Calendar, Pencil, Trash2, Plus, Pin, PinOff, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { ContactForm } from './ContactForm';
 import { DeleteContactDialog } from './DeleteContactDialog';
 import { InteractionLogDialog } from './InteractionLogDialog';
 import { DonationFormDialog } from './DonationFormDialog';
+import { TaxStatementDialog } from './TaxStatementDialog';
+import { AcknowledgmentDraftDialog } from './AcknowledgmentDraftDialog';
 import { useCrmDonations } from '@/hooks/useCrmDonations';
 import { useCrmNotes } from '@/hooks/useCrmNotes';
+import { useOrganization } from '@/hooks/useOrganization';
 import { ConstituentTimeline } from './ConstituentTimeline';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,10 +34,13 @@ export function ContactProfile({ contact, open, onClose, organizationId }: Conta
   const [showDelete, setShowDelete] = useState(false);
   const [showLogInteraction, setShowLogInteraction] = useState(false);
   const [showRecordDonation, setShowRecordDonation] = useState(false);
+  const [showTaxStatement, setShowTaxStatement] = useState(false);
+  const [draftDonation, setDraftDonation] = useState<any | null>(null);
   const [noteContent, setNoteContent] = useState('');
 
   const { donations } = useCrmDonations(organizationId, contact.id);
   const { notes, createNote, togglePin, deleteNote } = useCrmNotes(organizationId, contact.id);
+  const { organization } = useOrganization();
 
   const { data: interactions } = useQuery({
     queryKey: ['crm-interactions', contact.id],
@@ -235,9 +241,14 @@ export function ContactProfile({ contact, open, onClose, organizationId }: Conta
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Donations</CardTitle>
-                    <Button size="sm" onClick={() => setShowRecordDonation(true)}>
-                      <Plus className="h-4 w-4 mr-1" /> Record Donation
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => setShowTaxStatement(true)} disabled={!donations || donations.length === 0}>
+                        <FileText className="h-4 w-4 mr-1" /> Tax Statement
+                      </Button>
+                      <Button size="sm" onClick={() => setShowRecordDonation(true)}>
+                        <Plus className="h-4 w-4 mr-1" /> Record Donation
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     {!donations || donations.length === 0 ? (
@@ -251,11 +262,19 @@ export function ContactProfile({ contact, open, onClose, organizationId }: Conta
                               <p className="text-xs text-muted-foreground capitalize">
                                 {(d.payment_method || '').replace(/_/g, ' ')}
                                 {d.is_recurring && ' • Recurring'}
+                                {d.acknowledgment_sent && ' • ✓ Acknowledged'}
                               </p>
                             </div>
-                            <span className="text-sm text-muted-foreground">
-                              {format(new Date(d.donation_date), 'MMM d, yyyy')}
-                            </span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-sm text-muted-foreground">
+                                {format(new Date(d.donation_date), 'MMM d, yyyy')}
+                              </span>
+                              {!d.acknowledgment_sent && (
+                                <Button size="sm" variant="ghost" onClick={() => setDraftDonation(d)}>
+                                  <Mail className="h-3 w-3 mr-1" /> Thank you
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -349,6 +368,23 @@ export function ContactProfile({ contact, open, onClose, organizationId }: Conta
         organizationId={organizationId}
         contactId={contact.id}
       />
+
+      <TaxStatementDialog
+        open={showTaxStatement}
+        onClose={() => setShowTaxStatement(false)}
+        contact={contact}
+        organizationId={organizationId}
+      />
+
+      {draftDonation && (
+        <AcknowledgmentDraftDialog
+          open={!!draftDonation}
+          onClose={() => setDraftDonation(null)}
+          donation={draftDonation}
+          contact={contact}
+          organizationName={organization?.name || 'our organization'}
+        />
+      )}
     </>
   );
 }
