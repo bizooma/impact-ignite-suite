@@ -1,34 +1,86 @@
 
 
-The user is asking for feature suggestions, not requesting implementation. This is a research/discussion question — no plan needed. I'll respond directly with suggestions based on what I know exists in the current task system.
+## CRM Audit — Findings
 
-**Current state recap (from audit):**
-- CRUD with status/priority/assignee/due date
-- Drag-to-reorder with persisted sort_order
-- Filters (search, status, priority, assignee), grouping (status/assignee/priority/source), table + tabbed views
-- Linked to source_module/source_id (auto-task origin) but not surfaced
-- Tasks live per-organization with team-member assignment
+### 🔴 Mock data / placeholders found
+1. **CrmDashboard "Engagement 78%"** stat card — hardcoded fake number with "Response rate" label.
+2. **CrmDashboard Donations tab** — "Donation tracking coming soon..." placeholder. (`crm_donations` table exists, empty.)
+3. **CrmDashboard Volunteer Hours tab** — "Volunteer hour tracking coming soon..." placeholder. (`crm_volunteer_hours` table exists, empty.)
+4. **ContactProfile Interactions tab** — "Interaction history coming soon..." placeholder. (`crm_interactions` table exists, has data; `getContactInteractions` already implemented but unused.)
+5. **ContactProfile Donations tab** — "Donation history coming soon..." placeholder.
+6. **ContactProfile Notes tab** — "Notes coming soon..." placeholder. (`crm_notes` table exists.)
 
-**Gaps & high-value additions:**
+### 🟡 Broken / non-functional UI
+7. **ContactsTable dropdown menu**: "Edit", "Add to List", "Delete" items have **no onClick handlers** — purely decorative.
+8. **ListsManager "Create List" button** — no onClick, opens nothing.
+9. **ContactProfile** — no Edit / Delete buttons at all (read-only).
 
-1. **Subtasks / checklists** — parent_task_id self-reference, progress bar on parent
-2. **Comments & activity feed** — discussion thread per task + audit log of changes
-3. **File attachments** — leverage existing storage buckets
-4. **Recurring tasks** — RRULE-style schedule (daily/weekly standups, monthly reports)
-5. **Real Kanban board view** — the toolbar already has a board toggle; wire it up with drag between status columns
-6. **Calendar view** — tasks plotted by due_date, drag to reschedule
-7. **Custom labels/tags** — beyond the fixed status/priority enums
-8. **@mentions + notifications** — in-app + email when assigned or mentioned
-9. **Bulk actions** — multi-select already exists in rows; add bulk status/assignee/delete
-10. **Source module deep-links** — tasks auto-created from SEO audit / GBP reviews / chatbot leads should link back to the originating record
-11. **Saved views / filters** — save a filter combo as "My open tasks this week"
-12. **Time tracking** — start/stop timer, estimated vs actual (metadata.estimated_time already exists)
-13. **Task templates** — reuse common workflows (onboarding checklist, campaign launch)
-14. **Dependencies** — "blocked by" relationships with visual indicators
-15. **AI task generation** — use Lovable AI to draft tasks from a goal description, or auto-summarize long descriptions
-16. **Reports & analytics** — completion velocity, overdue rate, workload per assignee
-17. **Email-to-task** — forward an email to create a task (edge function inbound webhook)
-18. **Slack/Teams integration** — notifications + slash commands
+### 🟢 Already working (verified)
+- Contacts CRUD hook (`useCrm`), list fetching, list members dialog, Mailchimp sync (real edge functions), ContactForm create.
 
-I'll present the top picks grouped by value tier so the user can pick.
+---
+
+## Plan — Build everything for real
+
+### 1. Replace fake "Engagement" stat
+Replace with a real metric: **Active this month** (contacts with `last_interaction_at` in current month).
+
+### 2. Wire up Contact row actions
+- **Edit** → open `ContactForm` in edit mode (extend it to accept an existing contact).
+- **Delete** → confirm dialog → `deleteContact` mutation.
+- **Add to List** → submenu of available lists → `addContactToList`.
+
+### 3. Wire up "Create List" button
+New `ListFormDialog` (name, description, color, type=static). Use existing `createList` mutation.
+
+### 4. ContactProfile — make all tabs functional + add Edit/Delete header buttons
+- **Overview**: add address display, opt-in toggles that persist via `updateContact`.
+- **Interactions tab**: real list from `crm_interactions` (use existing `getContactInteractions`) + "Log interaction" button (type, subject, description) using existing `logInteraction`.
+- **Donations tab**: list from `crm_donations` filtered by `contact_id` + "Record donation" form (amount, date, campaign, payment_method, notes) writing to `crm_donations`.
+- **Notes tab**: list from `crm_notes` (newest first, pinned first) + textarea to add note → insert with `author_id = auth.uid()`.
+
+### 5. CrmDashboard — Donations tab
+Real component `DonationsManager`:
+- Aggregates: total raised this year, donor count, recurring count, avg gift.
+- Table of all donations (contact name, amount, date, campaign, method) with date filters.
+- "Record Donation" button opens form (with contact picker).
+
+### 6. CrmDashboard — Volunteer Hours tab
+Real component `VolunteerHoursManager`:
+- Aggregates: total hours this month/year, top volunteers, pending approval count.
+- Table (contact, activity, hours, date, status) with approve/reject actions for admins.
+- "Log Hours" button opens form (contact picker, activity, hours, date, location, supervisor, notes).
+
+### 7. New hooks
+- `useCrmDonations(orgId)` — fetch + create + update.
+- `useCrmVolunteerHours(orgId)` — fetch + create + approve.
+- `useCrmNotes(contactId, orgId)` — fetch + create + delete + pin.
+- Extend `useCrm` to expose `getContactDonations(contactId)` and `getContactNotes(contactId)`.
+
+### 8. Database
+No schema changes needed — all tables (`crm_donations`, `crm_volunteer_hours`, `crm_notes`, `crm_interactions`) already exist with proper RLS.
+
+### Files to edit
+- `src/components/crm/CrmDashboard.tsx`
+- `src/components/crm/ContactsTable.tsx`
+- `src/components/crm/ContactProfile.tsx`
+- `src/components/crm/ContactForm.tsx` (add edit mode)
+- `src/components/crm/ListsManager.tsx`
+- `src/hooks/useCrm.ts`
+
+### Files to create
+- `src/components/crm/ListFormDialog.tsx`
+- `src/components/crm/DonationsManager.tsx`
+- `src/components/crm/DonationFormDialog.tsx`
+- `src/components/crm/VolunteerHoursManager.tsx`
+- `src/components/crm/VolunteerHoursFormDialog.tsx`
+- `src/components/crm/InteractionLogDialog.tsx`
+- `src/components/crm/AddToListDialog.tsx`
+- `src/components/crm/DeleteContactDialog.tsx`
+- `src/hooks/useCrmDonations.ts`
+- `src/hooks/useCrmVolunteerHours.ts`
+- `src/hooks/useCrmNotes.ts`
+
+### Outcome
+Every tab, button, and menu item in the CRM will hit real Supabase data. No placeholders, no fake numbers, no dead clicks.
 
