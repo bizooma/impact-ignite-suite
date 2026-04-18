@@ -2,15 +2,15 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Filter, Table, LayoutGrid } from 'lucide-react';
+import { Plus, Search, Filter, Table, LayoutGrid, Calendar as CalendarIcon } from 'lucide-react';
 
 interface TaskToolbarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   groupBy: string;
   onGroupByChange: (value: string) => void;
-  viewMode: 'table' | 'board';
-  onViewModeChange: (value: 'table' | 'board') => void;
+  viewMode: 'table' | 'board' | 'calendar';
+  onViewModeChange: (value: 'table' | 'board' | 'calendar') => void;
   statusFilter: string;
   onStatusFilterChange: (value: string) => void;
   priorityFilter: string;
@@ -123,9 +123,17 @@ export const TaskToolbar: React.FC<TaskToolbarProps> = ({
               size="sm"
               variant={viewMode === 'board' ? 'secondary' : 'ghost'}
               onClick={() => onViewModeChange('board')}
-              className="h-9 rounded-l-none"
+              className="h-9 rounded-none border-x"
             >
               <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant={viewMode === 'calendar' ? 'secondary' : 'ghost'}
+              onClick={() => onViewModeChange('calendar')}
+              className="h-9 rounded-l-none"
+            >
+              <CalendarIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
