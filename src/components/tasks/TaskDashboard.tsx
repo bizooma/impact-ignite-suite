@@ -13,6 +13,7 @@ import { useTeamMembers } from '@/hooks/useTeamMembers';
 import { TaskToolbar } from './TaskToolbar';
 import { TaskTableView } from './TaskTableView';
 import { KanbanBoardView } from './KanbanBoardView';
+import { TaskCalendarView } from './TaskCalendarView';
 import { TaskDetailDialog } from './TaskDetailDialog';
 import { CheckSquare, Clock, AlertCircle, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,7 +24,7 @@ interface TaskDashboardProps {
 
 const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [viewMode, setViewMode] = useState<'table' | 'board'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'board' | 'calendar'>('table');
   const [searchQuery, setSearchQuery] = useState('');
   const [groupBy, setGroupBy] = useState('status');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -248,7 +249,7 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
 
       {/* Table or Board View */}
       <div className="px-4 pb-4">
-        {viewMode === 'table' ? (
+        {viewMode === 'table' && (
           <TaskTableView
             tasks={filteredTasks}
             teamMembers={teamMembers}
@@ -257,8 +258,16 @@ const TaskDashboard: React.FC<TaskDashboardProps> = ({ organizationId }) => {
             onDelete={deleteTask}
             onTaskClick={setDetailTask}
           />
-        ) : (
+        )}
+        {viewMode === 'board' && (
           <KanbanBoardView
+            tasks={filteredTasks}
+            onUpdate={updateTask}
+            onTaskClick={setDetailTask}
+          />
+        )}
+        {viewMode === 'calendar' && (
+          <TaskCalendarView
             tasks={filteredTasks}
             onUpdate={updateTask}
             onTaskClick={setDetailTask}
