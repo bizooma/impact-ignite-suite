@@ -9,6 +9,7 @@ import { DonationsManager } from './DonationsManager';
 import { VolunteerHoursManager } from './VolunteerHoursManager';
 import { DonorSegmentsDashboard } from './DonorSegmentsDashboard';
 import { GrantPipelineKanban } from './GrantPipelineKanban';
+import { AcknowledgmentsManager } from './AcknowledgmentsManager';
 import { useCrm } from '@/hooks/useCrm';
 import { useState } from 'react';
 import { ContactForm } from './ContactForm';
@@ -110,6 +111,7 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
           <TabsTrigger value="mailchimp">Mailchimp Sync</TabsTrigger>
           <TabsTrigger value="segments">Segments</TabsTrigger>
           <TabsTrigger value="donations">Donations</TabsTrigger>
+          <TabsTrigger value="acknowledgments">Acknowledgments</TabsTrigger>
           <TabsTrigger value="volunteers">Volunteer Hours</TabsTrigger>
           <TabsTrigger value="grants">Grants</TabsTrigger>
         </TabsList>
@@ -139,6 +141,10 @@ export function CrmDashboard({ organizationId }: CrmDashboardProps) {
 
         <TabsContent value="donations">
           <DonationsManager organizationId={organizationId} />
+        </TabsContent>
+
+        <TabsContent value="acknowledgments">
+          <AcknowledgmentsManager organizationId={organizationId} />
         </TabsContent>
 
         <TabsContent value="segments">
