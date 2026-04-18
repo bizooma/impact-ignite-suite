@@ -7,6 +7,7 @@ import { useCrmDonations } from '@/hooks/useCrmDonations';
 import { useCrm } from '@/hooks/useCrm';
 import { useState, useMemo } from 'react';
 import { DonationFormDialog } from './DonationFormDialog';
+import { StripeConnectSettings } from './StripeConnectSettings';
 import { format } from 'date-fns';
 
 interface Props { organizationId: string; }
@@ -87,6 +88,8 @@ export function DonationsManager({ organizationId }: Props) {
           )}
         </CardContent>
       </Card>
+
+      <StripeConnectSettings organizationId={organizationId} />
 
       <DonationFormDialog open={showForm} onClose={() => setShowForm(false)} organizationId={organizationId} />
     </div>
