@@ -90,8 +90,8 @@ const moduleCards = [
     icon: CheckSquare,
     route: 'tasks',
     status: 'active',
-    color: 'primary',
-    ready: false
+    color: 'success',
+    ready: true
   },
   {
     title: 'Analytics',
