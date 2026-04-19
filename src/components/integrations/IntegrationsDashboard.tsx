@@ -97,19 +97,8 @@ const IntegrationsDashboard: React.FC<IntegrationsDashboardProps> = ({ organizat
   };
 
   const availableProviders = [
+    { value: 'mailchimp', label: 'Mailchimp' },
     { value: 'google_business', label: 'Google Business Profile' },
-    { value: 'google_ads', label: 'Google Ads' },
-    { value: 'facebook_ads', label: 'Facebook Ads' },
-    { value: 'twitter', label: 'Twitter/X' },
-    { value: 'linkedin', label: 'LinkedIn' },
-    { value: 'instagram', label: 'Instagram' },
-    { value: 'google_analytics', label: 'Google Analytics' },
-    { value: 'mailchimp', label: 'MailChimp' },
-    { value: 'hubspot', label: 'HubSpot' },
-    { value: 'salesforce', label: 'Salesforce' },
-    { value: 'zapier', label: 'Zapier' },
-    { value: 'slack', label: 'Slack' },
-    { value: 'discord', label: 'Discord' },
   ];
 
   if (loading) {
