@@ -15,7 +15,9 @@ export function CountdownClock({ targetDate, label = 'Until event' }: Props) {
   }, []);
 
   if (!targetDate) return null;
-  const target = new Date(targetDate);
+  // Parse YYYY-MM-DD as LOCAL date to avoid UTC shift
+  const [y, m, d] = targetDate.split('-').map(Number);
+  const target = new Date(y, m - 1, d);
   const diff = target.getTime() - now.getTime();
   const days = Math.max(0, Math.floor(diff / 86_400_000));
   const hours = Math.max(0, Math.floor((diff % 86_400_000) / 3_600_000));
