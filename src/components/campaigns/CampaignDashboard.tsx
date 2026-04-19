@@ -134,6 +134,10 @@ export function CampaignDashboard({ organizationId }: Props) {
         </div>
       )}
 
+      <Separator className="my-2" />
+
+      <CampaignInspirationGrid organizationId={organizationId} />
+
       <CampaignTemplatePicker open={picker} onOpenChange={setPicker} organizationId={organizationId} />
 
       <AlertDialog open={!!confirmDeleteId} onOpenChange={(o) => !o && setConfirmDeleteId(null)}>
