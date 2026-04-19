@@ -1993,6 +1993,168 @@ export type Database = {
           },
         ]
       }
+      org_event_rsvps: {
+        Row: {
+          created_at: string
+          email: string
+          event_id: string
+          guests: number
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          event_id: string
+          guests?: number
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          event_id?: string
+          guests?: number
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "org_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_events: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean
+          location: string | null
+          organization_id: string
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          location?: string | null
+          organization_id: string
+          starts_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          location?: string | null
+          organization_id?: string
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_success_stories: {
+        Row: {
+          author_name: string | null
+          body: string | null
+          category: string | null
+          created_at: string
+          gallery: Json
+          hero_image_url: string | null
+          id: string
+          is_featured: boolean
+          is_published: boolean
+          organization_id: string
+          published_at: string | null
+          slug: string
+          summary: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          author_name?: string | null
+          body?: string | null
+          category?: string | null
+          created_at?: string
+          gallery?: Json
+          hero_image_url?: string | null
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          organization_id: string
+          published_at?: string | null
+          slug: string
+          summary?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          author_name?: string | null
+          body?: string | null
+          category?: string | null
+          created_at?: string
+          gallery?: Json
+          hero_image_url?: string | null
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          organization_id?: string
+          published_at?: string | null
+          slug?: string
+          summary?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_success_stories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_invitations: {
         Row: {
           created_at: string
@@ -2048,6 +2210,8 @@ export type Database = {
           has_mobile_app: boolean | null
           id: string
           logo_url: string | null
+          mobile_api_enabled: boolean
+          mobile_api_key: string | null
           mobile_app_code: string | null
           name: string
           purchased_products: Json | null
@@ -2062,6 +2226,8 @@ export type Database = {
           has_mobile_app?: boolean | null
           id?: string
           logo_url?: string | null
+          mobile_api_enabled?: boolean
+          mobile_api_key?: string | null
           mobile_app_code?: string | null
           name: string
           purchased_products?: Json | null
@@ -2076,6 +2242,8 @@ export type Database = {
           has_mobile_app?: boolean | null
           id?: string
           logo_url?: string | null
+          mobile_api_enabled?: boolean
+          mobile_api_key?: string | null
           mobile_app_code?: string | null
           name?: string
           purchased_products?: Json | null
@@ -2656,6 +2824,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_mobile_api_key: { Args: { _org_id: string }; Returns: string }
       grant_platform_admin: { Args: { _email: string }; Returns: boolean }
       has_org_role: {
         Args: {
