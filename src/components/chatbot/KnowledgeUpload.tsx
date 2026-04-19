@@ -26,7 +26,7 @@ interface KnowledgeUploadProps {
 }
 
 export function KnowledgeUpload({ chatbot }: KnowledgeUploadProps) {
-  const { knowledgeSources, addKnowledgeSource, deleteKnowledgeSource } = useKnowledgeSources(chatbot.id);
+  const { knowledgeSources, addKnowledgeSource, deleteKnowledgeSource, fetchKnowledgeSources } = useKnowledgeSources(chatbot.id);
   const [activeTab, setActiveTab] = useState<'text' | 'file' | 'url'>('text');
   const [isUploading, setIsUploading] = useState(false);
   const [textContent, setTextContent] = useState('');
@@ -193,12 +193,7 @@ export function KnowledgeUpload({ chatbot }: KnowledgeUploadProps) {
 
           {/* File Upload Tab */}
           {activeTab === 'file' && (
-            <FileUploadSection
-              chatbotId={chatbot.id}
-              onUploaded={async (source) => {
-                // re-fetch happens via hook reactivity through addKnowledgeSource
-              }}
-            />
+            <FileUploadSection chatbotId={chatbot.id} onUploaded={fetchKnowledgeSources} />
           )}
 
           {/* URL Import Tab */}
