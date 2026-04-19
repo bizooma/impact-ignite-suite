@@ -36,7 +36,7 @@ serve(async (req) => {
     const userId = claims.claims.sub as string;
     const email = claims.claims.email as string | undefined;
 
-    const { betaSignupId, organizationName, displayName } = await req.json();
+    const { betaSignupId: providedSignupId, organizationName, displayName } = await req.json();
     if (!organizationName) throw new Error("organizationName required");
 
     const admin = createClient(
@@ -45,7 +45,33 @@ serve(async (req) => {
       { auth: { persistSession: false } },
     );
 
-    log("provisioning", { userId, email, organizationName, betaSignupId });
+    log("provisioning", { userId, email, organizationName, providedSignupId });
+
+    // Ensure a beta_signups row exists (server-side, bypasses RLS issues).
+    let betaSignupId: string | null = providedSignupId ?? null;
+    if (!betaSignupId && email) {
+      const { data: existingSignup } = await admin
+        .from("beta_signups")
+        .select("id")
+        .eq("email", email)
+        .maybeSingle();
+      if (existingSignup) {
+        betaSignupId = existingSignup.id;
+        log("found existing beta signup", { betaSignupId });
+      } else {
+        const { data: newSignup, error: signupErr } = await admin
+          .from("beta_signups")
+          .insert({ email, name: displayName ?? null, organization: organizationName })
+          .select("id")
+          .single();
+        if (signupErr) {
+          log("beta_signups insert failed (non-fatal)", { err: signupErr.message });
+        } else {
+          betaSignupId = newSignup.id;
+          log("beta signup created", { betaSignupId });
+        }
+      }
+    }
 
     // Check if user already owns a beta org — idempotent
     const { data: existing } = await admin
