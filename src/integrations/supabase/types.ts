@@ -2270,11 +2270,13 @@ export type Database = {
       }
       organizations: {
         Row: {
+          beta_signup_id: string | null
           brand_color: string | null
           created_at: string
           description: string | null
           has_mobile_app: boolean | null
           id: string
+          is_beta_org: boolean
           logo_url: string | null
           mobile_api_enabled: boolean
           mobile_api_key: string | null
@@ -2287,11 +2289,13 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          beta_signup_id?: string | null
           brand_color?: string | null
           created_at?: string
           description?: string | null
           has_mobile_app?: boolean | null
           id?: string
+          is_beta_org?: boolean
           logo_url?: string | null
           mobile_api_enabled?: boolean
           mobile_api_key?: string | null
@@ -2304,11 +2308,13 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          beta_signup_id?: string | null
           brand_color?: string | null
           created_at?: string
           description?: string | null
           has_mobile_app?: boolean | null
           id?: string
+          is_beta_org?: boolean
           logo_url?: string | null
           mobile_api_enabled?: boolean
           mobile_api_key?: string | null
@@ -2320,7 +2326,15 @@ export type Database = {
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "organizations_beta_signup_id_fkey"
+            columns: ["beta_signup_id"]
+            isOneToOne: false
+            referencedRelation: "beta_signups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       platform_roles: {
         Row: {
