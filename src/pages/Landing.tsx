@@ -10,6 +10,7 @@ import { BlogSection } from "@/components/landing/BlogSection";
 import { BetaSignupForm } from "@/components/landing/BetaSignupForm";
 import causeioLogo from "@/assets/causeio-logo.png";
 import heroBackground from "@/assets/hero-volunteers.jpg";
+import bizoomaLogo from "@/assets/bizooma-logo.png";
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -334,6 +335,33 @@ const Landing = () => {
               <div className="text-3xl font-bold text-primary">Free</div>
               <div className="text-sm text-muted-foreground">Beta Access</div>
             </div>
+          </div>
+
+          {/* Bizooma story */}
+          <div className="mt-16 max-w-4xl mx-auto">
+            <Card className="border-0 shadow-lg overflow-hidden">
+              <CardContent className="p-8 md:p-10">
+                <div className="grid md:grid-cols-[auto,1fr] gap-8 items-center">
+                  <div className="flex justify-center md:justify-start">
+                    <img
+                      src={bizoomaLogo}
+                      alt="Bizooma Creative Agency"
+                      className="w-44 h-auto"
+                    />
+                  </div>
+                  <div>
+                    <Badge variant="secondary" className="mb-3">Our Story</Badge>
+                    <h3 className="text-2xl font-bold mb-3">Built by Bizooma Creative Agency</h3>
+                    <p className="text-muted-foreground mb-3">
+                      Causeio was created by <span className="font-semibold text-foreground">Bizooma</span>, a creative agency that has spent years building marketing platforms for law firms. Along the way, we noticed something powerful: so many of the firms we work with launch their own foundations and nonprofits — pouring their success back into the causes they care about.
+                    </p>
+                    <p className="text-muted-foreground">
+                      That insight became Causeio. The same engine that drives our law firm marketing platform now powers a tool built specifically for nonprofits — so mission-driven teams get the technology, automation, and reach typically reserved for high-budget firms.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
