@@ -161,6 +161,24 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {(organization as any)?.is_beta_org && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Beta Program</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/dashboard/pricing-beta" className={getNavCls}>
+                      <Sparkles className="w-4 h-4 text-red-600" />
+                      {!collapsed && <span className="font-medium">Beta Pricing</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {isOrgAdmin && (
           <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
