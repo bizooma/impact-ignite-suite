@@ -42,7 +42,7 @@ const navigationItems: Array<{
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
   { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },
-  { title: 'Mobile Content', url: '/dashboard/mobile-content', icon: Layers, alwaysShow: true },
+  { title: 'Mobile Content', url: '/dashboard/mobile-content', icon: Layers, productId: 'mobile_app' },
 ];
 
 const adminItems = [
