@@ -60,6 +60,7 @@ const tiers = {
       "10 Social Media Accounts",
       "CRM, Tasks, Campaigns & Google Business",
       "SEO Audits & Analytics",
+      "Custom Branding",
       "Priority Support"
     ]
   },
@@ -76,6 +77,7 @@ const tiers = {
       "Unlimited QR Codes",
       "Unlimited Social Accounts",
       "All CRM, Campaigns, SEO & Analytics tools",
+      "Custom Branding",
       "SLA Guarantee"
     ]
   }
