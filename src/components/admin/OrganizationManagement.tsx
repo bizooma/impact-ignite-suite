@@ -293,18 +293,30 @@ export function OrganizationManagement() {
                                 </div>
                               )}
 
-                              <div className="flex gap-2 pt-4">
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleViewOrganization(selectedOrg.id)}
-                                >
-                                  <Building2 className="h-4 w-4 mr-2" />
-                                  View Details
-                                </Button>
-                                <Button variant="outline">
-                                  <Settings className="h-4 w-4 mr-2" />
-                                  Manage Settings
-                                </Button>
+                              <div className="flex flex-wrap gap-2 pt-4">
+                                {isMember(selectedOrg.id) ? (
+                                  <>
+                                    <Button onClick={() => handleEnterOrg(selectedOrg.id)}>
+                                      <LogIn className="h-4 w-4 mr-2" />
+                                      Enter Organization
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => handleManageMobileSettings(selectedOrg.id)}
+                                    >
+                                      <Settings className="h-4 w-4 mr-2" />
+                                      Mobile API Settings
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <Button
+                                    onClick={() => handleAddSelfAsOwner(selectedOrg.id)}
+                                    disabled={actionLoading}
+                                  >
+                                    <UserPlus className="h-4 w-4 mr-2" />
+                                    {actionLoading ? 'Adding…' : 'Add me as owner'}
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           )}
