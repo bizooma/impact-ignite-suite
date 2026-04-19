@@ -60,8 +60,7 @@ const tiers = {
       "10 Social Media Accounts",
       "CRM, Tasks, Campaigns & Google Business",
       "SEO Audits & Analytics",
-      "Priority Support",
-      "Team Collaboration"
+      "Priority Support"
     ]
   },
   enterprise: {
