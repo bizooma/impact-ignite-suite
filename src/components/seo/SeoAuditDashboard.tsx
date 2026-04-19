@@ -5,8 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useSeoAudits } from '@/hooks/useSeoAudits';
-import { Search, Globe, AlertTriangle, CheckCircle, Clock, Trash2, RotateCw, Eye, Loader2 } from 'lucide-react';
-import { AuditIssuesDialog } from './AuditIssuesDialog';
+import { Search, Globe, AlertTriangle, CheckCircle, Clock, Trash2, RotateCw, Eye, Loader2, X, AlertCircle, Info } from 'lucide-react';
 
 interface SeoAuditDashboardProps {
   organizationId: string;
@@ -17,7 +16,7 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
   const [isCreating, setIsCreating] = useState(false);
   const [selectedAuditId, setSelectedAuditId] = useState<string | null>(null);
   const [auditIssues, setAuditIssues] = useState<any[]>([]);
-  const [showIssuesDialog, setShowIssuesDialog] = useState(false);
+  const [loadingIssues, setLoadingIssues] = useState(false);
   const { audits, loading, createAudit, deleteAudit, retryAudit, getAuditIssues } = useSeoAudits(organizationId);
 
   const handleCreateAudit = async (e: React.FormEvent) => {
@@ -31,10 +30,19 @@ const SeoAuditDashboard: React.FC<SeoAuditDashboardProps> = ({ organizationId })
   };
 
   const handleViewIssues = async (auditId: string) => {
+    if (selectedAuditId === auditId) {
+      setSelectedAuditId(null);
+      setAuditIssues([]);
+      return;
+    }
+    setLoadingIssues(true);
+    setSelectedAuditId(auditId);
     const issues = await getAuditIssues(auditId);
     setAuditIssues(issues);
-    setSelectedAuditId(auditId);
-    setShowIssuesDialog(true);
+    setLoadingIssues(false);
+    setTimeout(() => {
+      document.getElementById('audit-results-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const getStatusColor = (status: string) => {
