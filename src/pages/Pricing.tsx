@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ArrowRight, Zap, Star } from "lucide-react";
+import { Check, ArrowRight, Zap, Star, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { TIER_LIMITS } from "@/lib/aiTierLimits";
 
 const tiers = {
   starter: {
@@ -17,9 +18,11 @@ const tiers = {
     priceId: "price_1SBmQSEV6sbsDlR8ntj0hADS",
     popular: false,
     features: [
+      `${TIER_LIMITS.starter.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
+      "Bring your own OpenAI key (unlimited messages)",
       "1 AI Chatbot",
       "50 QR Codes",
-      "5 Social Media Accounts", 
+      "5 Social Media Accounts",
       "Monthly SEO Reports",
       "Email Support",
       "Basic Analytics",
@@ -33,8 +36,10 @@ const tiers = {
     priceId: "price_1SBmQkEV6sbsDlR8lNv4aa7A",
     popular: true,
     features: [
+      `${TIER_LIMITS.professional.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
+      "Bring your own OpenAI key (unlimited messages)",
       "5 AI Chatbots",
-      "500 QR Codes", 
+      "500 QR Codes",
       "Unlimited Social Accounts",
       "Weekly SEO Reports",
       "Priority Support",
@@ -51,10 +56,12 @@ const tiers = {
     priceId: "price_1SBmR3EV6sbsDlR8sjx3YczW",
     popular: false,
     features: [
+      `${TIER_LIMITS.enterprise.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
+      "Bring your own OpenAI key (unlimited messages)",
       "Unlimited AI Chatbots",
       "Unlimited QR Codes",
       "Unlimited Social Accounts",
-      "Real-time SEO Monitoring", 
+      "Real-time SEO Monitoring",
       "Dedicated Support Manager",
       "Custom Analytics Dashboard",
       "Full API Access",
@@ -310,6 +317,12 @@ const Pricing = () => {
                   <div className="mt-4">
                     <span className="text-4xl font-bold">{tier.price}</span>
                     <span className="text-muted-foreground">/month</span>
+                  </div>
+                  <div className="mt-3 inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>
+                      {TIER_LIMITS[key as keyof typeof TIER_LIMITS].monthlyMessageCap.toLocaleString()} AI messages/mo included
+                    </span>
                   </div>
                 </CardHeader>
 
