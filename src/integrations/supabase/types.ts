@@ -50,6 +50,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_events: {
+        Row: {
+          chatbot_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          model: string | null
+          organization_id: string
+          tokens_input: number
+          tokens_output: number
+          used_byo_key: boolean
+        }
+        Insert: {
+          chatbot_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          model?: string | null
+          organization_id: string
+          tokens_input?: number
+          tokens_output?: number
+          used_byo_key?: boolean
+        }
+        Update: {
+          chatbot_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          model?: string | null
+          organization_id?: string
+          tokens_input?: number
+          tokens_output?: number
+          used_byo_key?: boolean
+        }
+        Relationships: []
+      }
       audit_issues: {
         Row: {
           audit_id: string
@@ -1993,6 +2032,33 @@ export type Database = {
           },
         ]
       }
+      org_ai_usage_overrides: {
+        Row: {
+          created_at: string
+          monthly_message_cap: number
+          organization_id: string
+          override_reason: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          monthly_message_cap: number
+          organization_id: string
+          override_reason?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          monthly_message_cap?: number
+          organization_id?: string
+          override_reason?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       org_event_rsvps: {
         Row: {
           created_at: string
@@ -2216,6 +2282,7 @@ export type Database = {
           name: string
           purchased_products: Json | null
           slug: string
+          subscription_tier: string
           updated_at: string
           website: string | null
         }
@@ -2232,6 +2299,7 @@ export type Database = {
           name: string
           purchased_products?: Json | null
           slug: string
+          subscription_tier?: string
           updated_at?: string
           website?: string | null
         }
@@ -2248,6 +2316,7 @@ export type Database = {
           name?: string
           purchased_products?: Json | null
           slug?: string
+          subscription_tier?: string
           updated_at?: string
           website?: string | null
         }
@@ -2821,7 +2890,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      org_ai_usage_current_period: {
+        Row: {
+          embeddings_count: number | null
+          messages_count: number | null
+          messages_count_byo: number | null
+          messages_count_platform: number | null
+          organization_id: string | null
+          period_start: string | null
+          tokens_input_total: number | null
+          tokens_output_total: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_mobile_api_key: { Args: { _org_id: string }; Returns: string }
