@@ -235,12 +235,12 @@ export function OrganizationManagement() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Dialog>
+                      <Dialog open={dialogOpen && selectedOrg?.id === org.id} onOpenChange={(o) => { setDialogOpen(o); if (!o) setSelectedOrg(null); }}>
                         <DialogTrigger asChild>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setSelectedOrg(org)}
+                            onClick={() => { setSelectedOrg(org); setDialogOpen(true); }}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
