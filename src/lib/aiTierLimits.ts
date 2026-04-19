@@ -21,6 +21,53 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
   enterprise: { monthlyMessageCap: 25_000, label: "Enterprise" },
 };
 
+/**
+ * Product bundles included with each subscription tier.
+ * Applied automatically by `check-subscription` edge function on subscription change.
+ * NOTE: Manual platform-admin overrides to `purchased_products` will be reset on next sync.
+ */
+export type ProductId =
+  | 'mobile_app' | 'chatbots' | 'qr_codes' | 'social_media' | 'seo_audits'
+  | 'google_business' | 'tasks' | 'analytics' | 'crm' | 'campaigns';
+
+export const TIER_PRODUCT_BUNDLES: Record<SubscriptionTier, ProductId[]> = {
+  free: ['chatbots', 'qr_codes'],
+  starter: ['chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics'],
+  professional: [
+    'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
+    'crm', 'tasks', 'google_business', 'campaigns',
+  ],
+  enterprise: [
+    'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
+    'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app',
+  ],
+};
+
+/**
+ * Quantity caps per tier. `null` = unlimited.
+ * Mirrored in DB tier_limit() function — keep in sync.
+ */
+export interface QuantityLimits {
+  chatbots: number | null;
+  qrCodes: number | null;
+  socialAccounts: number | null;
+}
+
+export const TIER_QUANTITY_LIMITS: Record<SubscriptionTier, QuantityLimits> = {
+  free: { chatbots: 1, qrCodes: 5, socialAccounts: 1 },
+  starter: { chatbots: 3, qrCodes: 25, socialAccounts: 3 },
+  professional: { chatbots: 10, qrCodes: 100, socialAccounts: 10 },
+  enterprise: { chatbots: null, qrCodes: null, socialAccounts: null },
+};
+
+export function getQuantityLimits(tier: string | null | undefined): QuantityLimits {
+  return TIER_QUANTITY_LIMITS[normalizeTier(tier)];
+}
+
+export function formatCap(cap: number | null): string {
+  return cap === null ? 'Unlimited' : cap.toLocaleString();
+}
+
 export function normalizeTier(raw: string | null | undefined): SubscriptionTier {
   const t = (raw ?? "free").toLowerCase();
   if (t === "starter" || t === "professional" || t === "enterprise" || t === "free") {
