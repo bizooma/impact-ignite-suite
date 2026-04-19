@@ -103,13 +103,13 @@ const moduleCards = [
     ready: true
   },
   {
-    title: 'Integrations',
-    description: 'Connect with external tools and services',
-    icon: Settings,
-    route: 'integrations',
+    title: 'CRM',
+    description: 'Manage contacts, donors, volunteers, and grant pipelines',
+    icon: Users,
+    route: 'crm',
     status: 'active',
-    color: 'warning',
-    ready: false
+    color: 'primary',
+    ready: true
   }
 ];
 
