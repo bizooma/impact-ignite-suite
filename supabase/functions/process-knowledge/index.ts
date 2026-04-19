@@ -1,6 +1,9 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
+// PDF + DOCX parsers (pure-JS, work in Deno via esm.sh)
+import { extractText, getDocumentProxy } from 'https://esm.sh/unpdf@0.12.1';
+import mammoth from 'https://esm.sh/mammoth@1.8.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,8 +24,8 @@ serve(async (req) => {
   try {
     const body = await req.json();
     knowledgeSourceId = body.knowledgeSourceId;
-    const { content, type, name } = body;
-    console.log('Processing knowledge source:', { knowledgeSourceId, type, name });
+    const { content, type, name, filePath } = body;
+    console.log('Processing knowledge source:', { knowledgeSourceId, type, name, filePath });
 
     await supabase
       .from('knowledge_sources')
@@ -45,8 +48,43 @@ serve(async (req) => {
         console.error('Error fetching URL content:', error);
         throw new Error(`Failed to fetch content from URL: ${error instanceof Error ? error.message : 'unknown'}`);
       }
-    } else if (type === 'file') {
-      // For file uploads, content is already extracted text passed in by caller
+    } else if (type === 'pdf' || type === 'docx') {
+      // Download from storage and parse server-side
+      if (!filePath) {
+        throw new Error(`filePath is required for ${type} sources`);
+      }
+
+      const { data: fileBlob, error: dlErr } = await supabase
+        .storage
+        .from('knowledge-sources')
+        .download(filePath);
+
+      if (dlErr || !fileBlob) {
+        throw new Error(`Failed to download file: ${dlErr?.message || 'unknown'}`);
+      }
+
+      const buffer = new Uint8Array(await fileBlob.arrayBuffer());
+
+      if (type === 'pdf') {
+        try {
+          const pdf = await getDocumentProxy(buffer);
+          const { text } = await extractText(pdf, { mergePages: true });
+          processedContent = (Array.isArray(text) ? text.join('\n') : text).trim();
+        } catch (err) {
+          console.error('PDF parse error:', err);
+          throw new Error(`Failed to parse PDF: ${err instanceof Error ? err.message : 'unknown'}`);
+        }
+      } else {
+        try {
+          const result = await mammoth.extractRawText({ arrayBuffer: buffer.buffer });
+          processedContent = (result?.value || '').trim();
+        } catch (err) {
+          console.error('DOCX parse error:', err);
+          throw new Error(`Failed to parse DOCX: ${err instanceof Error ? err.message : 'unknown'}`);
+        }
+      }
+    } else if (type === 'file' || type === 'text') {
+      // Plain text content already extracted by caller
       processedContent = content;
     }
 

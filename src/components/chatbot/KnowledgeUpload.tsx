@@ -303,15 +303,19 @@ function FileUploadSection({ chatbotId, onUploaded }: FileUploadSectionProps) {
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
-    const maxSize = 10 * 1024 * 1024;
+    const maxSize = 20 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast.error('File is larger than 10MB');
+      toast.error('File is larger than 20MB');
       return;
     }
 
+    const lower = file.name.toLowerCase();
+    const isPdf = lower.endsWith('.pdf') || file.type === 'application/pdf';
+    const isDocx = lower.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     const isText = /\.(txt|md|markdown|csv)$/i.test(file.name) || file.type.startsWith('text/');
-    if (!isText) {
-      toast.error('Only TXT, MD, and CSV files are supported right now. PDFs/DOCX coming soon — paste content into the "Add Text" tab for now.');
+
+    if (!isPdf && !isDocx && !isText) {
+      toast.error('Supported formats: PDF, DOCX, TXT, MD, CSV');
       return;
     }
 
@@ -319,23 +323,24 @@ function FileUploadSection({ chatbotId, onUploaded }: FileUploadSectionProps) {
     setFileName(file.name);
 
     try {
-      const text = await file.text();
-
-      // Upload to storage for record-keeping
+      // Upload to storage (required for PDF/DOCX so the edge function can fetch bytes)
       const path = `${chatbotId}/${Date.now()}-${file.name}`;
       const { error: uploadErr } = await supabase.storage
         .from('knowledge-sources')
         .upload(path, file, { upsert: false });
-      if (uploadErr) console.warn('Storage upload warning:', uploadErr);
+      if (uploadErr) throw uploadErr;
 
-      // Create the knowledge source row in pending state
+      // Read text content for plain-text files; PDF/DOCX get parsed server-side
+      const textContent = isText ? await file.text() : null;
+      const sourceType = isPdf ? 'pdf' : isDocx ? 'docx' : 'text';
+
       const { data: inserted, error: insertErr } = await supabase
         .from('knowledge_sources')
         .insert({
           chatbot_id: chatbotId,
-          type: 'text',
+          type: sourceType,
           name: file.name,
-          content: text,
+          content: textContent,
           file_path: path,
           status: 'pending',
           metadata: { size: file.size, mime: file.type },
@@ -345,12 +350,12 @@ function FileUploadSection({ chatbotId, onUploaded }: FileUploadSectionProps) {
 
       if (insertErr) throw insertErr;
 
-      // Process embeddings via edge function
       const { error: procErr } = await supabase.functions.invoke('process-knowledge', {
         body: {
           knowledgeSourceId: inserted.id,
-          type: 'file',
-          content: text,
+          type: sourceType,
+          content: textContent,
+          filePath: path,
           name: file.name,
         },
       });
@@ -359,7 +364,11 @@ function FileUploadSection({ chatbotId, onUploaded }: FileUploadSectionProps) {
         console.error('Processing error:', procErr);
         toast.error('File uploaded but processing failed.');
       } else {
-        toast.success('File uploaded and processed.');
+        toast.success(
+          isPdf || isDocx
+            ? `${isPdf ? 'PDF' : 'DOCX'} uploaded — parsing in the background.`
+            : 'File uploaded and processed.'
+        );
       }
 
       onUploaded();
@@ -388,7 +397,7 @@ function FileUploadSection({ chatbotId, onUploaded }: FileUploadSectionProps) {
           {isUploading ? `Uploading ${fileName}...` : 'Drag and drop a file here'}
         </p>
         <p className="text-muted-foreground mb-4">
-          Supports TXT, MD, and CSV files up to 10MB
+          Supports PDF, DOCX, TXT, MD, and CSV files up to 20MB
         </p>
         <Button type="button" variant="outline" disabled={isUploading} asChild>
           <span>{isUploading ? 'Processing...' : 'Choose File'}</span>
@@ -396,15 +405,12 @@ function FileUploadSection({ chatbotId, onUploaded }: FileUploadSectionProps) {
         <input
           id="kb-file-input"
           type="file"
-          accept=".txt,.md,.markdown,.csv,text/plain,text/markdown,text/csv"
+          accept=".txt,.md,.markdown,.csv,.pdf,.docx,text/plain,text/markdown,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           className="hidden"
           disabled={isUploading}
           onChange={(e) => handleFiles(e.target.files)}
         />
       </label>
-      <p className="text-sm text-muted-foreground">
-        For PDF or DOCX files, copy the text and paste it into the "Add Text" tab.
-      </p>
     </div>
   );
 }
