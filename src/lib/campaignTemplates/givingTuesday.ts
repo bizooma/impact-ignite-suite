@@ -45,6 +45,20 @@ export function getNextGivingTuesday(): Date {
   return gt;
 }
 
+// Format a Date as YYYY-MM-DD using LOCAL components (avoids UTC shift)
+export function formatLocalDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// Parse a YYYY-MM-DD string as a LOCAL date (not UTC)
+export function parseLocalDate(s: string): Date {
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 export const MILESTONES: MilestoneSeed[] = [
   // Awareness — 8 weeks out
   { phase: 'awareness', title: 'Announce Giving Tuesday participation', description: 'Post on website + social channels that you\'re joining the global movement.', weeksOffset: 8, order_index: 1 },
