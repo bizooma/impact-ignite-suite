@@ -59,7 +59,15 @@ serve(async (req) => {
 
     if (qrError) {
       console.error('Error creating QR code record:', qrError);
-      throw new Error('Failed to create QR code record');
+      // Surface quota errors with their friendly message intact
+      const isQuota = (qrError.message || '').includes('quota_exceeded');
+      return new Response(
+        JSON.stringify({ error: qrError.message || 'Failed to create QR code record' }),
+        {
+          status: isQuota ? 403 : 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      );
     }
 
     // Create tracking URL if dynamic

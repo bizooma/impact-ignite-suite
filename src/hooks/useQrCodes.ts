@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { isQuotaError } from '@/hooks/useTierLimits';
 import type { Database } from '@/integrations/supabase/types';
 
 type QrCode = Database['public']['Tables']['qr_codes']['Row'];
@@ -79,11 +80,17 @@ export const useQrCodes = (organizationId?: string) => {
       });
 
       return { qrCode: newQrCode, qrCodeSvg: data.qrCodeSvg };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating QR code:', error);
+      // Edge function may wrap the trigger error; check both message and context
+      const ctxMsg = error?.context?.error || error?.message || '';
+      const quotaMsg = isQuotaError(error)
+        ?? (typeof ctxMsg === 'string' && ctxMsg.includes('quota_exceeded')
+            ? ctxMsg.replace(/^.*quota_exceeded:\s*/, '')
+            : null);
       toast({
-        title: "Error",
-        description: "Failed to create QR code",
+        title: quotaMsg ? "Plan limit reached" : "Error",
+        description: quotaMsg ?? "Failed to create QR code",
         variant: "destructive",
       });
       return null;

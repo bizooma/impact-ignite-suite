@@ -3,7 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Link } from 'react-router-dom';
 import { useIntegrations } from '@/hooks/useIntegrations';
+import { useTierLimits } from '@/hooks/useTierLimits';
+import { formatCap } from '@/lib/aiTierLimits';
 import { Facebook, Instagram, Linkedin, CheckCircle, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -13,6 +17,7 @@ interface SocialIntegrationsPanelProps {
 
 const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organizationId }) => {
   const { integrations, loading } = useIntegrations(organizationId);
+  const { canCreate, limits, counts, tier } = useTierLimits(organizationId);
 
   const socialPlatforms = [
     {
@@ -157,14 +162,29 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
                       </Button>
                     </>
                   ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => handleConnect(platform.id)}
-                      className="gap-2"
-                    >
-                      Connect
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>
+                            <Button
+                              size="sm"
+                              onClick={() => handleConnect(platform.id)}
+                              className="gap-2"
+                              disabled={!canCreate.socialAccount}
+                            >
+                              Connect
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        {!canCreate.socialAccount && (
+                          <TooltipContent>
+                            <p>You've connected {counts.socialAccounts}/{formatCap(limits.socialAccounts)} social accounts on the {tier} plan.</p>
+                            <Link to="/pricing" className="underline">Upgrade to add more</Link>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
                 </div>
               </div>

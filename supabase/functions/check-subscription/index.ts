@@ -12,11 +12,25 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
-// Map product IDs to tier names for easy reference
-const PRODUCT_TIERS = {
+// Map product IDs to tier names
+const PRODUCT_TIERS: Record<string, string> = {
   "prod_T82VsvWMfdsfL0": "starter",
-  "prod_T82V75NVjbGJYs": "professional", 
-  "prod_T82WHmDU15GAJi": "enterprise"
+  "prod_T82V75NVjbGJYs": "professional",
+  "prod_T82WHmDU15GAJi": "enterprise",
+};
+
+// Tier → product bundle. Keep in sync with src/lib/aiTierLimits.ts TIER_PRODUCT_BUNDLES.
+const TIER_BUNDLES: Record<string, string[]> = {
+  free: ['chatbots', 'qr_codes'],
+  starter: ['chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics'],
+  professional: [
+    'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
+    'crm', 'tasks', 'google_business', 'campaigns',
+  ],
+  enterprise: [
+    'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
+    'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app',
+  ],
 };
 
 serve(async (req) => {
@@ -24,9 +38,15 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
+  // Use anon key for auth verification, service role for org updates
+  const supabaseAnon = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+  );
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } },
   );
 
   try {
@@ -34,16 +54,12 @@ serve(async (req) => {
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
-    logStep("Authorization header found");
 
     const token = authHeader.replace("Bearer ", "");
-    logStep("Authenticating user with token");
-    
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    const { data: userData, error: userError } = await supabaseAnon.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
@@ -51,51 +67,67 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    
-    if (customers.data.length === 0) {
-      logStep("No customer found, returning unsubscribed state");
-      return new Response(JSON.stringify({ 
-        subscribed: false,
-        tier: null,
-        productId: null,
-        subscriptionEnd: null
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+
+    let hasActiveSub = false;
+    let productId: string | null = null;
+    let tier: string = "free";
+    let subscriptionEnd: string | null = null;
+
+    if (customers.data.length > 0) {
+      const customerId = customers.data[0].id;
+      logStep("Found Stripe customer", { customerId });
+
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "active",
+        limit: 1,
       });
+
+      hasActiveSub = subscriptions.data.length > 0;
+
+      if (hasActiveSub) {
+        const subscription = subscriptions.data[0];
+        subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+        productId = subscription.items.data[0].price.product as string;
+        tier = PRODUCT_TIERS[productId] || "free";
+        logStep("Active subscription", { productId, tier });
+      } else {
+        logStep("No active subscription — defaulting to free");
+      }
+    } else {
+      logStep("No Stripe customer — defaulting to free");
     }
 
-    const customerId = customers.data[0].id;
-    logStep("Found Stripe customer", { customerId });
+    // Sync tier + product bundle to all orgs the user owns.
+    // NOTE: this OVERWRITES purchased_products with the tier bundle. Manual
+    // platform-admin overrides will be reset. Adjust the user's tier instead.
+    const { data: ownerOrgs, error: orgErr } = await supabaseAdmin
+      .from('memberships')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .eq('role', 'owner');
 
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
-    
-    const hasActiveSub = subscriptions.data.length > 0;
-    let productId = null;
-    let tier = null;
-    let subscriptionEnd = null;
-
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
-      
-      productId = subscription.items.data[0].price.product as string;
-      tier = PRODUCT_TIERS[productId as keyof typeof PRODUCT_TIERS] || null;
-      logStep("Determined subscription tier", { productId, tier });
-    } else {
-      logStep("No active subscription found");
+    if (orgErr) {
+      logStep("Error fetching owner orgs (non-fatal)", { error: orgErr.message });
+    } else if (ownerOrgs && ownerOrgs.length > 0) {
+      const bundle = TIER_BUNDLES[tier] || TIER_BUNDLES.free;
+      const orgIds = ownerOrgs.map((m: any) => m.organization_id);
+      const { error: updateErr } = await supabaseAdmin
+        .from('organizations')
+        .update({ subscription_tier: tier, purchased_products: bundle })
+        .in('id', orgIds);
+      if (updateErr) {
+        logStep("Error updating orgs (non-fatal)", { error: updateErr.message });
+      } else {
+        logStep("Synced tier + bundle to orgs", { orgIds, tier, bundle });
+      }
     }
 
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       tier,
       productId,
-      subscriptionEnd
+      subscriptionEnd,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

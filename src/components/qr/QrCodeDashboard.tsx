@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Link } from 'react-router-dom';
 import { useQrCodes } from '@/hooks/useQrCodes';
+import { useTierLimits } from '@/hooks/useTierLimits';
+import { formatCap } from '@/lib/aiTierLimits';
 import { QrCode, Eye, Download, Settings, Plus, BarChart3 } from 'lucide-react';
 import { QrCodeGenerator } from './QrCodeGenerator';
 import { useToast } from '@/hooks/use-toast';
@@ -45,6 +49,7 @@ const QrPreview: React.FC<{ url: string; brandConfig?: any }> = ({ url, brandCon
 const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => {
   const [showGenerator, setShowGenerator] = useState(false);
   const { qrCodes, loading, createQrCode, updateQrCode } = useQrCodes(organizationId);
+  const { canCreate, limits, counts, tier, refetch: refetchLimits } = useTierLimits(organizationId);
   const { toast } = useToast();
   const [analyticsQr, setAnalyticsQr] = useState<{ id: string; name: string } | null>(null);
   const [settingsQr, setSettingsQr] = useState<any | null>(null);
@@ -107,10 +112,24 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
             Create, manage, and track your QR codes
           </p>
         </div>
-        <Button onClick={() => setShowGenerator(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create QR Code
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button onClick={() => setShowGenerator(true)} disabled={!canCreate.qrCode}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create QR Code
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!canCreate.qrCode && (
+              <TooltipContent>
+                <p>You've used {counts.qrCodes}/{formatCap(limits.qrCodes)} QR codes on the {tier} plan.</p>
+                <Link to="/pricing" className="underline">Upgrade to add more</Link>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

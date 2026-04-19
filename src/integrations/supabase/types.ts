@@ -2906,6 +2906,7 @@ export type Database = {
     }
     Functions: {
       generate_mobile_api_key: { Args: { _org_id: string }; Returns: string }
+      get_org_tier: { Args: { _org_id: string }; Returns: string }
       grant_platform_admin: { Args: { _email: string }; Returns: boolean }
       has_org_role: {
         Args: {
@@ -2938,6 +2939,10 @@ export type Database = {
       recalculate_crm_list_contact_count: {
         Args: { list_id: string }
         Returns: undefined
+      }
+      tier_limit: {
+        Args: { _resource: string; _tier: string }
+        Returns: number
       }
     }
     Enums: {
