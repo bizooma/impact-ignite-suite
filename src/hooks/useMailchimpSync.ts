@@ -118,7 +118,8 @@ export const useMailchimpSync = (organizationId: string) => {
 
       if (error) throw error;
 
-      setMappings([data as any, ...mappings]);
+      // Refetch to ensure consistency
+      await fetchMappings();
       toast({
         title: 'Success',
         description: 'Mailchimp mapping created',
@@ -126,11 +127,16 @@ export const useMailchimpSync = (organizationId: string) => {
       return data;
     } catch (error: any) {
       console.error('Error creating mapping:', error);
+      const isDuplicate = error.code === '23505' || error.message?.includes('duplicate');
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: error.message,
+        title: isDuplicate ? 'Mapping Already Exists' : 'Error',
+        description: isDuplicate
+          ? 'A mapping for this CRM list and Mailchimp audience already exists. Refresh the page to see it.'
+          : error.message,
       });
+      // Refetch so user sees the existing mapping
+      if (isDuplicate) await fetchMappings();
       throw error;
     }
   };
