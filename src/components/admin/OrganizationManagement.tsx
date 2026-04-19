@@ -295,6 +295,12 @@ export function OrganizationManagement() {
                                 </div>
                               )}
 
+                              <Separator />
+                              <OrgProductAccessManager
+                                organizationId={selectedOrg.id}
+                                organizationName={selectedOrg.name}
+                              />
+
                               <div className="flex flex-wrap gap-2 pt-4">
                                 {isMember(selectedOrg.id) ? (
                                   <>
