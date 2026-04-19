@@ -46,9 +46,9 @@ export function OrganizationManagement() {
       const { error } = await supabase
         .from('memberships')
         .insert({ user_id: user.id, organization_id: orgId, role: 'owner' });
-      if (error) throw error;
+      if (error && !/(duplicate|unique)/i.test(error.message)) throw error;
       await logAdminAction('add_self_as_owner', 'organization', orgId);
-      toast.success('Added you as owner. Reloading…');
+      toast.success(error ? 'Already a member — reloading…' : 'Added you as owner. Reloading…');
       window.location.reload();
     } catch (e: any) {
       toast.error(e.message ?? 'Failed to add membership');
