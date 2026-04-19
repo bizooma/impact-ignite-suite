@@ -11,6 +11,23 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { TIER_LIMITS } from "@/lib/aiTierLimits";
 
 const tiers = {
+  free: {
+    name: "Free",
+    price: "$0",
+    description: "Try the platform — free forever, no credit card required",
+    priceId: "",
+    popular: false,
+    isFree: true,
+    features: [
+      `${TIER_LIMITS.free.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
+      "Bring your own OpenAI key (unlimited messages)",
+      "1 AI Chatbot",
+      "5 QR Codes",
+      "1 Social Media Account",
+      "Community Support",
+      "Basic Analytics",
+    ]
+  },
   starter: {
     name: "Starter",
     price: "$49.95",
@@ -78,6 +95,21 @@ const Pricing = () => {
 
   // Product and Offer Schemas for each pricing tier
   const pricingSchemas = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Causeio Free Plan",
+      "description": "Free forever plan to try Causeio with limited AI messages, 1 chatbot, and basic features",
+      "brand": { "@type": "Brand", "name": "Causeio" },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://yourdomain.com/pricing",
+        "priceCurrency": "USD",
+        "price": "0",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition"
+      }
+    },
     {
       "@context": "https://schema.org",
       "@type": "Product",
@@ -286,7 +318,7 @@ const Pricing = () => {
             Choose Your Growth Plan
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Start with a 14-day free trial. No credit card required. Cancel anytime.
+            Start free forever. Upgrade anytime as you grow. Cancel anytime.
           </p>
         </div>
       </section>
@@ -294,13 +326,13 @@ const Pricing = () => {
       {/* Pricing Cards */}
       <section className="py-12 px-6">
         <div className="container mx-auto max-w-7xl">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(tiers).map(([key, tier]) => (
               <Card 
                 key={key} 
                 className={`relative ${
                   tier.popular 
-                    ? 'border-primary shadow-lg scale-105' 
+                    ? 'border-primary shadow-lg' 
                     : 'hover:border-primary/20'
                 } transition-all duration-200`}
               >
@@ -316,7 +348,7 @@ const Pricing = () => {
                   <CardDescription className="text-base">{tier.description}</CardDescription>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">{tier.price}</span>
-                    <span className="text-muted-foreground">/month</span>
+                    {!(tier as any).isFree && <span className="text-muted-foreground">/month</span>}
                   </div>
                   <div className="mt-3 inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                     <MessageSquare className="w-3.5 h-3.5" />
@@ -338,18 +370,27 @@ const Pricing = () => {
                 </CardContent>
 
                 <CardFooter>
-                  <Button 
-                    className="w-full"
-                    variant={tier.popular ? "default" : "outline"}
-                    onClick={() => handleSubscribe(tier.priceId, tier.name)}
-                    disabled={loading === tier.priceId}
-                  >
-                    {loading === tier.priceId ? (
-                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
-                    ) : null}
-                    Start Free Trial
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
+                  {(tier as any).isFree ? (
+                    <Link to="/auth" className="w-full">
+                      <Button className="w-full" variant="outline">
+                        Get Started Free
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button 
+                      className="w-full"
+                      variant={tier.popular ? "default" : "outline"}
+                      onClick={() => handleSubscribe(tier.priceId, tier.name)}
+                      disabled={loading === tier.priceId}
+                    >
+                      {loading === tier.priceId ? (
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
+                      ) : null}
+                      Get Started
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}
@@ -369,9 +410,9 @@ const Pricing = () => {
               </p>
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Is there a free trial?</h3>
+              <h3 className="text-xl font-semibold mb-2">Is there a free plan?</h3>
               <p className="text-muted-foreground">
-                Absolutely! All plans come with a 14-day free trial. No credit card required to start.
+                Yes! Our Free Forever plan includes 50 AI messages per month, 1 chatbot, and basic features. No credit card required.
               </p>
             </div>
             <div>
