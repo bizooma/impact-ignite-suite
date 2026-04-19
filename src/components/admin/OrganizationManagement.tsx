@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Search, Building2, Users, Eye, Settings } from 'lucide-react';
 import { usePlatformAdmin } from '@/hooks/usePlatformAdmin';
 import { toast } from 'sonner';
+import { CreateOrganizationDialog } from './CreateOrganizationDialog';
 
 interface Organization {
   id: string;
@@ -119,6 +120,7 @@ export function OrganizationManagement() {
                 className="pl-10 w-64"
               />
             </div>
+            <CreateOrganizationDialog onCreated={fetchOrganizations} />
           </div>
         </CardTitle>
       </CardHeader>

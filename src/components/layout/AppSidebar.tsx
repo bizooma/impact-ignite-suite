@@ -22,6 +22,7 @@ import { useProductAccess, ProductId } from '@/hooks/useProductAccess';
 import { useOrganization } from '@/hooks/useOrganization';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { OrgSwitcher } from './OrgSwitcher';
 
 const navigationItems: Array<{
   title: string;
@@ -103,6 +104,8 @@ export function AppSidebar() {
             )}
           </NavLink>
         </div>
+
+        <OrgSwitcher collapsed={collapsed} />
 
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
