@@ -1,0 +1,1 @@
+UPDATE public.organizations SET mobile_api_enabled = true WHERE slug = 'cal-farleys-boys-ranch';

@@ -42,7 +42,7 @@ const navigationItems: Array<{
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
   { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },
-  { title: 'Mobile Content', url: '/dashboard/mobile-content', icon: Layers, alwaysShow: true },
+  { title: 'Mobile Content', url: '/dashboard/mobile-content', icon: Layers, productId: 'mobile_app' },
 ];
 
 const adminItems = [
@@ -112,8 +112,12 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
+                // Mobile Content is only shown for orgs that have a mobile app provisioned.
+                if (item.url === '/dashboard/mobile-content' && !(organization as any)?.mobile_api_enabled) {
+                  return null;
+                }
                 const hasProductAccess = item.alwaysShow || !item.productId || hasAccess(item.productId);
-                
+
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
