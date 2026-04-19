@@ -14,9 +14,12 @@ const logStep = (step: string, details?: any) => {
 
 // Map product IDs to tier names
 const PRODUCT_TIERS: Record<string, string> = {
-  "prod_T82VsvWMfdsfL0": "starter",
-  "prod_T82V75NVjbGJYs": "professional",
-  "prod_T82WHmDU15GAJi": "enterprise",
+  "prod_T82VsvWMfdsfL0": "starter", // legacy $49.95
+  "prod_T82V75NVjbGJYs": "professional", // legacy $99.95
+  "prod_T82WHmDU15GAJi": "enterprise", // legacy $199
+  "prod_UMhmmlTGrdiwoC": "starter", // $149
+  "prod_UMhnb7QjgdDeqA": "professional", // $349
+  "prod_UMhnzsjVPZBzZB": "enterprise", // $549
 };
 
 // Tier → product bundle. Keep in sync with src/lib/aiTierLimits.ts TIER_PRODUCT_BUNDLES.
