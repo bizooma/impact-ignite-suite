@@ -51,10 +51,11 @@ export function AuditIssuesDialog({ open, onOpenChange, issues, domain }: AuditI
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[80vh] p-0 bg-background flex flex-col">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b bg-background sticky top-0 z-10">
           <DialogTitle>SEO Audit Results for {domain}</DialogTitle>
         </DialogHeader>
+        <div className="overflow-y-auto px-6 pb-6 pt-4">
         
         <div className="space-y-6 bg-background">
           {/* High Severity Issues */}
