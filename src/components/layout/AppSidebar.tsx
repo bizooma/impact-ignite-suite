@@ -112,8 +112,12 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
+                // Mobile Content is only shown for orgs that have a mobile app provisioned.
+                if (item.url === '/dashboard/mobile-content' && !(organization as any)?.mobile_api_enabled) {
+                  return null;
+                }
                 const hasProductAccess = item.alwaysShow || !item.productId || hasAccess(item.productId);
-                
+
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
