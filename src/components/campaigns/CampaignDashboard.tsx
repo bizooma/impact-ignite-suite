@@ -4,16 +4,27 @@ import { CampaignTemplatePicker } from './CampaignTemplatePicker';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Calendar, Target, Users, Loader2 } from 'lucide-react';
+import { Plus, Calendar, Target, Users, Loader2, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Props {
   organizationId: string;
 }
 
 export function CampaignDashboard({ organizationId }: Props) {
-  const { campaigns, isLoading } = useCampaigns(organizationId);
+  const { campaigns, isLoading, deleteCampaign } = useCampaigns(organizationId);
   const [picker, setPicker] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const fmt = (n: number) =>
