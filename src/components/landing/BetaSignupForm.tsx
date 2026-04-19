@@ -167,7 +167,7 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className={`${compact ? 'space-y-3' : 'space-y-4'}`}>
+        <form onSubmit={handleSubmit} className={`${compact ? 'space-y-3' : 'space-y-4'}`} autoComplete="off">
           <div className="space-y-1.5">
             <Label htmlFor="beta-name">Name *</Label>
             <Input
@@ -192,6 +192,7 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
               required
               maxLength={255}
               disabled={loading}
+              autoComplete="off"
             />
           </div>
           <div className="space-y-1.5">
@@ -219,6 +220,7 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
               minLength={8}
               maxLength={72}
               disabled={loading}
+              autoComplete="new-password"
             />
           </div>
           <div className="pt-1">
