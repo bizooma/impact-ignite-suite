@@ -1,29 +1,35 @@
 
-The user is stating a business rule, not requesting changes. Let me check current state to see if anything needs alignment.
+## Why Mailchimp isn't working
 
-Looking at context:
-- `memberships` table has roles including `owner` and `admin`
-- Sign-up flow creates org via `DashboardLayout` → `createOrganization` (presumably assigns owner)
-- Stripe checkout uses `user.email` to look up customer
-- No explicit billing-management gating tied to owner role visible
+Two distinct issues, with the second being the showstopper:
 
-The rule has three implications:
-1. The signing-up email = org owner (likely already true via createOrganization)
-2. Owner can assign other admins (already supported via InviteMemberDialog with role selection)
-3. Only the owner sees/manages billing (needs verification — Pricing/subscription pages may not gate by role)
+**1. The "Test" button on Integrations dashboard calls a non-existent function** — `useIntegrations.testIntegration` invokes `test-integration`, but no such edge function exists. Only `test-mailchimp-connection` (Mailchimp-specific) and provider-specific functions exist. This is the "Failed to fetch" / "Integration test failed" error in your console logs and session replay. As a result the integration's status is stuck at `error` in the DB even though the API key (`...-us14`) looks valid.
 
-Saving this as a Core memory rule so it's applied to every future billing/admin decision. No code changes needed right now unless the user wants enforcement audited.
+**2. The actual Mailchimp sync flow is broken** — `MailchimpMappingDialog` lets you configure a mapping, but for sync to work it needs `crm_mailchimp_mappings` rows. Sync runs via `sync-crm-to-mailchimp`, which reads `integration.encrypted_tokens.api_key` (✅ present in your DB) and pushes contacts. The pipeline itself is fine — but it never gets exercised because users see "Test failed" on the Integrations page and assume the integration is broken, so they never set up a mapping in the CRM → Mailchimp Sync tab.
 
-## Plan
+**3. Minor:** `test-mailchimp-connection` has `verify_jwt = true` but is called from the dialog with an api_key in the body. That's OK as long as the user is logged in. Not the cause here.
 
-**Save business rule to memory** (Core, applies platform-wide):
-- Update `mem://index.md` Core section with: "Org billing rule: the email that pays/signs up = organization owner (super admin). Owner manages billing exclusively. Owner can invite additional admins, but admins cannot manage billing/subscription."
+## Fix plan
 
-**No code changes** in this turn. The rule will govern future work:
-- Pricing/checkout flows must use owner's email as Stripe customer
-- Billing/subscription UI (manage subscription, payment methods, plan changes) must be gated to `owner` role only
-- Admin role can manage org operations (members, integrations, content) but NOT billing
-- Org creation already assigns the creator as owner — keep it that way
+**A. Create a generic `test-integration` edge function** that:
+- Loads the integration row by `integrationId`
+- Switches on `provider`:
+  - `mailchimp` → ping `https://{dc}.api.mailchimp.com/3.0/ping` with the stored `api_key`
+  - Other providers → return "test not implemented" gracefully (so future providers can be added)
+- Returns `{ success, account?, error? }` with proper CORS headers
+- Reuses the existing pattern from `test-mailchimp-connection`
 
-**Optional follow-up** (only if you want me to do it now):
-- Audit `Pricing.tsx`, `PaymentSuccess.tsx`, `create-checkout` edge function, and the new Admin sidebar group to ensure billing-related items are owner-only (not admin-visible).
+**B. Update `useIntegrations.testIntegration`** to handle the new response shape and only mark `status: 'active'` when `success === true` (currently it marks active on any non-error response).
+
+**C. Update `IntegrationsDashboard.handleTest`** to surface a clearer toast when the test returns a Mailchimp-specific failure (e.g., bad key, wrong datacenter) instead of just a generic "Integration test failed".
+
+**D. After fix, re-run "Test" on your existing Mailchimp integration** to flip its status from `error` → `active`. Then go to **CRM → Mailchimp Sync** to create a mapping and run a sync.
+
+## Files to change
+
+- `supabase/functions/test-integration/index.ts` — new
+- `supabase/config.toml` — add `verify_jwt = true` for `test-integration`
+- `src/hooks/useIntegrations.ts` — read `data.success`, return error properly
+- `src/components/integrations/IntegrationsDashboard.tsx` — better error toast in `handleTest`
+
+No DB migrations needed. The Mailchimp API key already in `integrations.encrypted_tokens` looks correctly formatted.
