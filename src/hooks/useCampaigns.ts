@@ -111,7 +111,7 @@ export function useCampaigns(organizationId: string) {
           phase: m.phase,
           title: m.title,
           description: m.description,
-          due_date: due.toISOString().split('T')[0],
+          due_date: formatLocalDate(due),
           order_index: m.order_index,
         };
       });
@@ -136,7 +136,7 @@ export function useCampaigns(organizationId: string) {
           organization_id: organizationId,
           title: t.title,
           description: t.description,
-          due_date: due.toISOString().split('T')[0],
+          due_date: formatLocalDate(due),
           priority: t.priority,
           source_module: 'campaigns',
           source_id: campaign.id,
