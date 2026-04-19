@@ -6,8 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Building2, Users, Eye, Settings } from 'lucide-react';
+import { Search, Building2, Users, Eye, Settings, UserPlus, LogIn } from 'lucide-react';
 import { usePlatformAdmin } from '@/hooks/usePlatformAdmin';
+import { useAuth } from '@/hooks/useAuth';
+import { useOrganization } from '@/hooks/useOrganization';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { CreateOrganizationDialog } from './CreateOrganizationDialog';
 
