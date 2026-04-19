@@ -28,12 +28,51 @@ export default function CampaignDetail({ organizationId }: { organizationId: str
     return <div className="text-center py-12 text-muted-foreground">Campaign not found.</div>;
   }
 
+  const isGivingTuesday = campaign.template_key === 'giving_tuesday';
+
   return (
     <div className="space-y-6">
-      <div>
-        <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/campaigns')} className="mb-2">
-          <ArrowLeft className="h-4 w-4 mr-1" /> All campaigns
-        </Button>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/campaigns')}>
+        <ArrowLeft className="h-4 w-4 mr-1" /> All campaigns
+      </Button>
+
+      {isGivingTuesday ? (
+        <div
+          className="relative overflow-hidden rounded-xl px-8 py-10 md:px-12 md:py-14"
+          style={{ backgroundColor: '#2E4F9E' }}
+        >
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,white,transparent_50%)]" />
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <img
+                src={givingTuesdayLogo}
+                alt="Giving Tuesday"
+                className="h-20 md:h-24 w-auto drop-shadow-md"
+              />
+              <div className="text-white">
+                <h1 className="text-2xl md:text-3xl font-bold leading-tight">{campaign.name}</h1>
+                {campaign.event_date && (
+                  <p className="text-white/80 text-sm md:text-base mt-1">
+                    {(() => {
+                      const [y, m, d] = campaign.event_date.split('-').map(Number);
+                      return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+                    })()}
+                  </p>
+                )}
+                {campaign.tagline && (
+                  <p className="text-white/90 italic mt-2 text-sm md:text-base">"{campaign.tagline}"</p>
+                )}
+              </div>
+            </div>
+            <Badge
+              variant="secondary"
+              className="capitalize self-start md:self-center bg-white/15 text-white border-white/20 hover:bg-white/20"
+            >
+              {campaign.status}
+            </Badge>
+          </div>
+        </div>
+      ) : (
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">{campaign.name}</h1>
@@ -50,7 +89,7 @@ export default function CampaignDetail({ organizationId }: { organizationId: str
             {campaign.status}
           </Badge>
         </div>
-      </div>
+      )}
 
       <Tabs defaultValue="overview">
         <TabsList>
