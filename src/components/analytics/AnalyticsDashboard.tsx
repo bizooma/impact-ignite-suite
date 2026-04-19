@@ -1,50 +1,233 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Users, MessageSquare, QrCode, Search, Share2, Calendar } from 'lucide-react';
+import { Users, MessageSquare, QrCode, Search, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AnalyticsDashboardProps {
   organizationId: string;
 }
 
+type RangeKey = '24h' | '7d' | '30d' | '90d';
+
+const RANGE_DAYS: Record<RangeKey, number> = {
+  '24h': 1,
+  '7d': 7,
+  '30d': 30,
+  '90d': 90,
+};
+
+interface AnalyticsState {
+  loading: boolean;
+  totalSessions: number;
+  totalMessages: number;
+  totalQrScans: number;
+  avgSeoScore: number | null;
+  activeChatbots: number;
+  totalChatbots: number;
+  qrCodesCount: number;
+  seoAuditsCount: number;
+  seoIssuesCount: number;
+  gbpReviewsCount: number;
+  avgRating: number | null;
+  dailyChats: Array<{ date: string; sessions: number; messages: number }>;
+  dailyScans: Array<{ date: string; scans: number }>;
+  moduleUsage: Array<{ name: string; value: number; color: string }>;
+}
+
+const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--secondary))', 'hsl(var(--muted-foreground))', 'hsl(var(--destructive))'];
+
+const formatDate = (d: Date) => d.toISOString().slice(0, 10);
+
 const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ organizationId }) => {
-  const [timeRange, setTimeRange] = useState('7d');
+  const [timeRange, setTimeRange] = useState<RangeKey>('7d');
+  const [state, setState] = useState<AnalyticsState>({
+    loading: true,
+    totalSessions: 0,
+    totalMessages: 0,
+    totalQrScans: 0,
+    avgSeoScore: null,
+    activeChatbots: 0,
+    totalChatbots: 0,
+    qrCodesCount: 0,
+    seoAuditsCount: 0,
+    seoIssuesCount: 0,
+    gbpReviewsCount: 0,
+    avgRating: null,
+    dailyChats: [],
+    dailyScans: [],
+    moduleUsage: [],
+  });
 
-  // Mock data - in real app, this would come from your analytics service
-  const trafficData = [
-    { date: '2024-09-19', visitors: 1200, pageViews: 3400, conversions: 45 },
-    { date: '2024-09-20', visitors: 1350, pageViews: 3800, conversions: 52 },
-    { date: '2024-09-21', visitors: 1100, pageViews: 3100, conversions: 38 },
-    { date: '2024-09-22', visitors: 1580, pageViews: 4200, conversions: 67 },
-    { date: '2024-09-23', visitors: 1420, pageViews: 3900, conversions: 58 },
-    { date: '2024-09-24', visitors: 1650, pageViews: 4500, conversions: 72 },
-    { date: '2024-09-25', visitors: 1820, pageViews: 4800, conversions: 85 },
-  ];
+  useEffect(() => {
+    if (!organizationId) return;
+    let cancelled = false;
 
-  const moduleUsageData = [
-    { name: 'Chatbots', value: 35, color: '#8b5cf6' },
-    { name: 'SEO Audits', value: 25, color: '#06b6d4' },
-    { name: 'Social Media', value: 20, color: '#10b981' },
-    { name: 'QR Codes', value: 15, color: '#f59e0b' },
-    { name: 'GBP Management', value: 5, color: '#ef4444' },
-  ];
+    const fetchAnalytics = async () => {
+      setState((s) => ({ ...s, loading: true }));
 
-  const performanceMetrics = [
-    { metric: 'Avg. Response Time', value: '1.2s', change: '-15%', trend: 'up' },
-    { metric: 'Uptime', value: '99.9%', change: '+0.1%', trend: 'up' },
-    { metric: 'Error Rate', value: '0.02%', change: '-50%', trend: 'up' },
-    { metric: 'Cache Hit Rate', value: '94.5%', change: '+2.3%', trend: 'up' },
-  ];
+      const days = RANGE_DAYS[timeRange];
+      const since = new Date();
+      since.setDate(since.getDate() - days);
+      const sinceIso = since.toISOString();
 
-  const channelData = [
-    { channel: 'Organic Search', sessions: 4200, conversion: 3.2 },
-    { channel: 'Direct', sessions: 3100, conversion: 4.8 },
-    { channel: 'Social Media', sessions: 2400, conversion: 2.1 },
-    { channel: 'Email', sessions: 1800, conversion: 6.5 },
-    { channel: 'Paid Search', sessions: 1200, conversion: 8.3 },
-  ];
+      // Get chatbot ids for this org
+      const { data: chatbots } = await supabase
+        .from('chatbots')
+        .select('id, status')
+        .eq('organization_id', organizationId);
+
+      const chatbotIds = (chatbots ?? []).map((c) => c.id);
+      const activeChatbots = (chatbots ?? []).filter((c) => c.status === 'active').length;
+
+      // Get qr code ids
+      const { data: qrCodes } = await supabase
+        .from('qr_codes')
+        .select('id')
+        .eq('organization_id', organizationId);
+      const qrIds = (qrCodes ?? []).map((q) => q.id);
+
+      // Parallel queries
+      const [
+        sessionsRes,
+        messagesRes,
+        scansRes,
+        auditsRes,
+        issuesRes,
+        reviewsRes,
+      ] = await Promise.all([
+        chatbotIds.length
+          ? supabase
+              .from('chat_sessions')
+              .select('id, created_at, chatbot_id')
+              .in('chatbot_id', chatbotIds)
+              .gte('created_at', sinceIso)
+          : Promise.resolve({ data: [] as any[] }),
+        chatbotIds.length
+          ? supabase
+              .from('chat_messages')
+              .select('id, created_at, session_id, chat_sessions!inner(chatbot_id)')
+              .in('chat_sessions.chatbot_id', chatbotIds)
+              .gte('created_at', sinceIso)
+          : Promise.resolve({ data: [] as any[] }),
+        qrIds.length
+          ? supabase
+              .from('qr_scans')
+              .select('id, scanned_at, qr_code_id')
+              .in('qr_code_id', qrIds)
+              .gte('scanned_at', sinceIso)
+          : Promise.resolve({ data: [] as any[] }),
+        supabase
+          .from('seo_audits')
+          .select('id, overall_score, created_at')
+          .eq('organization_id', organizationId)
+          .gte('created_at', sinceIso),
+        supabase
+          .from('seo_audits')
+          .select('id', { count: 'exact', head: true })
+          .eq('organization_id', organizationId),
+        supabase
+          .from('gbp_reviews')
+          .select('id, rating, created_at')
+          .eq('organization_id', organizationId)
+          .gte('created_at', sinceIso),
+      ]);
+
+      if (cancelled) return;
+
+      const sessions = (sessionsRes.data ?? []) as any[];
+      const messages = (messagesRes.data ?? []) as any[];
+      const scans = (scansRes.data ?? []) as any[];
+      const audits = (auditsRes.data ?? []) as any[];
+      const reviews = (reviewsRes.data ?? []) as any[];
+
+      // Build daily buckets
+      const buckets: Record<string, { sessions: number; messages: number; scans: number }> = {};
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        buckets[formatDate(d)] = { sessions: 0, messages: 0, scans: 0 };
+      }
+      sessions.forEach((s) => {
+        const k = formatDate(new Date(s.created_at));
+        if (buckets[k]) buckets[k].sessions += 1;
+      });
+      messages.forEach((m) => {
+        const k = formatDate(new Date(m.created_at));
+        if (buckets[k]) buckets[k].messages += 1;
+      });
+      scans.forEach((s) => {
+        const k = formatDate(new Date(s.scanned_at));
+        if (buckets[k]) buckets[k].scans += 1;
+      });
+
+      const dailyChats = Object.entries(buckets).map(([date, v]) => ({
+        date,
+        sessions: v.sessions,
+        messages: v.messages,
+      }));
+      const dailyScans = Object.entries(buckets).map(([date, v]) => ({
+        date,
+        scans: v.scans,
+      }));
+
+      const avgSeoScore =
+        audits.length > 0
+          ? Math.round(
+              audits.reduce((sum, a) => sum + (a.overall_score ?? 0), 0) / audits.length
+            )
+          : null;
+      const avgRating =
+        reviews.length > 0
+          ? Number(
+              (reviews.reduce((sum, r) => sum + (r.rating ?? 0), 0) / reviews.length).toFixed(1)
+            )
+          : null;
+
+      // Module usage: relative activity counts
+      const moduleUsage = [
+        { name: 'Chatbots', value: sessions.length, color: COLORS[0] },
+        { name: 'QR Scans', value: scans.length, color: COLORS[1] },
+        { name: 'SEO Audits', value: audits.length, color: COLORS[2] },
+        { name: 'GBP Reviews', value: reviews.length, color: COLORS[3] },
+      ].filter((m) => m.value > 0);
+
+      setState({
+        loading: false,
+        totalSessions: sessions.length,
+        totalMessages: messages.length,
+        totalQrScans: scans.length,
+        avgSeoScore,
+        activeChatbots,
+        totalChatbots: chatbots?.length ?? 0,
+        qrCodesCount: qrCodes?.length ?? 0,
+        seoAuditsCount: issuesRes.count ?? audits.length,
+        seoIssuesCount: 0,
+        gbpReviewsCount: reviews.length,
+        avgRating,
+        dailyChats,
+        dailyScans,
+        moduleUsage,
+      });
+    };
+
+    fetchAnalytics();
+    return () => {
+      cancelled = true;
+    };
+  }, [organizationId, timeRange]);
+
+  const hasAnyData = useMemo(
+    () =>
+      state.totalSessions > 0 ||
+      state.totalMessages > 0 ||
+      state.totalQrScans > 0 ||
+      state.avgSeoScore !== null ||
+      state.gbpReviewsCount > 0,
+    [state]
+  );
 
   return (
     <div className="space-y-6">
@@ -52,10 +235,10 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ organizationId 
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Analytics Dashboard</h2>
           <p className="text-muted-foreground">
-            Monitor your platform performance and user engagement
+            Live engagement and performance from your organization data
           </p>
         </div>
-        <Select value={timeRange} onValueChange={setTimeRange}>
+        <Select value={timeRange} onValueChange={(v) => setTimeRange(v as RangeKey)}>
           <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
@@ -68,293 +251,262 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ organizationId 
         </Select>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">10,420</div>
-            <p className="text-xs text-success">+12.5% from last period</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Chatbot Interactions</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2,847</div>
-            <p className="text-xs text-success">+8.2% from last period</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">QR Code Scans</CardTitle>
-            <QrCode className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,294</div>
-            <p className="text-xs text-success">+23.1% from last period</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">SEO Score Avg</CardTitle>
-            <Search className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">87</div>
-            <p className="text-xs text-success">+5.3% from last period</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="traffic">Traffic</TabsTrigger>
-          <TabsTrigger value="modules">Module Usage</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Traffic Overview</CardTitle>
-                <CardDescription>Visitors and page views over time</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={trafficData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="visitors" stroke="#8b5cf6" strokeWidth={2} />
-                    <Line type="monotone" dataKey="pageViews" stroke="#06b6d4" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Module Usage Distribution</CardTitle>
-                <CardDescription>Usage breakdown by module</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={moduleUsageData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}%`}
-                    >
-                      {moduleUsageData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Conversion Tracking</CardTitle>
-              <CardDescription>Daily conversions and trends</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={trafficData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="conversions" fill="#10b981" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="traffic" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Traffic Sources</CardTitle>
-              <CardDescription>Sessions and conversion rates by channel</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {channelData.map((channel, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Share2 className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium">{channel.channel}</div>
-                        <div className="text-sm text-muted-foreground">{channel.sessions.toLocaleString()} sessions</div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium">{channel.conversion}%</div>
-                      <div className="text-sm text-muted-foreground">conversion rate</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="modules" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Chatbots
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm">Active Chatbots</span>
-                    <span className="font-medium">12</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Total Conversations</span>
-                    <span className="font-medium">2,847</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Avg. Session Length</span>
-                    <span className="font-medium">4m 32s</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  SEO Audits
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm">Audits Completed</span>
-                    <span className="font-medium">45</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Avg. Score</span>
-                    <span className="font-medium">87/100</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Issues Found</span>
-                    <span className="font-medium">234</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <QrCode className="h-4 w-4" />
-                  QR Codes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm">Active QR Codes</span>
-                    <span className="font-medium">28</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Total Scans</span>
-                    <span className="font-medium">1,294</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Avg. Scans/Code</span>
-                    <span className="font-medium">46</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="performance" className="space-y-4">
+      {state.loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <>
+          {/* Key Metrics */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {performanceMetrics.map((metric, index) => (
-              <Card key={index}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">{metric.metric}</CardTitle>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Chat Sessions</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{state.totalSessions.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">in selected period</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Chat Messages</CardTitle>
+                <MessageSquare className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{state.totalMessages.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">across {state.activeChatbots} active chatbot{state.activeChatbots === 1 ? '' : 's'}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">QR Code Scans</CardTitle>
+                <QrCode className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{state.totalQrScans.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">{state.qrCodesCount} code{state.qrCodesCount === 1 ? '' : 's'} total</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">SEO Score Avg</CardTitle>
+                <Search className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {state.avgSeoScore !== null ? state.avgSeoScore : '—'}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {state.avgSeoScore !== null ? 'avg of recent audits' : 'no audits in period'}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="engagement">Engagement</TabsTrigger>
+              <TabsTrigger value="modules">Modules</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Chat Activity</CardTitle>
+                    <CardDescription>Sessions and messages over time</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={state.dailyChats}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="sessions" stroke="hsl(var(--primary))" strokeWidth={2} />
+                        <Line type="monotone" dataKey="messages" stroke="hsl(var(--accent))" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Module Activity</CardTitle>
+                    <CardDescription>Where engagement is happening</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {state.moduleUsage.length === 0 ? (
+                      <div className="flex items-center justify-center h-[300px] text-sm text-muted-foreground">
+                        No activity in selected period
+                      </div>
+                    ) : (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={state.moduleUsage}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            dataKey="value"
+                            label={({ name, value }) => `${name}: ${value}`}
+                          >
+                            {state.moduleUsage.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>QR Scans Over Time</CardTitle>
+                  <CardDescription>Daily scan volume</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{metric.value}</div>
-                  <div className={`text-xs flex items-center gap-1 ${metric.trend === 'up' ? 'text-success' : 'text-destructive'}`}>
-                    <TrendingUp className="h-3 w-3" />
-                    {metric.change}
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={state.dailyScans}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 11 }} />
+                      <Tooltip />
+                      <Bar dataKey="scans" fill="hsl(var(--primary))" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="engagement" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Engagement Summary</CardTitle>
+                  <CardDescription>Period totals across channels</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Chat Sessions', value: state.totalSessions },
+                      { label: 'Chat Messages', value: state.totalMessages },
+                      { label: 'QR Scans', value: state.totalQrScans },
+                      { label: 'SEO Audits Run', value: state.dailyChats.length ? null : null },
+                      { label: 'GBP Reviews Received', value: state.gbpReviewsCount },
+                    ]
+                      .filter((r) => r.value !== null)
+                      .map((row, i) => (
+                        <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                          <span className="font-medium">{row.label}</span>
+                          <span className="text-lg font-bold">{(row.value as number).toLocaleString()}</span>
+                        </div>
+                      ))}
+                    {!hasAnyData && (
+                      <p className="text-sm text-muted-foreground text-center py-8">
+                        No engagement data yet for this period.
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            </TabsContent>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>System Health</CardTitle>
-              <CardDescription>Real-time system performance metrics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span>API Response Time</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 h-2 bg-muted rounded-full">
-                      <div className="w-3/4 h-2 bg-success rounded-full"></div>
+            <TabsContent value="modules" className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Chatbots
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Active Chatbots</span>
+                        <span className="font-medium">{state.activeChatbots}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Total Chatbots</span>
+                        <span className="font-medium">{state.totalChatbots}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Sessions (period)</span>
+                        <span className="font-medium">{state.totalSessions}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Messages (period)</span>
+                        <span className="font-medium">{state.totalMessages}</span>
+                      </div>
                     </div>
-                    <span className="text-sm">1.2s</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Database Performance</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 h-2 bg-muted rounded-full">
-                      <div className="w-5/6 h-2 bg-success rounded-full"></div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Search className="h-4 w-4" />
+                      SEO Audits
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Total Audits</span>
+                        <span className="font-medium">{state.seoAuditsCount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Avg. Score</span>
+                        <span className="font-medium">
+                          {state.avgSeoScore !== null ? `${state.avgSeoScore}/100` : '—'}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-sm">98%</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Server Load</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 h-2 bg-muted rounded-full">
-                      <div className="w-1/2 h-2 bg-warning rounded-full"></div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <QrCode className="h-4 w-4" />
+                      QR Codes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Active QR Codes</span>
+                        <span className="font-medium">{state.qrCodesCount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Scans (period)</span>
+                        <span className="font-medium">{state.totalQrScans}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Avg. Scans/Code</span>
+                        <span className="font-medium">
+                          {state.qrCodesCount > 0
+                            ? Math.round(state.totalQrScans / state.qrCodesCount)
+                            : 0}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-sm">52%</span>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </TabsContent>
+          </Tabs>
+        </>
+      )}
     </div>
   );
 };
