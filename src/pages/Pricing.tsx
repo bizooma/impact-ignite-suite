@@ -30,9 +30,9 @@ const tiers = {
   },
   starter: {
     name: "Starter",
-    price: "$49.95",
-    description: "Perfect for small businesses getting started",
-    priceId: "price_1SBmQSEV6sbsDlR8ntj0hADS",
+    price: "$149",
+    description: "Perfect for small nonprofits getting started",
+    priceId: "price_1TNyMZEV6sbsDlR8bYTs6kLz",
     popular: false,
     features: [
       `${TIER_LIMITS.starter.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
