@@ -332,7 +332,7 @@ const Pricing = () => {
                 key={key} 
                 className={`relative ${
                   tier.popular 
-                    ? 'border-primary shadow-lg scale-105' 
+                    ? 'border-primary shadow-lg' 
                     : 'hover:border-primary/20'
                 } transition-all duration-200`}
               >
@@ -348,7 +348,7 @@ const Pricing = () => {
                   <CardDescription className="text-base">{tier.description}</CardDescription>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">{tier.price}</span>
-                    <span className="text-muted-foreground">/month</span>
+                    {!(tier as any).isFree && <span className="text-muted-foreground">/month</span>}
                   </div>
                   <div className="mt-3 inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                     <MessageSquare className="w-3.5 h-3.5" />
