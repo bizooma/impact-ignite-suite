@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone } from 'lucide-react';
+import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers } from 'lucide-react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
 import {
   Sidebar,
@@ -41,6 +41,7 @@ const navigationItems: Array<{
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
   { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },
+  { title: 'Mobile Content', url: '/dashboard/mobile-content', icon: Layers, alwaysShow: true },
 ];
 
 const adminItems = [

@@ -89,3 +89,18 @@ verify_jwt = true
 
 [functions.test-integration]
 verify_jwt = true
+
+[functions.mobile-events]
+verify_jwt = false
+
+[functions.mobile-events-rsvp]
+verify_jwt = false
+
+[functions.mobile-stories]
+verify_jwt = false
+
+[functions.mobile-donate]
+verify_jwt = false
+
+[functions.mobile-volunteer]
+verify_jwt = false

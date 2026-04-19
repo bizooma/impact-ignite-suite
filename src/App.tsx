@@ -33,6 +33,7 @@ import TaskDashboard from "./components/tasks/TaskDashboard";
 import AnalyticsDashboard from "./components/analytics/AnalyticsDashboard";
 import IntegrationsDashboard from "./components/integrations/IntegrationsDashboard";
 import { MobileAppDashboard } from "./components/mobile/MobileAppDashboard";
+import { MobileContentDashboard } from "./components/mobile-content/MobileContentDashboard";
 import Profile from "./pages/Profile";
 import { MembershipManagement } from "./components/admin/MembershipManagement";
 import GoogleAdGrants from "./pages/GoogleAdGrants";
@@ -235,6 +236,7 @@ const App = () => (
                                   <MobileAppDashboard organizationId={organizationId} />
                                 </ProtectedProductRoute>
                               } />
+                              <Route path="/mobile-content" element={<MobileContentDashboard organizationId={organizationId} />} />
                               <Route path="/campaigns" element={<Campaigns organizationId={organizationId} />} />
                               <Route path="/campaigns/:id" element={<CampaignDetail organizationId={organizationId} />} />
                               <Route path="/members" element={<MembershipManagement organizationId={organizationId} />} />
