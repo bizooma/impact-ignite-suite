@@ -13,6 +13,8 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { CreateOrganizationDialog } from './CreateOrganizationDialog';
+import { OrgProductAccessManager } from './OrgProductAccessManager';
+import { Separator } from '@/components/ui/separator';
 
 interface Organization {
   id: string;
