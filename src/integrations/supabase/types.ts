@@ -2839,6 +2839,21 @@ export type Database = {
         Returns: boolean
       }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      match_knowledge_chunks: {
+        Args: {
+          match_chatbot_id: string
+          match_count?: number
+          query_embedding: string
+          similarity_threshold?: number
+        }
+        Returns: {
+          content_chunk: string
+          id: string
+          knowledge_source_id: string
+          similarity: number
+          source_name: string
+        }[]
+      }
       recalculate_crm_list_contact_count: {
         Args: { list_id: string }
         Returns: undefined
