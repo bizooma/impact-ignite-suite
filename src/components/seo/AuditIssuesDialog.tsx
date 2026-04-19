@@ -143,6 +143,7 @@ export function AuditIssuesDialog({ open, onOpenChange, issues, domain }: AuditI
               </CardContent>
             </Card>
           )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
