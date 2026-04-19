@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { MessageCircle, Users, Clock, TrendingUp, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useChatbots } from '@/hooks/useChatbots';
+import { useTierLimits } from '@/hooks/useTierLimits';
+import { formatCap } from '@/lib/aiTierLimits';
 import { ChatbotBuilder } from './ChatbotBuilder';
 import { ChatInterface } from './ChatInterface';
 
@@ -15,6 +19,7 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedChatbot, setSelectedChatbot] = useState<string | null>(null);
   const { chatbots, loading } = useChatbots(organizationId);
+  const { canCreate, limits, counts, tier } = useTierLimits(organizationId);
 
   if (loading) {
     return (
@@ -87,10 +92,24 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
             Manage your AI-powered chatbots
           </p>
         </div>
-        <Button onClick={() => setShowBuilder(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Chatbot
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button onClick={() => setShowBuilder(true)} disabled={!canCreate.chatbot}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Chatbot
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!canCreate.chatbot && (
+              <TooltipContent>
+                <p>You've used {counts.chatbots}/{formatCap(limits.chatbots)} chatbots on the {tier} plan.</p>
+                <Link to="/pricing" className="underline">Upgrade to add more</Link>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Summary Cards */}

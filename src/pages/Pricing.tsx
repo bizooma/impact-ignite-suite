@@ -37,17 +37,17 @@ const tiers = {
     features: [
       `${TIER_LIMITS.starter.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
       "Bring your own OpenAI key (unlimited messages)",
-      "1 AI Chatbot",
-      "50 QR Codes",
-      "5 Social Media Accounts",
-      "Monthly SEO Reports",
+      "3 AI Chatbots",
+      "25 QR Codes",
+      "3 Social Media Accounts",
+      "SEO Audits",
+      "Analytics",
       "Email Support",
-      "Basic Analytics",
       "Custom Branding"
     ]
   },
   professional: {
-    name: "Professional", 
+    name: "Professional",
     price: "$99.95",
     description: "Advanced features for growing businesses",
     priceId: "price_1SBmQkEV6sbsDlR8lNv4aa7A",
@@ -55,20 +55,18 @@ const tiers = {
     features: [
       `${TIER_LIMITS.professional.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
       "Bring your own OpenAI key (unlimited messages)",
-      "5 AI Chatbots",
-      "500 QR Codes",
-      "Unlimited Social Accounts",
-      "Weekly SEO Reports",
+      "10 AI Chatbots",
+      "100 QR Codes",
+      "10 Social Media Accounts",
+      "CRM, Tasks, Campaigns & Google Business",
+      "SEO Audits & Analytics",
       "Priority Support",
-      "Advanced Analytics",
-      "API Access",
-      "Team Collaboration",
-      "Custom Integrations"
+      "Team Collaboration"
     ]
   },
   enterprise: {
     name: "Enterprise",
-    price: "$199", 
+    price: "$199",
     description: "Complete solution for large organizations",
     priceId: "price_1SBmR3EV6sbsDlR8sjx3YczW",
     popular: false,
@@ -78,12 +76,9 @@ const tiers = {
       "Unlimited AI Chatbots",
       "Unlimited QR Codes",
       "Unlimited Social Accounts",
-      "Real-time SEO Monitoring",
+      "Mobile App access",
+      "All CRM, Campaigns, SEO & Analytics tools",
       "Dedicated Support Manager",
-      "Custom Analytics Dashboard",
-      "Full API Access",
-      "White-label Options",
-      "On-premise Deployment",
       "SLA Guarantee"
     ]
   }
