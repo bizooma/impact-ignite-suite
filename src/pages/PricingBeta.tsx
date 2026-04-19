@@ -132,13 +132,13 @@ const PricingBeta = () => {
 
   return (
     <div className="space-y-8">
-      {/* Beta banner */}
-      <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 px-6 py-5 flex items-center gap-4">
-        <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-          <Sparkles className="h-6 w-6 text-primary" />
+      {/* Red beta banner — high-contrast to grab attention */}
+      <div className="rounded-xl border-2 border-red-500/50 bg-gradient-to-r from-red-500/15 via-red-500/10 to-red-500/15 px-6 py-5 flex items-center gap-4">
+        <div className="h-12 w-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+          <Sparkles className="h-6 w-6 text-red-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold">🎉 Beta Lifetime Pricing — Locked In Forever</h2>
+          <h2 className="text-xl font-bold text-red-700 dark:text-red-400">🎉 Beta Lifetime Pricing — Locked In Forever</h2>
           <p className="text-muted-foreground text-sm">
             As a beta member, you get up to <span className="font-semibold text-foreground">60% off</span> standard pricing — for as long as your subscription is active. Pricing never increases.
           </p>
