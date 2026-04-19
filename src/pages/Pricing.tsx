@@ -36,8 +36,10 @@ const tiers = {
     priceId: "price_1SBmQkEV6sbsDlR8lNv4aa7A",
     popular: true,
     features: [
+      `${TIER_LIMITS.professional.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
+      "Bring your own OpenAI key (unlimited messages)",
       "5 AI Chatbots",
-      "500 QR Codes", 
+      "500 QR Codes",
       "Unlimited Social Accounts",
       "Weekly SEO Reports",
       "Priority Support",
