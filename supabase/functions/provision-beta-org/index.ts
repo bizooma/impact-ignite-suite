@@ -97,10 +97,12 @@ serve(async (req) => {
       slug = `${baseSlug}-${Math.random().toString(36).slice(2, 5)}`;
     }
 
-    // Free-tier product bundle — KEEP IN SYNC with TIER_PRODUCT_BUNDLES.free
-    // in src/lib/aiTierLimits.ts. Beta orgs start on the free tier with these
-    // products unlocked so the sidebar isn't a wall of locks.
-    const FREE_TIER_PRODUCTS = ["chatbots", "qr_codes"];
+    // Beta orgs get every product unlocked so testers can try the full platform.
+    // They stay on the "free" tier until they subscribe via the beta pricing page.
+    const BETA_PRODUCTS = [
+      "chatbots", "qr_codes", "social_media", "seo_audits", "analytics",
+      "crm", "tasks", "google_business", "campaigns", "mobile_app",
+    ];
 
     const { data: newOrg, error: orgErr } = await admin
       .from("organizations")
@@ -110,7 +112,7 @@ serve(async (req) => {
         is_beta_org: true,
         beta_signup_id: betaSignupId ?? null,
         subscription_tier: "free",
-        purchased_products: FREE_TIER_PRODUCTS,
+        purchased_products: BETA_PRODUCTS,
       })
       .select()
       .single();

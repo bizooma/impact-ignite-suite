@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers } from 'lucide-react';
+import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers, Sparkles } from 'lucide-react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
 import {
   Sidebar,
@@ -160,6 +160,24 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {(organization as any)?.is_beta_org && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Beta Program</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/dashboard/pricing-beta" className={getNavCls}>
+                      <Sparkles className="w-4 h-4 text-red-600" />
+                      {!collapsed && <span className="font-medium">Beta Pricing</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {isOrgAdmin && (
           <SidebarGroup>
