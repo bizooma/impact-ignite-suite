@@ -7,276 +7,256 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Tier caps (mirrors src/lib/aiTierLimits.ts — keep in sync)
+const TIER_CAPS: Record<string, number> = {
+  free: 50,
+  starter: 1000,
+  professional: 5000,
+  enterprise: 25000,
+};
+
+function capForTier(tier: string | null | undefined): number {
+  const t = (tier ?? 'free').toLowerCase();
+  return TIER_CAPS[t] ?? TIER_CAPS.free;
+}
+
 // Simple in-memory rate limiting (resets on cold start)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 30; // 30 requests per minute per IP
+const RATE_LIMIT_WINDOW = 60000;
+const RATE_LIMIT_MAX_REQUESTS = 30;
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const limit = rateLimitMap.get(ip);
-
   if (!limit || now > limit.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
     return true;
   }
-
-  if (limit.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-
+  if (limit.count >= RATE_LIMIT_MAX_REQUESTS) return false;
   limit.count++;
   return true;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get IP address for rate limiting
-    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0] || 
-                      req.headers.get('x-real-ip') || 
+    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0] ||
+                      req.headers.get('x-real-ip') ||
                       'unknown';
 
-    // Check rate limit
     if (!checkRateLimit(ipAddress)) {
-      console.warn('Rate limit exceeded for IP:', ipAddress);
       return new Response(
         JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
-        {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const { message, sessionId, chatbotId } = await req.json();
     console.log('Processing chat message:', { sessionId, chatbotId, messageLength: message?.length, ip: ipAddress });
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get chatbot configuration
+    // Fetch chatbot + parent org tier
     const { data: chatbot, error: chatbotError } = await supabase
       .from('chatbots')
-      .select('*')
+      .select('*, organizations:organization_id(id, subscription_tier)')
       .eq('id', chatbotId)
       .single();
 
-    if (chatbotError) {
+    if (chatbotError || !chatbot) {
       console.error('Error fetching chatbot:', chatbotError);
       throw new Error('Chatbot not found');
     }
 
-    // Get or create chat session
-    let session;
-    if (sessionId) {
-      const { data } = await supabase
-        .from('chat_sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .single();
-      session = data;
-    }
+    const orgId = chatbot.organization_id as string;
+    const tier = (chatbot.organizations as any)?.subscription_tier ?? 'free';
 
-    if (!session) {
-      const { data: newSession, error: sessionError } = await supabase
-        .from('chat_sessions')
-        .insert([{
-          chatbot_id: chatbotId,
-          status: 'active'
-        }])
-        .select()
-        .single();
+    // ---- BYO key lookup ----
+    const { data: openaiIntegration } = await supabase
+      .from('integrations')
+      .select('encrypted_tokens, status')
+      .eq('organization_id', orgId)
+      .eq('provider', 'openai')
+      .eq('status', 'active')
+      .maybeSingle();
 
-      if (sessionError) {
-        console.error('Error creating session:', sessionError);
-        throw new Error('Failed to create chat session');
-      }
-      session = newSession;
-    }
+    const byoKey = (openaiIntegration?.encrypted_tokens as any)?.api_key as string | undefined;
+    const usingByoKey = !!byoKey;
 
-    // Track message_sent event
-    const userAgent = req.headers.get('user-agent') || 'unknown';
-    const origin = req.headers.get('origin') || req.headers.get('referer') || 'unknown';
+    // ---- Cap check (only if NOT using BYO key) ----
+    let capInfo: { used: number; cap: number; tier: string } | null = null;
+    if (!usingByoKey) {
+      // Per-org override
+      const { data: override } = await supabase
+        .from('org_ai_usage_overrides')
+        .select('monthly_message_cap')
+        .eq('organization_id', orgId)
+        .maybeSingle();
 
-    await supabase
-      .from('chatbot_events')
-      .insert({
-        chatbot_id: chatbotId,
-        session_id: session.id,
-        event_type: 'message_sent',
-        event_data: { 
-          message_length: message.length,
-          origin: origin 
-        },
-        ip_address: ipAddress,
-        user_agent: userAgent,
-      });
+      const cap = override?.monthly_message_cap ?? capForTier(tier);
 
-    // Save user message to database
-    const { error: messageError } = await supabase
-      .from('chat_messages')
-      .insert([{
-        session_id: session.id,
-        role: 'user',
-        content: message
-      }]);
+      const { data: usage } = await supabase
+        .from('org_ai_usage_current_period')
+        .select('messages_count_platform')
+        .eq('organization_id', orgId)
+        .maybeSingle();
 
-    if (messageError) {
-      console.error('Error saving message:', messageError);
-    }
+      const used = (usage?.messages_count_platform as number | undefined) ?? 0;
+      capInfo = { used, cap, tier };
 
-    // Get conversation history for context
-    const { data: messages } = await supabase
-      .from('chat_messages')
-      .select('role, content')
-      .eq('session_id', session.id)
-      .order('created_at', { ascending: true });
-
-    // Vector-based retrieval: embed the user message, then fetch the most
-    // semantically relevant chunks. Falls back to all sources if embedding fails.
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    let retrievedChunks: Array<{ source_name: string; content_chunk: string; similarity: number }> = [];
-    let usedFallback = false;
-
-    if (openAIApiKey) {
-      try {
-        const embedRes = await fetch('https://api.openai.com/v1/embeddings', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openAIApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'text-embedding-3-small',
-            input: message,
+      if (used >= cap) {
+        console.warn(`Cap reached for org ${orgId}: ${used}/${cap} (${tier})`);
+        return new Response(
+          JSON.stringify({
+            error: 'cap_reached',
+            message: `This chatbot has reached its monthly message limit (${cap}). Please contact the site owner to upgrade.`,
+            tier,
+            cap,
+            used,
           }),
-        });
-
-        if (embedRes.ok) {
-          const embedData = await embedRes.json();
-          const queryEmbedding = embedData.data[0].embedding;
-
-          const { data: matches, error: matchErr } = await supabase.rpc('match_knowledge_chunks', {
-            query_embedding: queryEmbedding,
-            match_chatbot_id: chatbotId,
-            match_count: 6,
-            similarity_threshold: 0.3,
-          });
-
-          if (matchErr) {
-            console.warn('match_knowledge_chunks error, falling back:', matchErr);
-            usedFallback = true;
-          } else {
-            retrievedChunks = matches || [];
-            console.log(`Retrieved ${retrievedChunks.length} chunks via vector search`);
-          }
-        } else {
-          console.warn('Embedding request failed, falling back to full-source context');
-          usedFallback = true;
-        }
-      } catch (err) {
-        console.warn('Vector retrieval error, falling back:', err);
-        usedFallback = true;
-      }
-    } else {
-      usedFallback = true;
-    }
-
-    // Fallback: load all completed source content (legacy behavior)
-    let knowledgeSources: Array<{ name: string; content: string | null }> = [];
-    if (usedFallback || retrievedChunks.length === 0) {
-      const { data } = await supabase
-        .from('knowledge_sources')
-        .select('content, name')
-        .eq('chatbot_id', chatbotId)
-        .eq('status', 'completed');
-      knowledgeSources = data || [];
-    }
-
-    // Get FAQs for context
-    const { data: faqs } = await supabase
-      .from('chatbot_faqs')
-      .select('question, answer')
-      .eq('chatbot_id', chatbotId)
-      .order('order_index', { ascending: true });
-
-    // Build context: prefer retrieved chunks, fall back to full sources
-    let contextContent = '';
-    if (retrievedChunks.length > 0) {
-      contextContent = retrievedChunks
-        .map(c => `[${c.source_name}] ${c.content_chunk}`)
-        .join('\n\n');
-    } else if (knowledgeSources.length > 0) {
-      contextContent = knowledgeSources
-        .map(source => `${source.name}: ${source.content}`)
-        .join('\n\n');
-    }
-
-    // Add FAQ context
-    if (faqs && faqs.length > 0) {
-      const faqContent = faqs
-        .map(faq => `Q: ${faq.question}\nA: ${faq.answer}`)
-        .join('\n\n');
-      contextContent += contextContent ? `\n\n--- Frequently Asked Questions ---\n${faqContent}` : faqContent;
-    }
-
-    // Add widget configuration context (contact info, donations)
-    const widgetConfig = chatbot.web_widget_config || {};
-    let additionalContext = '';
-    
-    if (widgetConfig.email_contact || widgetConfig.phone_contact) {
-      additionalContext += '\n\n--- Contact Information ---\n';
-      if (widgetConfig.email_contact) {
-        additionalContext += `Email: ${widgetConfig.email_contact}\n`;
-      }
-      if (widgetConfig.phone_contact) {
-        additionalContext += `Phone: ${widgetConfig.phone_contact}\n`;
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
     }
-    
-    if (widgetConfig.show_donations && (widgetConfig.donation_button_1 || widgetConfig.donation_button_2)) {
-      additionalContext += '\n\n--- Donation Options ---\n';
-      if (widgetConfig.donation_button_1) {
-        additionalContext += `${widgetConfig.donation_button_1.label}: ${widgetConfig.donation_button_1.url}\n`;
-      }
-      if (widgetConfig.donation_button_2) {
-        additionalContext += `${widgetConfig.donation_button_2.label}: ${widgetConfig.donation_button_2.url}\n`;
-      }
-    }
-    
-    contextContent += additionalContext;
 
-    // Prepare OpenAI messages
-    const systemPrompt = chatbot.description || 'You are a helpful AI assistant.';
-    const openAIMessages = [
-      { 
-        role: 'system', 
-        content: `${systemPrompt}\n\nContext from knowledge base:\n${contextContent}` 
-      },
-      ...(messages || []).map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }))
-    ];
-
-    // Call OpenAI API (key already loaded above for embeddings)
-    if (!openAIApiKey) {
+    const apiKey = byoKey ?? Deno.env.get('OPENAI_API_KEY');
+    if (!apiKey) {
       throw new Error('OpenAI API key not configured');
     }
 
+    // ---- Session ----
+    let session;
+    if (sessionId) {
+      const { data } = await supabase
+        .from('chat_sessions').select('*').eq('id', sessionId).single();
+      session = data;
+    }
+    if (!session) {
+      const { data: newSession, error: sessionError } = await supabase
+        .from('chat_sessions')
+        .insert([{ chatbot_id: chatbotId, status: 'active' }])
+        .select().single();
+      if (sessionError) throw new Error('Failed to create chat session');
+      session = newSession;
+    }
+
+    const userAgent = req.headers.get('user-agent') || 'unknown';
+    const origin = req.headers.get('origin') || req.headers.get('referer') || 'unknown';
+
+    await supabase.from('chatbot_events').insert({
+      chatbot_id: chatbotId,
+      session_id: session.id,
+      event_type: 'message_sent',
+      event_data: { message_length: message.length, origin },
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    });
+
+    await supabase.from('chat_messages').insert([{
+      session_id: session.id, role: 'user', content: message,
+    }]);
+
+    const { data: messages } = await supabase
+      .from('chat_messages').select('role, content')
+      .eq('session_id', session.id).order('created_at', { ascending: true });
+
+    // ---- Vector retrieval ----
+    let retrievedChunks: Array<{ source_name: string; content_chunk: string; similarity: number }> = [];
+    let usedFallback = false;
+    let embedTokens = 0;
+
+    try {
+      const embedRes = await fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'text-embedding-3-small', input: message }),
+      });
+      if (embedRes.ok) {
+        const embedData = await embedRes.json();
+        embedTokens = embedData.usage?.total_tokens ?? 0;
+        const queryEmbedding = embedData.data[0].embedding;
+        const { data: matches, error: matchErr } = await supabase.rpc('match_knowledge_chunks', {
+          query_embedding: queryEmbedding,
+          match_chatbot_id: chatbotId,
+          match_count: 6,
+          similarity_threshold: 0.3,
+        });
+        if (matchErr) {
+          usedFallback = true;
+        } else {
+          retrievedChunks = matches || [];
+        }
+      } else {
+        usedFallback = true;
+      }
+    } catch (err) {
+      console.warn('Vector retrieval error, falling back:', err);
+      usedFallback = true;
+    }
+
+    // Log embedding usage
+    if (embedTokens > 0) {
+      await supabase.from('ai_usage_events').insert({
+        organization_id: orgId,
+        chatbot_id: chatbotId,
+        event_type: 'embedding',
+        model: 'text-embedding-3-small',
+        tokens_input: embedTokens,
+        used_byo_key: usingByoKey,
+      });
+    }
+
+    let knowledgeSources: Array<{ name: string; content: string | null }> = [];
+    if (usedFallback || retrievedChunks.length === 0) {
+      const { data } = await supabase
+        .from('knowledge_sources').select('content, name')
+        .eq('chatbot_id', chatbotId).eq('status', 'completed');
+      knowledgeSources = data || [];
+    }
+
+    const { data: faqs } = await supabase
+      .from('chatbot_faqs').select('question, answer')
+      .eq('chatbot_id', chatbotId).order('order_index', { ascending: true });
+
+    let contextContent = '';
+    if (retrievedChunks.length > 0) {
+      contextContent = retrievedChunks.map(c => `[${c.source_name}] ${c.content_chunk}`).join('\n\n');
+    } else if (knowledgeSources.length > 0) {
+      contextContent = knowledgeSources.map(s => `${s.name}: ${s.content}`).join('\n\n');
+    }
+    if (faqs && faqs.length > 0) {
+      const faqContent = faqs.map(faq => `Q: ${faq.question}\nA: ${faq.answer}`).join('\n\n');
+      contextContent += contextContent ? `\n\n--- Frequently Asked Questions ---\n${faqContent}` : faqContent;
+    }
+
+    const widgetConfig = (chatbot as any).web_widget_config || {};
+    let additionalContext = '';
+    if (widgetConfig.email_contact || widgetConfig.phone_contact) {
+      additionalContext += '\n\n--- Contact Information ---\n';
+      if (widgetConfig.email_contact) additionalContext += `Email: ${widgetConfig.email_contact}\n`;
+      if (widgetConfig.phone_contact) additionalContext += `Phone: ${widgetConfig.phone_contact}\n`;
+    }
+    if (widgetConfig.show_donations && (widgetConfig.donation_button_1 || widgetConfig.donation_button_2)) {
+      additionalContext += '\n\n--- Donation Options ---\n';
+      if (widgetConfig.donation_button_1) additionalContext += `${widgetConfig.donation_button_1.label}: ${widgetConfig.donation_button_1.url}\n`;
+      if (widgetConfig.donation_button_2) additionalContext += `${widgetConfig.donation_button_2.label}: ${widgetConfig.donation_button_2.url}\n`;
+    }
+    contextContent += additionalContext;
+
+    const systemPrompt = chatbot.description || 'You are a helpful AI assistant.';
+    const openAIMessages = [
+      { role: 'system', content: `${systemPrompt}\n\nContext from knowledge base:\n${contextContent}` },
+      ...(messages || []).map(msg => ({ role: msg.role, content: msg.content })),
+    ];
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: openAIMessages,
@@ -293,49 +273,53 @@ serve(async (req) => {
 
     const aiResponse = await response.json();
     const assistantMessage = aiResponse.choices[0].message.content;
+    const promptTokens = aiResponse.usage?.prompt_tokens ?? 0;
+    const completionTokens = aiResponse.usage?.completion_tokens ?? 0;
 
-    // Save assistant response to database
-    const { error: assistantMessageError } = await supabase
-      .from('chat_messages')
-      .insert([{
-        session_id: session.id,
-        role: 'assistant',
-        content: assistantMessage
-      }]);
+    // Log chat_message usage (this is what counts toward the cap)
+    await supabase.from('ai_usage_events').insert({
+      organization_id: orgId,
+      chatbot_id: chatbotId,
+      event_type: 'chat_message',
+      model: 'gpt-4o-mini',
+      tokens_input: promptTokens,
+      tokens_output: completionTokens,
+      used_byo_key: usingByoKey,
+    });
 
-    if (assistantMessageError) {
-      console.error('Error saving assistant message:', assistantMessageError);
+    await supabase.from('chat_messages').insert([{
+      session_id: session.id, role: 'assistant', content: assistantMessage,
+    }]);
+
+    await supabase.from('chatbot_events').insert({
+      chatbot_id: chatbotId,
+      session_id: session.id,
+      event_type: 'message_answered',
+      event_data: { response_length: assistantMessage.length, model_used: 'gpt-4o-mini' },
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    });
+
+    // Soft warning if approaching cap
+    let warning: string | null = null;
+    if (capInfo) {
+      const newUsed = capInfo.used + 1;
+      const pct = newUsed / capInfo.cap;
+      if (pct >= 0.95) warning = 'cap_critical';
+      else if (pct >= 0.8) warning = 'cap_warn';
     }
 
-    // Track message_answered event
-    await supabase
-      .from('chatbot_events')
-      .insert({
-        chatbot_id: chatbotId,
-        session_id: session.id,
-        event_type: 'message_answered',
-        event_data: { 
-          response_length: assistantMessage.length,
-          model_used: 'gpt-4o-mini'
-        },
-        ip_address: ipAddress,
-        user_agent: userAgent,
-      });
-
-    return new Response(JSON.stringify({ 
-      message: assistantMessage, 
-      sessionId: session.id 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(JSON.stringify({
+      message: assistantMessage,
+      sessionId: session.id,
+      usage: capInfo ? { used: capInfo.used + 1, cap: capInfo.cap, tier: capInfo.tier, byo: false } : { byo: true },
+      warning,
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
   } catch (error) {
     console.error('Error in chat-handler:', error);
-    return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Internal server error' 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(JSON.stringify({
+      error: error instanceof Error ? error.message : 'Internal server error',
+    }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });

@@ -47,9 +47,41 @@ export function useChatbot(chatbotId: string) {
         }
       });
 
-      if (error) {
-        console.error('Chat error:', error);
-        throw error;
+      // Cap-reached: edge function returns 200-shaped error in `data` for FunctionsHttpError
+      const capError =
+        (data && (data as any).error === 'cap_reached') ||
+        (error as any)?.context?.body?.includes?.('cap_reached');
+
+      if (capError || error) {
+        // Try to read the friendly message
+        let friendlyMessage =
+          (data as any)?.message ||
+          'This chatbot has reached its monthly message limit. Please contact the site owner.';
+        try {
+          const ctx = (error as any)?.context;
+          if (ctx?.body) {
+            const parsed = typeof ctx.body === 'string' ? JSON.parse(ctx.body) : ctx.body;
+            if (parsed?.error === 'cap_reached') {
+              friendlyMessage = parsed.message || friendlyMessage;
+            }
+          }
+        } catch { /* ignore */ }
+
+        if (capError || (error as any)?.context?.status === 429) {
+          // Replace user message with a system note instead of error toast
+          setMessages(prev => [
+            ...prev.filter(m => m.id !== userMessage.id),
+            userMessage,
+            {
+              id: `system-${Date.now()}`,
+              role: 'assistant',
+              content: friendlyMessage,
+              created_at: new Date().toISOString(),
+            },
+          ]);
+          return;
+        }
+        throw error || new Error('Chat failed');
       }
 
       // Update session ID if new
@@ -57,7 +89,6 @@ export function useChatbot(chatbotId: string) {
         setSessionId(data.sessionId);
       }
 
-      // Add assistant response to messages
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
@@ -74,8 +105,6 @@ export function useChatbot(chatbotId: string) {
         description: "Failed to send message. Please try again.",
         variant: "destructive",
       });
-      
-      // Remove the user message if it failed
       setMessages(prev => prev.filter(m => m.id !== userMessage.id));
     } finally {
       setLoading(false);

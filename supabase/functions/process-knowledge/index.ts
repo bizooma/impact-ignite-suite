@@ -1,7 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
-// PDF + DOCX parsers (pure-JS, work in Deno via esm.sh)
 import { extractText, getDocumentProxy } from 'https://esm.sh/unpdf@0.12.1';
 import mammoth from 'https://esm.sh/mammoth@1.8.0';
 
@@ -32,6 +31,28 @@ serve(async (req) => {
       .update({ status: 'processing' })
       .eq('id', knowledgeSourceId);
 
+    // Resolve org for usage logging + BYO key lookup
+    const { data: ksRow } = await supabase
+      .from('knowledge_sources')
+      .select('chatbot_id, chatbots:chatbot_id(organization_id)')
+      .eq('id', knowledgeSourceId)
+      .maybeSingle();
+    const orgId = (ksRow?.chatbots as any)?.organization_id as string | undefined;
+
+    let byoKey: string | undefined;
+    if (orgId) {
+      const { data: openaiIntegration } = await supabase
+        .from('integrations')
+        .select('encrypted_tokens')
+        .eq('organization_id', orgId)
+        .eq('provider', 'openai')
+        .eq('status', 'active')
+        .maybeSingle();
+      byoKey = (openaiIntegration?.encrypted_tokens as any)?.api_key;
+    }
+    const usingByoKey = !!byoKey;
+    const apiKey = byoKey ?? Deno.env.get('OPENAI_API_KEY');
+
     let processedContent = content;
 
     if (type === 'url') {
@@ -45,46 +66,24 @@ serve(async (req) => {
           .replace(/\s+/g, ' ')
           .trim();
       } catch (error) {
-        console.error('Error fetching URL content:', error);
         throw new Error(`Failed to fetch content from URL: ${error instanceof Error ? error.message : 'unknown'}`);
       }
     } else if (type === 'pdf' || type === 'docx') {
-      // Download from storage and parse server-side
-      if (!filePath) {
-        throw new Error(`filePath is required for ${type} sources`);
-      }
-
+      if (!filePath) throw new Error(`filePath is required for ${type} sources`);
       const { data: fileBlob, error: dlErr } = await supabase
-        .storage
-        .from('knowledge-sources')
-        .download(filePath);
-
-      if (dlErr || !fileBlob) {
-        throw new Error(`Failed to download file: ${dlErr?.message || 'unknown'}`);
-      }
-
+        .storage.from('knowledge-sources').download(filePath);
+      if (dlErr || !fileBlob) throw new Error(`Failed to download file: ${dlErr?.message || 'unknown'}`);
       const buffer = new Uint8Array(await fileBlob.arrayBuffer());
 
       if (type === 'pdf') {
-        try {
-          const pdf = await getDocumentProxy(buffer);
-          const { text } = await extractText(pdf, { mergePages: true });
-          processedContent = (Array.isArray(text) ? text.join('\n') : text).trim();
-        } catch (err) {
-          console.error('PDF parse error:', err);
-          throw new Error(`Failed to parse PDF: ${err instanceof Error ? err.message : 'unknown'}`);
-        }
+        const pdf = await getDocumentProxy(buffer);
+        const { text } = await extractText(pdf, { mergePages: true });
+        processedContent = (Array.isArray(text) ? text.join('\n') : text).trim();
       } else {
-        try {
-          const result = await mammoth.extractRawText({ arrayBuffer: buffer.buffer });
-          processedContent = (result?.value || '').trim();
-        } catch (err) {
-          console.error('DOCX parse error:', err);
-          throw new Error(`Failed to parse DOCX: ${err instanceof Error ? err.message : 'unknown'}`);
-        }
+        const result = await mammoth.extractRawText({ arrayBuffer: buffer.buffer });
+        processedContent = (result?.value || '').trim();
       }
     } else if (type === 'file' || type === 'text') {
-      // Plain text content already extracted by caller
       processedContent = content;
     }
 
@@ -93,41 +92,28 @@ serve(async (req) => {
     }
 
     const chunks = chunkText(processedContent, 1000);
-
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     const embeddings: any[] = [];
+    let totalEmbedTokens = 0;
 
-    if (openAIApiKey) {
+    if (apiKey) {
       for (const chunk of chunks) {
         try {
           const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
             method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${openAIApiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'text-embedding-3-small',
-              input: chunk,
-            }),
+            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'text-embedding-3-small', input: chunk }),
           });
-
           if (!embeddingResponse.ok) {
             console.error('Failed to generate embedding:', await embeddingResponse.text());
             continue;
           }
-
           const embeddingData = await embeddingResponse.json();
-          const embedding = embeddingData.data[0].embedding;
-
+          totalEmbedTokens += embeddingData.usage?.total_tokens ?? 0;
           embeddings.push({
             knowledge_source_id: knowledgeSourceId,
             content_chunk: chunk,
-            embedding,
-            metadata: {
-              chunk_index: embeddings.length,
-              chunk_length: chunk.length,
-            },
+            embedding: embeddingData.data[0].embedding,
+            metadata: { chunk_index: embeddings.length, chunk_length: chunk.length },
           });
         } catch (error) {
           console.error('Error generating embedding for chunk:', error);
@@ -135,16 +121,23 @@ serve(async (req) => {
       }
 
       if (embeddings.length > 0) {
-        const { error: embeddingError } = await supabase
-          .from('knowledge_embeddings')
-          .insert(embeddings);
+        await supabase.from('knowledge_embeddings').insert(embeddings);
+      }
 
-        if (embeddingError) {
-          console.error('Error storing embeddings:', embeddingError);
-        }
+      // Log usage (one event for the whole batch)
+      if (orgId && totalEmbedTokens > 0) {
+        await supabase.from('ai_usage_events').insert({
+          organization_id: orgId,
+          chatbot_id: ksRow?.chatbot_id ?? null,
+          event_type: 'embedding',
+          model: 'text-embedding-3-small',
+          tokens_input: totalEmbedTokens,
+          used_byo_key: usingByoKey,
+          metadata: { source: 'process-knowledge', chunks: embeddings.length },
+        });
       }
     } else {
-      console.warn('OPENAI_API_KEY not set — skipping embeddings.');
+      console.warn('No OpenAI key available — skipping embeddings.');
     }
 
     const { error: updateError } = await supabase
@@ -160,40 +153,30 @@ serve(async (req) => {
       })
       .eq('id', knowledgeSourceId);
 
-    if (updateError) {
-      console.error('Error updating knowledge source:', updateError);
-      throw new Error('Failed to update knowledge source');
-    }
+    if (updateError) throw new Error('Failed to update knowledge source');
 
     return new Response(JSON.stringify({
       success: true,
       chunksProcessed: chunks.length,
       embeddingsGenerated: embeddings.length,
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
   } catch (error) {
     console.error('Error in process-knowledge:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to process knowledge source';
-
     if (knowledgeSourceId) {
       try {
         await supabase
           .from('knowledge_sources')
           .update({
             status: 'error',
-            metadata: {
-              error: errorMessage,
-              failed_at: new Date().toISOString(),
-            },
+            metadata: { error: errorMessage, failed_at: new Date().toISOString() },
           })
           .eq('id', knowledgeSourceId);
       } catch (updateError) {
         console.error('Error updating failed status:', updateError);
       }
     }
-
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -205,7 +188,6 @@ function chunkText(text: string, maxChunkSize: number): string[] {
   const chunks: string[] = [];
   const words = text.split(' ');
   let currentChunk = '';
-
   for (const word of words) {
     if ((currentChunk + ' ' + word).length > maxChunkSize && currentChunk.length > 0) {
       chunks.push(currentChunk.trim());
@@ -214,10 +196,6 @@ function chunkText(text: string, maxChunkSize: number): string[] {
       currentChunk += (currentChunk ? ' ' : '') + word;
     }
   }
-
-  if (currentChunk.trim()) {
-    chunks.push(currentChunk.trim());
-  }
-
+  if (currentChunk.trim()) chunks.push(currentChunk.trim());
   return chunks;
 }
