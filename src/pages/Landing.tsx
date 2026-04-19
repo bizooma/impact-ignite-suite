@@ -287,7 +287,7 @@ const Landing = () => {
             <p className="text-lg text-muted-foreground">We understand the unique challenges nonprofits face</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-md">
+            <Card className="bg-white/70 backdrop-blur-md border border-white/40 shadow-lg">
               <CardContent className="pt-8 pb-8 text-center">
                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Clock className="w-7 h-7 text-primary" />
@@ -298,7 +298,7 @@ const Landing = () => {
                 </p>
               </CardContent>
             </Card>
-            <Card className="border-0 shadow-md">
+            <Card className="bg-white/70 backdrop-blur-md border border-white/40 shadow-lg">
               <CardContent className="pt-8 pb-8 text-center">
                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <DollarSign className="w-7 h-7 text-primary" />
@@ -309,7 +309,7 @@ const Landing = () => {
                 </p>
               </CardContent>
             </Card>
-            <Card className="border-0 shadow-md">
+            <Card className="bg-white/70 backdrop-blur-md border border-white/40 shadow-lg">
               <CardContent className="pt-8 pb-8 text-center">
                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-7 h-7 text-primary" />
