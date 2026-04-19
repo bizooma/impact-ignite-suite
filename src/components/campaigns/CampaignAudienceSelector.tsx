@@ -11,7 +11,7 @@ interface Props {
 export function CampaignAudienceSelector({ organizationId }: Props) {
   const analytics = useCrmDonorAnalytics(organizationId);
 
-  if (!analytics || (analytics as any).isLoading) {
+  if (analytics.isLoading) {
     return (
       <div className="flex justify-center py-12">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -19,13 +19,13 @@ export function CampaignAudienceSelector({ organizationId }: Props) {
     );
   }
 
-  const segments = (analytics as any).segments || {};
+  const segments = analytics.segments || ({} as any);
 
   const counts: Record<string, number> = {
-    lybunt: segments.lybunt?.length || 0,
-    sustaining: segments.sustaining?.length || 0,
-    new_donors: segments.newThisYear?.length || 0,
-    major_donors: segments.major?.length || 0,
+    lybunt: segments.lybunt?.contactIds.length || 0,
+    sustaining: segments.sustaining?.contactIds.length || 0,
+    new_donors: segments.new_this_year?.contactIds.length || 0,
+    major_donors: segments.major?.contactIds.length || 0,
   };
 
   return (

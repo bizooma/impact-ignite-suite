@@ -9,7 +9,8 @@ export type ProductId =
   | 'google_business'
   | 'tasks'
   | 'analytics'
-  | 'crm';
+  | 'crm'
+  | 'campaigns';
 
 export function useProductAccess() {
   const { organization } = useOrganization();
