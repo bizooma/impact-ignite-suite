@@ -4,18 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  MessageSquare, 
-  Send, 
-  Copy, 
-  Code, 
+import {
+  MessageSquare,
+  Send,
+  Copy,
+  Code,
   Maximize2,
   Bot,
-  User
+  User,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Chatbot } from '@/types/database';
 import { useChatbots } from '@/hooks/useChatbots';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatbotPreviewProps {
   chatbot: Chatbot;
@@ -28,46 +29,85 @@ interface PreviewMessage {
   timestamp: string;
 }
 
+const POSITION_LABELS: Record<string, string> = {
+  'bottom-right': 'Bottom Right',
+  'bottom-left': 'Bottom Left',
+  'middle-right': 'Middle Right',
+  'middle-left': 'Middle Left',
+};
+
+const THEME_LABELS: Record<string, string> = {
+  light: 'Light',
+  dark: 'Dark',
+};
+
+const SIZE_LABELS: Record<string, string> = {
+  compact: 'Compact',
+  expanded: 'Expanded',
+};
+
 export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
   const { updateChatbot } = useChatbots(chatbot.organization_id);
   const [messages, setMessages] = useState<PreviewMessage[]>([
     {
       id: '1',
       role: 'assistant',
-      content: chatbot.brand_settings.welcome_message || "Hello! I'm here to help you learn about our mission and find ways to get involved. How can I assist you today?",
+      content:
+        chatbot.brand_settings.welcome_message ||
+        "Hello! I'm here to help you learn about our mission and find ways to get involved. How can I assist you today?",
       timestamp: new Date().toISOString(),
-    }
+    },
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isTyping) return;
 
-    // Add user message
     const userMessage: PreviewMessage = {
-      id: Date.now().toString(),
+      id: `u-${Date.now()}`,
       role: 'user',
       content: inputMessage,
       timestamp: new Date().toISOString(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const messageText = inputMessage;
+    setMessages((prev) => [...prev, userMessage]);
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: PreviewMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: "Thank you for your message! This is a preview of your chatbot. In the live version, I'll be able to answer questions based on the knowledge sources you've provided. Would you like to know more about our programs or how to get involved?",
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, aiMessage]);
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-handler', {
+        body: {
+          message: messageText,
+          sessionId,
+          chatbotId: chatbot.id,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.sessionId && !sessionId) setSessionId(data.sessionId);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `a-${Date.now()}`,
+          role: 'assistant',
+          content: data?.message || 'No response',
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+    } catch (error) {
+      console.error('Preview chat error:', error);
+      toast.error('Failed to get a response. Check that the chatbot is configured correctly.');
+      setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleToggleStatus = async () => {
@@ -76,9 +116,6 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
       const newStatus = chatbot.status === 'active' ? 'draft' : 'active';
       await updateChatbot(chatbot.id, { status: newStatus });
       toast.success(`Chatbot ${newStatus === 'active' ? 'activated' : 'paused'} successfully`);
-      
-      // Reload the page to reflect the new status
-      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       console.error('Error updating chatbot status:', error);
       toast.error('Failed to update chatbot status');
@@ -87,9 +124,8 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
     }
   };
 
-  // Get the current deployed app URL (automatically works in preview and production)
   const appUrl = window.location.origin;
-  
+
   const embedCode = `<!-- Causeio Chatbot Widget -->
 <script
   src="${appUrl}/embed.js"
@@ -103,9 +139,13 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
     toast.success('Embed code copied to clipboard');
   };
 
+  const widgetConfig = chatbot.web_widget_config || {};
+  const positionLabel = POSITION_LABELS[widgetConfig.position as string] || widgetConfig.position || 'Bottom Right';
+  const themeLabel = THEME_LABELS[widgetConfig.theme as string] || widgetConfig.theme || 'Light';
+  const sizeLabel = SIZE_LABELS[widgetConfig.size as string] || widgetConfig.size || 'Compact';
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Chat Preview */}
       <Card className="h-[600px] flex flex-col">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -115,22 +155,17 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
             </div>
             <Badge variant="outline">Preview Mode</Badge>
           </div>
-          <CardDescription>
-            Test how your chatbot will interact with visitors
-          </CardDescription>
+          <CardDescription>Test how your chatbot will interact with visitors</CardDescription>
         </CardHeader>
-        
+
         <Separator />
-        
-        {/* Chat Messages */}
+
         <CardContent className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-3 ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
+                className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {message.role === 'assistant' && (
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -144,7 +179,7 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                       : 'bg-muted text-foreground'
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 </div>
                 {message.role === 'user' && (
                   <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
@@ -153,7 +188,7 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                 )}
               </div>
             ))}
-            
+
             {isTyping && (
               <div className="flex gap-3 justify-start">
                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -161,9 +196,9 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                 </div>
                 <div className="bg-muted text-foreground p-3 rounded-lg">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               </div>
@@ -173,7 +208,6 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
 
         <Separator />
 
-        {/* Message Input */}
         <div className="p-4">
           <div className="flex gap-2">
             <Input
@@ -183,29 +217,21 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               disabled={isTyping}
             />
-            <Button 
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isTyping}
-              size="icon"
-            >
+            <Button onClick={handleSendMessage} disabled={!inputMessage.trim() || isTyping} size="icon">
               <Send className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </Card>
 
-      {/* Integration & Settings */}
       <div className="space-y-6">
-        {/* Widget Settings */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Code className="h-5 w-5 text-primary" />
               Widget Integration
             </CardTitle>
-            <CardDescription>
-              Add this chatbot to your website
-            </CardDescription>
+            <CardDescription>Add this chatbot to your website</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -214,88 +240,47 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                 <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
                   <code>{embedCode}</code>
                 </pre>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="absolute top-2 right-2"
-                  onClick={copyEmbedCode}
-                >
+                <Button size="sm" variant="ghost" className="absolute top-2 right-2" onClick={copyEmbedCode}>
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-            
+
             <Separator />
-            
+
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Widget Position</span>
-                <Badge variant="outline">
-                  {chatbot.web_widget_config.position === 'bottom-right' ? 'Bottom Right' : 'Bottom Left'}
-                </Badge>
+                <Badge variant="outline">{positionLabel}</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Theme</span>
-                <Badge variant="outline">
-                  {chatbot.web_widget_config.theme === 'light' ? 'Light' : 'Dark'}
-                </Badge>
+                <Badge variant="outline">{themeLabel}</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Size</span>
-                <Badge variant="outline">
-                  {chatbot.web_widget_config.size === 'compact' ? 'Compact' : 'Expanded'}
-                </Badge>
+                <Badge variant="outline">{sizeLabel}</Badge>
               </div>
             </div>
 
-            <Button className="w-full gap-2" variant="outline">
+            <Button
+              className="w-full gap-2"
+              variant="outline"
+              onClick={() => window.open(`${appUrl}/embed.js?preview=${chatbot.id}`, '_blank')}
+              title="Opens the embed script in a new tab for inspection"
+            >
               <Maximize2 className="h-4 w-4" />
-              Open in New Window
+              View Embed Script
             </Button>
           </CardContent>
         </Card>
 
-        {/* Quick Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Stats</CardTitle>
-            <CardDescription>
-              Preview performance metrics
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">0</p>
-                <p className="text-sm text-muted-foreground">Total Conversations</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">0</p>
-                <p className="text-sm text-muted-foreground">Leads Captured</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">
-                  {chatbot.status === 'active' ? '100%' : '0%'}
-                </p>
-                <p className="text-sm text-muted-foreground">Uptime</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">N/A</p>
-                <p className="text-sm text-muted-foreground">Avg Response Time</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Activation */}
         <Card>
           <CardHeader>
             <CardTitle>Chatbot Status</CardTitle>
-            <CardDescription>
-              Manage your chatbot's availability
-            </CardDescription>
+            <CardDescription>Manage your chatbot's availability</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -304,7 +289,7 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                 {chatbot.status}
               </Badge>
             </div>
-            
+
             {chatbot.status === 'draft' && (
               <div className="p-3 bg-warning/10 text-warning-foreground rounded border border-warning/20">
                 <p className="text-sm">
@@ -312,18 +297,18 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                 </p>
               </div>
             )}
-            
-            <Button 
+
+            <Button
               className="w-full"
               variant={chatbot.status === 'active' ? 'outline' : 'default'}
               onClick={handleToggleStatus}
               disabled={isUpdatingStatus}
             >
-              {isUpdatingStatus 
-                ? 'Updating...' 
-                : chatbot.status === 'active' 
-                  ? 'Pause Chatbot' 
-                  : 'Activate Chatbot'}
+              {isUpdatingStatus
+                ? 'Updating...'
+                : chatbot.status === 'active'
+                ? 'Pause Chatbot'
+                : 'Activate Chatbot'}
             </Button>
           </CardContent>
         </Card>

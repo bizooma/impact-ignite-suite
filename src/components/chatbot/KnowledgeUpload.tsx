@@ -193,23 +193,12 @@ export function KnowledgeUpload({ chatbot }: KnowledgeUploadProps) {
 
           {/* File Upload Tab */}
           {activeTab === 'file' && (
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center">
-                <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-lg font-medium text-foreground mb-2">
-                  Drag and drop files here
-                </p>
-                <p className="text-muted-foreground mb-4">
-                  Supports PDF, DOCX, and TXT files up to 10MB each
-                </p>
-                <Button variant="outline">
-                  Choose Files
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                File upload functionality coming soon. For now, you can copy and paste content using the "Add Text" option.
-              </p>
-            </div>
+            <FileUploadSection
+              chatbotId={chatbot.id}
+              onUploaded={async (source) => {
+                // re-fetch happens via hook reactivity through addKnowledgeSource
+              }}
+            />
           )}
 
           {/* URL Import Tab */}
