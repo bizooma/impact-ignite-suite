@@ -59,6 +59,24 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const { hasAccess } = useProductAccess();
+  const { organization } = useOrganization();
+  const [isOrgAdmin, setIsOrgAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user || !organization) {
+      setIsOrgAdmin(false);
+      return;
+    }
+    supabase
+      .from('memberships')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('organization_id', organization.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setIsOrgAdmin(data?.role === 'admin' || data?.role === 'owner');
+      });
+  }, [user, organization]);
 
   const initials = (profile?.display_name || user?.email || 'U')
     .split(' ')
