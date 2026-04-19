@@ -370,18 +370,27 @@ const Pricing = () => {
                 </CardContent>
 
                 <CardFooter>
-                  <Button 
-                    className="w-full"
-                    variant={tier.popular ? "default" : "outline"}
-                    onClick={() => handleSubscribe(tier.priceId, tier.name)}
-                    disabled={loading === tier.priceId}
-                  >
-                    {loading === tier.priceId ? (
-                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
-                    ) : null}
-                    Start Free Trial
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
+                  {(tier as any).isFree ? (
+                    <Link to="/auth" className="w-full">
+                      <Button className="w-full" variant="outline">
+                        Get Started Free
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button 
+                      className="w-full"
+                      variant={tier.popular ? "default" : "outline"}
+                      onClick={() => handleSubscribe(tier.priceId, tier.name)}
+                      disabled={loading === tier.priceId}
+                    >
+                      {loading === tier.priceId ? (
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
+                      ) : null}
+                      Get Started
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}
