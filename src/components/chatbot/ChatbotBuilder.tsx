@@ -351,10 +351,6 @@ function ChatbotStudio({ chatbot, onUpdate, onBack }: ChatbotStudioProps) {
 
         <TabsContent value="knowledge" className="space-y-6">
           <KnowledgeUpload chatbot={chatbot} />
-        </TabsContent>
-
-        <TabsContent value="knowledge" className="space-y-6">
-          <KnowledgeUpload chatbot={chatbot} />
           <FAQManager chatbotId={chatbot.id} />
         </TabsContent>
 
