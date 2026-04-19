@@ -26,7 +26,7 @@ interface KnowledgeUploadProps {
 }
 
 export function KnowledgeUpload({ chatbot }: KnowledgeUploadProps) {
-  const { knowledgeSources, addKnowledgeSource, deleteKnowledgeSource } = useKnowledgeSources(chatbot.id);
+  const { knowledgeSources, addKnowledgeSource, deleteKnowledgeSource, fetchKnowledgeSources } = useKnowledgeSources(chatbot.id);
   const [activeTab, setActiveTab] = useState<'text' | 'file' | 'url'>('text');
   const [isUploading, setIsUploading] = useState(false);
   const [textContent, setTextContent] = useState('');
@@ -193,23 +193,7 @@ export function KnowledgeUpload({ chatbot }: KnowledgeUploadProps) {
 
           {/* File Upload Tab */}
           {activeTab === 'file' && (
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center">
-                <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-lg font-medium text-foreground mb-2">
-                  Drag and drop files here
-                </p>
-                <p className="text-muted-foreground mb-4">
-                  Supports PDF, DOCX, and TXT files up to 10MB each
-                </p>
-                <Button variant="outline">
-                  Choose Files
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                File upload functionality coming soon. For now, you can copy and paste content using the "Add Text" option.
-              </p>
-            </div>
+            <FileUploadSection chatbotId={chatbot.id} onUploaded={fetchKnowledgeSources} />
           )}
 
           {/* URL Import Tab */}
@@ -303,6 +287,124 @@ export function KnowledgeUpload({ chatbot }: KnowledgeUploadProps) {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+interface FileUploadSectionProps {
+  chatbotId: string;
+  onUploaded: () => void;
+}
+
+function FileUploadSection({ chatbotId, onUploaded }: FileUploadSectionProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error('File is larger than 10MB');
+      return;
+    }
+
+    const isText = /\.(txt|md|markdown|csv)$/i.test(file.name) || file.type.startsWith('text/');
+    if (!isText) {
+      toast.error('Only TXT, MD, and CSV files are supported right now. PDFs/DOCX coming soon — paste content into the "Add Text" tab for now.');
+      return;
+    }
+
+    setIsUploading(true);
+    setFileName(file.name);
+
+    try {
+      const text = await file.text();
+
+      // Upload to storage for record-keeping
+      const path = `${chatbotId}/${Date.now()}-${file.name}`;
+      const { error: uploadErr } = await supabase.storage
+        .from('knowledge-sources')
+        .upload(path, file, { upsert: false });
+      if (uploadErr) console.warn('Storage upload warning:', uploadErr);
+
+      // Create the knowledge source row in pending state
+      const { data: inserted, error: insertErr } = await supabase
+        .from('knowledge_sources')
+        .insert({
+          chatbot_id: chatbotId,
+          type: 'text',
+          name: file.name,
+          content: text,
+          file_path: path,
+          status: 'pending',
+          metadata: { size: file.size, mime: file.type },
+        })
+        .select()
+        .single();
+
+      if (insertErr) throw insertErr;
+
+      // Process embeddings via edge function
+      const { error: procErr } = await supabase.functions.invoke('process-knowledge', {
+        body: {
+          knowledgeSourceId: inserted.id,
+          type: 'file',
+          content: text,
+          name: file.name,
+        },
+      });
+
+      if (procErr) {
+        console.error('Processing error:', procErr);
+        toast.error('File uploaded but processing failed.');
+      } else {
+        toast.success('File uploaded and processed.');
+      }
+
+      onUploaded();
+    } catch (e) {
+      console.error('Upload error:', e);
+      toast.error('Failed to upload file');
+    } finally {
+      setIsUploading(false);
+      setFileName(null);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <label
+        htmlFor="kb-file-input"
+        className="border-2 border-dashed border-muted hover:border-primary/50 transition-colors rounded-lg p-8 text-center cursor-pointer block"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          handleFiles(e.dataTransfer.files);
+        }}
+      >
+        <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <p className="text-lg font-medium text-foreground mb-2">
+          {isUploading ? `Uploading ${fileName}...` : 'Drag and drop a file here'}
+        </p>
+        <p className="text-muted-foreground mb-4">
+          Supports TXT, MD, and CSV files up to 10MB
+        </p>
+        <Button type="button" variant="outline" disabled={isUploading} asChild>
+          <span>{isUploading ? 'Processing...' : 'Choose File'}</span>
+        </Button>
+        <input
+          id="kb-file-input"
+          type="file"
+          accept=".txt,.md,.markdown,.csv,text/plain,text/markdown,text/csv"
+          className="hidden"
+          disabled={isUploading}
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+      </label>
+      <p className="text-sm text-muted-foreground">
+        For PDF or DOCX files, copy the text and paste it into the "Add Text" tab.
+      </p>
     </div>
   );
 }

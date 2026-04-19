@@ -144,7 +144,7 @@ serve(async (req) => {
       .from('knowledge_sources')
       .select('content, name')
       .eq('chatbot_id', chatbotId)
-      .eq('status', 'processed');
+      .eq('status', 'completed');
 
     // Get FAQs for context
     const { data: faqs } = await supabase
