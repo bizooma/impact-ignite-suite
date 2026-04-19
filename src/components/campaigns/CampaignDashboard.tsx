@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useCampaigns } from '@/hooks/useCampaigns';
 import { CampaignTemplatePicker } from './CampaignTemplatePicker';
+import { CampaignInspirationGrid } from './CampaignInspirationGrid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { Plus, Calendar, Target, Users, Loader2, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
