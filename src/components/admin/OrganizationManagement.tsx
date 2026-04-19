@@ -13,6 +13,8 @@ import { useOrganization } from '@/hooks/useOrganization';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { CreateOrganizationDialog } from './CreateOrganizationDialog';
+import { OrgProductAccessManager } from './OrgProductAccessManager';
+import { Separator } from '@/components/ui/separator';
 
 interface Organization {
   id: string;
@@ -292,6 +294,12 @@ export function OrganizationManagement() {
                                   </p>
                                 </div>
                               )}
+
+                              <Separator />
+                              <OrgProductAccessManager
+                                organizationId={selectedOrg.id}
+                                organizationName={selectedOrg.name}
+                              />
 
                               <div className="flex flex-wrap gap-2 pt-4">
                                 {isMember(selectedOrg.id) ? (
