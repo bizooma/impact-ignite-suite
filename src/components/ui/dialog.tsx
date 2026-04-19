@@ -43,7 +43,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         // Right-side slide-over panel
-        "fixed inset-y-0 right-0 z-[200] flex h-full w-full max-w-2xl flex-col gap-4 border-l bg-background p-6 shadow-2xl",
+        "fixed inset-y-0 right-0 z-[9991] flex h-full w-full max-w-2xl flex-col gap-4 border-l bg-background p-6 shadow-2xl",
         "transition ease-in-out",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
