@@ -11,6 +11,23 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { TIER_LIMITS } from "@/lib/aiTierLimits";
 
 const tiers = {
+  free: {
+    name: "Free",
+    price: "$0",
+    description: "Try the platform — free forever, no credit card required",
+    priceId: "",
+    popular: false,
+    isFree: true,
+    features: [
+      `${TIER_LIMITS.free.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
+      "Bring your own OpenAI key (unlimited messages)",
+      "1 AI Chatbot",
+      "5 QR Codes",
+      "1 Social Media Account",
+      "Community Support",
+      "Basic Analytics",
+    ]
+  },
   starter: {
     name: "Starter",
     price: "$49.95",
