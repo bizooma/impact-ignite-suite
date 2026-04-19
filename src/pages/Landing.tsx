@@ -321,22 +321,6 @@ const Landing = () => {
               </CardContent>
             </Card>
           </div>
-          {/* Stats strip */}
-          <div className="grid grid-cols-3 gap-6 mt-12 max-w-lg mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">12</div>
-              <div className="text-sm text-muted-foreground">Tools</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">24/7</div>
-              <div className="text-sm text-muted-foreground">Chatbot Support</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">Free</div>
-              <div className="text-sm text-muted-foreground">Beta Access</div>
-            </div>
-          </div>
-
           {/* Bizooma story */}
           <div className="mt-16 max-w-4xl mx-auto">
             <Card className="border-0 shadow-lg overflow-hidden">
