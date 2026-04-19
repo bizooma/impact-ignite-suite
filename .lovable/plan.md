@@ -1,16 +1,12 @@
 
-User wants:
-1. Per-org AI usage tracking (count messages/tokens per billing period)
-2. Hard caps tied to pricing tier — block when exceeded
-3. Per-org BYO OpenAI key option (not just enterprise) accessible in admin settings
+User picked Option A: add a visible Free Forever tier and fix misleading trial CTAs.
 
-Key design decisions:
-- Track in a new `ai_usage` table, aggregate per org per month
-- Tier limits: Starter / Professional / Enterprise — read from org subscription tier (already have `check-subscription` mapping)
-- Hard ceiling enforced in `chat-handler` BEFORE calling OpenAI
-- BYO key stored encrypted in `integrations` table (existing pattern, like Stripe Connect) — when present, usage is metered but NOT capped (their dime)
-- Settings UI: new section in org admin area
+Plan scope:
+1. Pricing page — add 4th column for Free, switch grid to 4 cols on lg (3 cols stays jammed). Update CTAs on paid tiers from "Start Free Trial" to "Get Started" and remove "No credit card required / 14-day free trial" hero copy.
+2. Free tier card: $0/mo, 50 AI messages/mo, 1 chatbot, 5 QR codes, 1 social account, community support, basic analytics. CTA "Get Started Free" → /auth (no Stripe).
+3. Add Free product schema to JSON-LD array; update FAQ to remove "free trial" mention, replace with "free forever plan" answer.
+4. Add a 4th pricingSchemas entry for Free.
 
-Let me check existing settings UI structure briefly... I have enough context already from the file list (`MembershipManagement`, `OrganizationManagement`, `StripeConnectSettings` pattern). The Stripe Connect settings is the perfect template — `integrations` row + edge function for save/test/delete.
+No DB or edge function changes. Pure frontend edit to `src/pages/Pricing.tsx`.
 
-Keep plan concise.
+Keep concise.
