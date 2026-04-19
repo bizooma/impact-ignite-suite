@@ -1,0 +1,1 @@
+INSERT INTO public.beta_signups (email, name, organization) VALUES ('bizoomacreativeagency@gmail.com', 'Bizooma', 'Bizooma Foundation') ON CONFLICT DO NOTHING;
