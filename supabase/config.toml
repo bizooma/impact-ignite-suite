@@ -86,3 +86,6 @@ verify_jwt = true
 
 [functions.assign-flipbook-embed]
 verify_jwt = true
+
+[functions.test-integration]
+verify_jwt = true

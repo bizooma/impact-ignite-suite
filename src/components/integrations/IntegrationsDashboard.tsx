@@ -63,8 +63,12 @@ const IntegrationsDashboard: React.FC<IntegrationsDashboardProps> = ({ organizat
 
   const handleTest = async (integration: any) => {
     try {
-      await testIntegration(integration.id);
-      await updateIntegration(integration.id, { status: 'active', last_synced_at: new Date().toISOString() });
+      const result = await testIntegration(integration.id);
+      if (result?.success) {
+        await updateIntegration(integration.id, { status: 'active', last_synced_at: new Date().toISOString() });
+      } else {
+        await updateIntegration(integration.id, { status: 'error' });
+      }
     } catch (error) {
       await updateIntegration(integration.id, { status: 'error' });
     }
