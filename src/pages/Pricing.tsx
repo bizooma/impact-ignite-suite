@@ -98,6 +98,21 @@ const Pricing = () => {
     {
       "@context": "https://schema.org",
       "@type": "Product",
+      "name": "Causeio Free Plan",
+      "description": "Free forever plan to try Causeio with limited AI messages, 1 chatbot, and basic features",
+      "brand": { "@type": "Brand", "name": "Causeio" },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://yourdomain.com/pricing",
+        "priceCurrency": "USD",
+        "price": "0",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
       "name": "Causeio Starter Plan",
       "description": "Perfect for small businesses getting started with AI chatbots, QR codes, and basic marketing automation",
       "brand": {
