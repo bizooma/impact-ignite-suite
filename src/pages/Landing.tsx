@@ -284,7 +284,7 @@ const Landing = () => {
         <div className="w-full max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-3">Why Nonprofits Choose Causeio</h2>
-            <p className="text-lg text-muted-foreground">We understand the unique challenges nonprofits face</p>
+            <p className="text-lg text-muted-foreground">We've worked for years at several different nonprofits and so we have first hand knowledge of the unique challenges they face.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="bg-white/70 backdrop-blur-md border border-white/40 shadow-lg">
