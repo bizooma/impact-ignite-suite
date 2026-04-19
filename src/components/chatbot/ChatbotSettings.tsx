@@ -115,6 +115,38 @@ export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
 
   return (
     <div className="space-y-6">
+      {/* About */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageCircle className="h-5 w-5 text-primary" />
+            About
+          </CardTitle>
+          <CardDescription>Edit your chatbot's name and description</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="cb_name">Chatbot Name</Label>
+            <Input
+              id="cb_name"
+              placeholder="e.g., Hope Helper"
+              value={config.name}
+              onChange={(e) => setConfig((prev) => ({ ...prev, name: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cb_description">Description</Label>
+            <Textarea
+              id="cb_description"
+              placeholder="Describe what this chatbot helps with — also used as the system prompt."
+              value={config.description}
+              onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
+              rows={3}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Video Settings */}
       <Card>
         <CardHeader>
