@@ -77,10 +77,22 @@ export function CampaignDashboard({ organizationId }: Props) {
               <Card
                 key={c.id}
                 onClick={() => navigate(`/dashboard/campaigns/${c.id}`)}
-                className="p-5 cursor-pointer hover:shadow-md transition-shadow"
+                className="p-5 cursor-pointer hover:shadow-md transition-shadow group relative"
                 style={{ borderTop: `4px solid ${c.theme_color}` }}
               >
-                <div className="flex items-start justify-between mb-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmDeleteId(c.id);
+                  }}
+                  aria-label="Delete campaign"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <div className="flex items-start justify-between mb-3 pr-8">
                   <h3 className="font-semibold text-lg leading-tight">{c.name}</h3>
                   <Badge variant={c.status === 'active' ? 'default' : 'secondary'} className="capitalize">
                     {c.status}
@@ -88,14 +100,19 @@ export function CampaignDashboard({ organizationId }: Props) {
                 </div>
                 {c.tagline && <p className="text-sm text-muted-foreground italic mb-3">{c.tagline}</p>}
                 <div className="space-y-2 text-sm">
-                  {c.event_date && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{new Date(c.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                      {days !== null && days > 0 && <Badge variant="outline" className="ml-auto">{days}d left</Badge>}
-                      {days !== null && days <= 0 && <Badge variant="outline" className="ml-auto">Past</Badge>}
-                    </div>
-                  )}
+                  {c.event_date && (() => {
+                    const [y, m, d] = c.event_date.split('-').map(Number);
+                    const dt = new Date(y, m - 1, d);
+                    const days = Math.ceil((dt.getTime() - Date.now()) / 86_400_000);
+                    return (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span>{dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                        {days > 0 && <Badge variant="outline" className="ml-auto">{days}d left</Badge>}
+                        {days <= 0 && <Badge variant="outline" className="ml-auto">Past</Badge>}
+                      </div>
+                    );
+                  })()}
                   {c.goal_amount && (
                     <div className="flex items-center gap-2">
                       <Target className="h-4 w-4 text-muted-foreground" />
@@ -116,6 +133,29 @@ export function CampaignDashboard({ organizationId }: Props) {
       )}
 
       <CampaignTemplatePicker open={picker} onOpenChange={setPicker} organizationId={organizationId} />
+
+      <AlertDialog open={!!confirmDeleteId} onOpenChange={(o) => !o && setConfirmDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this campaign?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the campaign along with its milestones, content drafts, and metrics. Linked tasks and donations will remain but will lose their campaign attribution. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (confirmDeleteId) deleteCampaign.mutate(confirmDeleteId);
+                setConfirmDeleteId(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
