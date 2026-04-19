@@ -41,8 +41,11 @@ const navigationItems: Array<{
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
   { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },
-  { title: 'Integrations', url: '/dashboard/integrations', icon: Settings, alwaysShow: true },
-  { title: 'Team Members', url: '/dashboard/members', icon: Users, alwaysShow: true },
+];
+
+const adminItems = [
+  { title: 'Integrations', url: '/dashboard/integrations', icon: Settings },
+  { title: 'Team Members', url: '/dashboard/members', icon: Users },
 ];
 
 const resourceItems = [
