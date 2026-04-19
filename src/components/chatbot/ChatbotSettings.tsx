@@ -18,6 +18,10 @@ interface ChatbotSettingsProps {
 
 export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
   const [config, setConfig] = useState({
+    // About / basics
+    name: chatbot.name || '',
+    description: chatbot.description || '',
+
     // Video settings
     video_source: chatbot.web_widget_config?.video_source || '',
     video_type: chatbot.web_widget_config?.video_type || 'youtube',
@@ -69,6 +73,8 @@ export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
     setIsSaving(true);
     
     const updates: Partial<Chatbot> = {
+      name: config.name,
+      description: config.description,
       brand_settings: {
         ...chatbot.brand_settings,
         primary_color: config.primary_color,
