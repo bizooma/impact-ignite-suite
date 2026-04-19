@@ -124,6 +124,159 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_assets: {
+        Row: {
+          asset_id: string | null
+          asset_type: Database["public"]["Enums"]["campaign_asset_type"]
+          body: string | null
+          campaign_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          scheduled_for: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          asset_id?: string | null
+          asset_type: Database["public"]["Enums"]["campaign_asset_type"]
+          body?: string | null
+          campaign_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          scheduled_for?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string | null
+          asset_type?: Database["public"]["Enums"]["campaign_asset_type"]
+          body?: string | null
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          scheduled_for?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_assets_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_metrics_snapshots: {
+        Row: {
+          campaign_id: string
+          chat_sessions: number | null
+          created_at: string
+          donations_amount: number | null
+          donations_count: number | null
+          emails_drafted: number | null
+          id: string
+          new_donors: number | null
+          qr_scans: number | null
+          snapshot_date: string
+          social_engagement: number | null
+          social_reach: number | null
+        }
+        Insert: {
+          campaign_id: string
+          chat_sessions?: number | null
+          created_at?: string
+          donations_amount?: number | null
+          donations_count?: number | null
+          emails_drafted?: number | null
+          id?: string
+          new_donors?: number | null
+          qr_scans?: number | null
+          snapshot_date: string
+          social_engagement?: number | null
+          social_reach?: number | null
+        }
+        Update: {
+          campaign_id?: string
+          chat_sessions?: number | null
+          created_at?: string
+          donations_amount?: number | null
+          donations_count?: number | null
+          emails_drafted?: number | null
+          id?: string
+          new_donors?: number | null
+          qr_scans?: number | null
+          snapshot_date?: string
+          social_engagement?: number | null
+          social_reach?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_metrics_snapshots_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_milestones: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          order_index: number | null
+          owner_id: string | null
+          phase: Database["public"]["Enums"]["campaign_phase"]
+          status: Database["public"]["Enums"]["campaign_milestone_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          order_index?: number | null
+          owner_id?: string | null
+          phase: Database["public"]["Enums"]["campaign_phase"]
+          status?: Database["public"]["Enums"]["campaign_milestone_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          order_index?: number | null
+          owner_id?: string | null
+          phase?: Database["public"]["Enums"]["campaign_phase"]
+          status?: Database["public"]["Enums"]["campaign_milestone_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_milestones_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           created_at: string
@@ -557,6 +710,7 @@ export type Database = {
           donation_date: string
           id: string
           is_recurring: boolean | null
+          marketing_campaign_id: string | null
           metadata: Json | null
           notes: string | null
           organization_id: string
@@ -577,6 +731,7 @@ export type Database = {
           donation_date: string
           id?: string
           is_recurring?: boolean | null
+          marketing_campaign_id?: string | null
           metadata?: Json | null
           notes?: string | null
           organization_id: string
@@ -597,6 +752,7 @@ export type Database = {
           donation_date?: string
           id?: string
           is_recurring?: boolean | null
+          marketing_campaign_id?: string | null
           metadata?: Json | null
           notes?: string | null
           organization_id?: string
@@ -612,6 +768,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_donations_marketing_campaign_id_fkey"
+            columns: ["marketing_campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
             referencedColumns: ["id"]
           },
           {
@@ -701,6 +864,7 @@ export type Database = {
           id: string
           interaction_date: string
           interaction_type: string
+          marketing_campaign_id: string | null
           metadata: Json | null
           organization_id: string
           source_id: string | null
@@ -715,6 +879,7 @@ export type Database = {
           id?: string
           interaction_date?: string
           interaction_type: string
+          marketing_campaign_id?: string | null
           metadata?: Json | null
           organization_id: string
           source_id?: string | null
@@ -729,6 +894,7 @@ export type Database = {
           id?: string
           interaction_date?: string
           interaction_type?: string
+          marketing_campaign_id?: string | null
           metadata?: Json | null
           organization_id?: string
           source_id?: string | null
@@ -741,6 +907,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_interactions_marketing_campaign_id_fkey"
+            columns: ["marketing_campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
             referencedColumns: ["id"]
           },
           {
@@ -1611,6 +1784,86 @@ export type Database = {
           },
         ]
       }
+      marketing_campaigns: {
+        Row: {
+          audience_segments: Json | null
+          channels: Json | null
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          event_date: string | null
+          goal_amount: number | null
+          goal_currency: string | null
+          goal_donors: number | null
+          hero_image_url: string | null
+          id: string
+          name: string
+          organization_id: string
+          slug: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["campaign_status"]
+          story: string | null
+          tagline: string | null
+          template_key: string | null
+          theme_color: string | null
+          updated_at: string
+        }
+        Insert: {
+          audience_segments?: Json | null
+          channels?: Json | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          event_date?: string | null
+          goal_amount?: number | null
+          goal_currency?: string | null
+          goal_donors?: number | null
+          hero_image_url?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          slug: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          story?: string | null
+          tagline?: string | null
+          template_key?: string | null
+          theme_color?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audience_segments?: Json | null
+          channels?: Json | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          event_date?: string | null
+          goal_amount?: number | null
+          goal_currency?: string | null
+          goal_donors?: number | null
+          hero_image_url?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          slug?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          story?: string | null
+          tagline?: string | null
+          template_key?: string | null
+          theme_color?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_campaigns_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           created_at: string
@@ -1899,6 +2152,7 @@ export type Database = {
           destination_url: string
           id: string
           is_active: boolean | null
+          marketing_campaign_id: string | null
           name: string
           organization_id: string
           short_url: string | null
@@ -1912,6 +2166,7 @@ export type Database = {
           destination_url: string
           id?: string
           is_active?: boolean | null
+          marketing_campaign_id?: string | null
           name: string
           organization_id: string
           short_url?: string | null
@@ -1925,6 +2180,7 @@ export type Database = {
           destination_url?: string
           id?: string
           is_active?: boolean | null
+          marketing_campaign_id?: string | null
           name?: string
           organization_id?: string
           short_url?: string | null
@@ -1933,6 +2189,13 @@ export type Database = {
           utm_params?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "qr_codes_marketing_campaign_id_fkey"
+            columns: ["marketing_campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "qr_codes_organization_id_fkey"
             columns: ["organization_id"]
@@ -2049,6 +2312,7 @@ export type Database = {
           created_at: string
           external_post_id: string | null
           id: string
+          marketing_campaign_id: string | null
           media_urls: string[] | null
           metadata: Json | null
           organization_id: string
@@ -2064,6 +2328,7 @@ export type Database = {
           created_at?: string
           external_post_id?: string | null
           id?: string
+          marketing_campaign_id?: string | null
           media_urls?: string[] | null
           metadata?: Json | null
           organization_id: string
@@ -2079,6 +2344,7 @@ export type Database = {
           created_at?: string
           external_post_id?: string | null
           id?: string
+          marketing_campaign_id?: string | null
           media_urls?: string[] | null
           metadata?: Json | null
           organization_id?: string
@@ -2094,6 +2360,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_posts_marketing_campaign_id_fkey"
+            columns: ["marketing_campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
             referencedColumns: ["id"]
           },
           {
@@ -2203,6 +2476,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          marketing_campaign_id: string | null
           metadata: Json | null
           organization_id: string
           parent_task_id: string | null
@@ -2221,6 +2495,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          marketing_campaign_id?: string | null
           metadata?: Json | null
           organization_id: string
           parent_task_id?: string | null
@@ -2239,6 +2514,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          marketing_campaign_id?: string | null
           metadata?: Json | null
           organization_id?: string
           parent_task_id?: string | null
@@ -2257,6 +2533,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "tasks_marketing_campaign_id_fkey"
+            columns: ["marketing_campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "tasks_organization_id_fkey"
@@ -2396,6 +2679,27 @@ export type Database = {
       app_role: "owner" | "admin" | "editor" | "viewer"
       approval_action: "approved" | "rejected" | "edited" | "posted"
       audit_severity: "low" | "medium" | "high" | "critical"
+      campaign_asset_type:
+        | "social_post"
+        | "email_draft"
+        | "sms_draft"
+        | "task"
+        | "qr_code"
+        | "chatbot_faq"
+        | "landing_section"
+        | "gbp_post"
+      campaign_milestone_status:
+        | "todo"
+        | "in_progress"
+        | "completed"
+        | "skipped"
+      campaign_phase:
+        | "awareness"
+        | "engagement"
+        | "push"
+        | "day_of"
+        | "stewardship"
+      campaign_status: "draft" | "active" | "completed" | "archived"
       chatbot_status: "draft" | "active" | "paused"
       grant_stage:
         | "researching"
@@ -2559,6 +2863,30 @@ export const Constants = {
       app_role: ["owner", "admin", "editor", "viewer"],
       approval_action: ["approved", "rejected", "edited", "posted"],
       audit_severity: ["low", "medium", "high", "critical"],
+      campaign_asset_type: [
+        "social_post",
+        "email_draft",
+        "sms_draft",
+        "task",
+        "qr_code",
+        "chatbot_faq",
+        "landing_section",
+        "gbp_post",
+      ],
+      campaign_milestone_status: [
+        "todo",
+        "in_progress",
+        "completed",
+        "skipped",
+      ],
+      campaign_phase: [
+        "awareness",
+        "engagement",
+        "push",
+        "day_of",
+        "stewardship",
+      ],
+      campaign_status: ["draft", "active", "completed", "archived"],
       chatbot_status: ["draft", "active", "paused"],
       grant_stage: [
         "researching",
