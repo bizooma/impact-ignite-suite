@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import type { Chatbot, KnowledgeSource, ChatbotBrandSettings, ChatbotWidgetConfig, KnowledgeSourceMetadata } from '@/types/database';
 import type { Json } from '@/integrations/supabase/types';
+import { isQuotaError } from '@/hooks/useTierLimits';
 
 export function useChatbots(organizationId?: string) {
   const { user } = useAuth();
