@@ -76,9 +76,7 @@ const tiers = {
       "Unlimited AI Chatbots",
       "Unlimited QR Codes",
       "Unlimited Social Accounts",
-      "Mobile App access",
       "All CRM, Campaigns, SEO & Analytics tools",
-      "Dedicated Support Manager",
       "SLA Guarantee"
     ]
   }
