@@ -218,6 +218,15 @@ const PricingBeta = () => {
         ))}
       </div>
 
+      <div className="max-w-2xl mx-auto rounded-lg border bg-muted/30 px-6 py-5 text-center space-y-3">
+        <p className="text-sm">
+          <span className="font-semibold">Not ready to subscribe?</span> No problem — you can keep using Causeio on the <span className="font-semibold">Free</span> plan. Your beta lifetime discount stays locked in whenever you're ready to upgrade.
+        </p>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/dashboard">Continue with Free Plan</Link>
+        </Button>
+      </div>
+
       <p className="text-center text-xs text-muted-foreground">
         Beta pricing is exclusive to your organization and cannot be transferred. Cancel anytime — your discount returns if you re-subscribe.
       </p>
