@@ -318,7 +318,7 @@ const Pricing = () => {
             Choose Your Growth Plan
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Start with a 14-day free trial. No credit card required. Cancel anytime.
+            Start free forever. Upgrade anytime as you grow. Cancel anytime.
           </p>
         </div>
       </section>
@@ -326,7 +326,7 @@ const Pricing = () => {
       {/* Pricing Cards */}
       <section className="py-12 px-6">
         <div className="container mx-auto max-w-7xl">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(tiers).map(([key, tier]) => (
               <Card 
                 key={key} 
