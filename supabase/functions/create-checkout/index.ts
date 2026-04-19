@@ -12,6 +12,14 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
+// Beta-only price IDs. Must only be redeemable by orgs flagged is_beta_org=true.
+const BETA_PRICE_IDS = new Set<string>([
+  "price_1TNzI6EV6sbsDlR8ZwzEiTHV", // Starter Beta $59
+  "price_1TNzIREV6sbsDlR8ONhKHigi", // Professional Beta $139
+  "price_1TNzJ0EV6sbsDlR8bT7hBiwc", // Enterprise Beta $219
+]);
+const BETA_COUPON_ID = "FSXkoOY6";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -20,6 +28,11 @@ serve(async (req) => {
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+  );
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } },
   );
 
   try {
@@ -36,13 +49,33 @@ serve(async (req) => {
     const { priceId, tierName } = await req.json();
     if (!priceId) throw new Error("Price ID is required");
 
-    logStep("Creating checkout session", { priceId, tierName });
+    const isBetaPrice = BETA_PRICE_IDS.has(priceId);
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { 
-      apiVersion: "2025-08-27.basil" 
+    // Server-side gate: beta prices require an owner-org flagged as beta
+    if (isBetaPrice) {
+      const { data: ownerBetaOrgs, error: betaErr } = await supabaseAdmin
+        .from("memberships")
+        .select("organization_id, organizations!inner(is_beta_org)")
+        .eq("user_id", user.id)
+        .eq("role", "owner");
+      if (betaErr) throw betaErr;
+      const hasBeta = (ownerBetaOrgs || []).some((m: any) => m.organizations?.is_beta_org);
+      if (!hasBeta) {
+        logStep("Rejected beta checkout — user has no beta org", { userId: user.id });
+        return new Response(JSON.stringify({ error: "Beta pricing not available for this account" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 403,
+        });
+      }
+      logStep("Beta checkout authorized");
+    }
+
+    logStep("Creating checkout session", { priceId, tierName, isBetaPrice });
+
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil"
     });
 
-    // Check if customer exists
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
     if (customers.data.length > 0) {
@@ -53,24 +86,26 @@ serve(async (req) => {
     }
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
-    
-    const session = await stripe.checkout.sessions.create({
+
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
       metadata: {
         user_id: user.id,
-        tier_name: tierName || "Unknown"
-      }
-    });
+        tier_name: tierName || "Unknown",
+        beta: isBetaPrice ? "true" : "false",
+      },
+    };
+
+    if (isBetaPrice) {
+      sessionParams.discounts = [{ coupon: BETA_COUPON_ID }];
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 

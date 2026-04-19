@@ -39,6 +39,7 @@ import { MembershipManagement } from "./components/admin/MembershipManagement";
 import GoogleAdGrants from "./pages/GoogleAdGrants";
 import Campaigns from "./pages/Campaigns";
 import CampaignDetail from "./pages/CampaignDetail";
+import PricingBeta from "./pages/PricingBeta";
 
 const queryClient = new QueryClient();
 
@@ -241,6 +242,7 @@ const App = () => (
                               <Route path="/campaigns/:id" element={<CampaignDetail organizationId={organizationId} />} />
                               <Route path="/members" element={<MembershipManagement organizationId={organizationId} />} />
                               <Route path="/profile" element={<Profile />} />
+                              <Route path="/pricing-beta" element={<PricingBeta />} />
                               <Route path="/resources/google-ad-grants" element={<GoogleAdGrants />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>

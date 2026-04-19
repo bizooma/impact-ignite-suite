@@ -15,6 +15,9 @@ verify_jwt = true
 [functions.create-checkout]
 verify_jwt = true
 
+[functions.provision-beta-org]
+verify_jwt = true
+
 [functions.check-subscription]
 verify_jwt = true
 
