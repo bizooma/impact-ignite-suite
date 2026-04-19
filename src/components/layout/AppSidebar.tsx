@@ -19,6 +19,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
 import { Separator } from '@/components/ui/separator';
 import { useProductAccess, ProductId } from '@/hooks/useProductAccess';
+import { useOrganization } from '@/hooks/useOrganization';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const navigationItems: Array<{
   title: string;
