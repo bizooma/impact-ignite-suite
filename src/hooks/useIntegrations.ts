@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { isQuotaError } from '@/hooks/useTierLimits';
 import type { Integration } from '@/types/database';
 
 export const useIntegrations = (organizationId: string) => {
@@ -46,11 +47,12 @@ export const useIntegrations = (organizationId: string) => {
         description: 'Integration created successfully',
       });
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating integration:', error);
+      const quotaMsg = isQuotaError(error);
       toast({
-        title: 'Error',
-        description: 'Failed to create integration',
+        title: quotaMsg ? 'Plan limit reached' : 'Error',
+        description: quotaMsg ?? 'Failed to create integration',
         variant: 'destructive',
       });
       throw error;

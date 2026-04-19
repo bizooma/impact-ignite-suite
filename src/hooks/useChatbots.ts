@@ -76,7 +76,8 @@ export function useChatbots(organizationId?: string) {
       return transformedData;
     } catch (error: any) {
       console.error('Error creating chatbot:', error);
-      toast.error('Failed to create chatbot');
+      const quotaMsg = isQuotaError(error);
+      toast.error(quotaMsg ?? 'Failed to create chatbot');
       return null;
     }
   };
