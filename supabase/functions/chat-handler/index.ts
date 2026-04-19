@@ -139,12 +139,66 @@ serve(async (req) => {
       .eq('session_id', session.id)
       .order('created_at', { ascending: true });
 
-    // Get knowledge sources for context
-    const { data: knowledgeSources } = await supabase
-      .from('knowledge_sources')
-      .select('content, name')
-      .eq('chatbot_id', chatbotId)
-      .eq('status', 'completed');
+    // Vector-based retrieval: embed the user message, then fetch the most
+    // semantically relevant chunks. Falls back to all sources if embedding fails.
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    let retrievedChunks: Array<{ source_name: string; content_chunk: string; similarity: number }> = [];
+    let usedFallback = false;
+
+    if (openAIApiKey) {
+      try {
+        const embedRes = await fetch('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'text-embedding-3-small',
+            input: message,
+          }),
+        });
+
+        if (embedRes.ok) {
+          const embedData = await embedRes.json();
+          const queryEmbedding = embedData.data[0].embedding;
+
+          const { data: matches, error: matchErr } = await supabase.rpc('match_knowledge_chunks', {
+            query_embedding: queryEmbedding,
+            match_chatbot_id: chatbotId,
+            match_count: 6,
+            similarity_threshold: 0.3,
+          });
+
+          if (matchErr) {
+            console.warn('match_knowledge_chunks error, falling back:', matchErr);
+            usedFallback = true;
+          } else {
+            retrievedChunks = matches || [];
+            console.log(`Retrieved ${retrievedChunks.length} chunks via vector search`);
+          }
+        } else {
+          console.warn('Embedding request failed, falling back to full-source context');
+          usedFallback = true;
+        }
+      } catch (err) {
+        console.warn('Vector retrieval error, falling back:', err);
+        usedFallback = true;
+      }
+    } else {
+      usedFallback = true;
+    }
+
+    // Fallback: load all completed source content (legacy behavior)
+    let knowledgeSources: Array<{ name: string; content: string | null }> = [];
+    if (usedFallback || retrievedChunks.length === 0) {
+      const { data } = await supabase
+        .from('knowledge_sources')
+        .select('content, name')
+        .eq('chatbot_id', chatbotId)
+        .eq('status', 'completed');
+      knowledgeSources = data || [];
+    }
 
     // Get FAQs for context
     const { data: faqs } = await supabase
@@ -153,9 +207,13 @@ serve(async (req) => {
       .eq('chatbot_id', chatbotId)
       .order('order_index', { ascending: true });
 
-    // Build context from knowledge sources
+    // Build context: prefer retrieved chunks, fall back to full sources
     let contextContent = '';
-    if (knowledgeSources && knowledgeSources.length > 0) {
+    if (retrievedChunks.length > 0) {
+      contextContent = retrievedChunks
+        .map(c => `[${c.source_name}] ${c.content_chunk}`)
+        .join('\n\n');
+    } else if (knowledgeSources.length > 0) {
       contextContent = knowledgeSources
         .map(source => `${source.name}: ${source.content}`)
         .join('\n\n');
@@ -208,8 +266,7 @@ serve(async (req) => {
       }))
     ];
 
-    // Call OpenAI API
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    // Call OpenAI API (key already loaded above for embeddings)
     if (!openAIApiKey) {
       throw new Error('OpenAI API key not configured');
     }
