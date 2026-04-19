@@ -38,7 +38,10 @@ export default function CampaignDetail({ organizationId }: { organizationId: str
             <h1 className="text-3xl font-bold">{campaign.name}</h1>
             {campaign.event_date && (
               <p className="text-muted-foreground">
-                Event: {new Date(campaign.event_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                Event: {(() => {
+                  const [y, m, d] = campaign.event_date.split('-').map(Number);
+                  return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+                })()}
               </p>
             )}
           </div>

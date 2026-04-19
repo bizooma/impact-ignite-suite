@@ -7,6 +7,7 @@ import {
   TASKS,
   ALL_ASSETS,
   getNextGivingTuesday,
+  formatLocalDate,
 } from '@/lib/campaignTemplates/givingTuesday';
 
 export interface MarketingCampaign {
@@ -88,9 +89,9 @@ export function useCampaigns(organizationId: string) {
           goal_amount: overrides?.goal_amount ?? 25000,
           goal_donors: overrides?.goal_donors ?? 100,
           goal_currency: 'USD',
-          start_date: startDate.toISOString().split('T')[0],
-          end_date: endDate.toISOString().split('T')[0],
-          event_date: eventDate.toISOString().split('T')[0],
+          start_date: formatLocalDate(startDate),
+          end_date: formatLocalDate(endDate),
+          event_date: formatLocalDate(eventDate),
           theme_color: '#dc2626',
           tagline: 'One day. Endless impact.',
           status: 'draft',
@@ -110,7 +111,7 @@ export function useCampaigns(organizationId: string) {
           phase: m.phase,
           title: m.title,
           description: m.description,
-          due_date: due.toISOString().split('T')[0],
+          due_date: formatLocalDate(due),
           order_index: m.order_index,
         };
       });
@@ -135,7 +136,7 @@ export function useCampaigns(organizationId: string) {
           organization_id: organizationId,
           title: t.title,
           description: t.description,
-          due_date: due.toISOString().split('T')[0],
+          due_date: formatLocalDate(due),
           priority: t.priority,
           source_module: 'campaigns',
           source_id: campaign.id,
