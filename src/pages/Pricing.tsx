@@ -410,9 +410,9 @@ const Pricing = () => {
               </p>
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Is there a free trial?</h3>
+              <h3 className="text-xl font-semibold mb-2">Is there a free plan?</h3>
               <p className="text-muted-foreground">
-                Absolutely! All plans come with a 14-day free trial. No credit card required to start.
+                Yes! Our Free Forever plan includes 50 AI messages per month, 1 chatbot, and basic features. No credit card required.
               </p>
             </div>
             <div>
