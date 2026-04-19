@@ -6,8 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Building2, Users, Eye, Settings } from 'lucide-react';
+import { Search, Building2, Users, Eye, Settings, UserPlus, LogIn } from 'lucide-react';
 import { usePlatformAdmin } from '@/hooks/usePlatformAdmin';
+import { useAuth } from '@/hooks/useAuth';
+import { useOrganization } from '@/hooks/useOrganization';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { CreateOrganizationDialog } from './CreateOrganizationDialog';
 
@@ -27,7 +30,47 @@ export function OrganizationManagement() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const { logAdminAction } = usePlatformAdmin();
+  const { user } = useAuth();
+  const { organizations: myOrgs, switchOrganization } = useOrganization();
+  const navigate = useNavigate();
+
+  const isMember = (orgId: string) => myOrgs.some((o) => o.id === orgId);
+
+  const handleAddSelfAsOwner = async (orgId: string) => {
+    if (!user) return;
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from('memberships')
+        .insert({ user_id: user.id, organization_id: orgId, role: 'owner' });
+      if (error) throw error;
+      await logAdminAction('add_self_as_owner', 'organization', orgId);
+      toast.success('Added you as owner. Reloading…');
+      window.location.reload();
+    } catch (e: any) {
+      toast.error(e.message ?? 'Failed to add membership');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleEnterOrg = async (orgId: string) => {
+    await logAdminAction('enter_organization', 'organization', orgId);
+    switchOrganization(orgId);
+    setDialogOpen(false);
+    toast.success('Switched organization');
+    navigate('/dashboard');
+  };
+
+  const handleManageMobileSettings = async (orgId: string) => {
+    await logAdminAction('open_mobile_settings', 'organization', orgId);
+    switchOrganization(orgId);
+    setDialogOpen(false);
+    navigate('/mobile-content');
+  };
 
   useEffect(() => {
     fetchOrganizations();
@@ -192,12 +235,12 @@ export function OrganizationManagement() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Dialog>
+                      <Dialog open={dialogOpen && selectedOrg?.id === org.id} onOpenChange={(o) => { setDialogOpen(o); if (!o) setSelectedOrg(null); }}>
                         <DialogTrigger asChild>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setSelectedOrg(org)}
+                            onClick={() => { setSelectedOrg(org); setDialogOpen(true); }}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -250,18 +293,30 @@ export function OrganizationManagement() {
                                 </div>
                               )}
 
-                              <div className="flex gap-2 pt-4">
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleViewOrganization(selectedOrg.id)}
-                                >
-                                  <Building2 className="h-4 w-4 mr-2" />
-                                  View Details
-                                </Button>
-                                <Button variant="outline">
-                                  <Settings className="h-4 w-4 mr-2" />
-                                  Manage Settings
-                                </Button>
+                              <div className="flex flex-wrap gap-2 pt-4">
+                                {isMember(selectedOrg.id) ? (
+                                  <>
+                                    <Button onClick={() => handleEnterOrg(selectedOrg.id)}>
+                                      <LogIn className="h-4 w-4 mr-2" />
+                                      Enter Organization
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => handleManageMobileSettings(selectedOrg.id)}
+                                    >
+                                      <Settings className="h-4 w-4 mr-2" />
+                                      Mobile API Settings
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <Button
+                                    onClick={() => handleAddSelfAsOwner(selectedOrg.id)}
+                                    disabled={actionLoading}
+                                  >
+                                    <UserPlus className="h-4 w-4 mr-2" />
+                                    {actionLoading ? 'Adding…' : 'Add me as owner'}
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           )}
