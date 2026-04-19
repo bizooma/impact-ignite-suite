@@ -318,6 +318,12 @@ const Pricing = () => {
                     <span className="text-4xl font-bold">{tier.price}</span>
                     <span className="text-muted-foreground">/month</span>
                   </div>
+                  <div className="mt-3 inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>
+                      {TIER_LIMITS[key as keyof typeof TIER_LIMITS].monthlyMessageCap.toLocaleString()} AI messages/mo included
+                    </span>
+                  </div>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
