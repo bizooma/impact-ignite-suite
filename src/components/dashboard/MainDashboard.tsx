@@ -16,7 +16,7 @@ import {
   FileText, 
   CheckSquare, 
   TrendingUp, 
-  Settings,
+  Users,
   ArrowRight,
   BookOpen
 } from 'lucide-react';
