@@ -343,11 +343,19 @@ const Landing = () => {
               <CardContent className="p-8 md:p-10">
                 <div className="grid md:grid-cols-[auto,1fr] gap-8 items-center">
                   <div className="flex justify-center md:justify-start">
-                    <img
-                      src={bizoomaLogo}
-                      alt="Bizooma Creative Agency"
-                      className="w-44 h-auto"
-                    />
+                    <a
+                      href="https://bizooma.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Visit Bizooma Creative Agency website"
+                      className="inline-block transition-transform hover:scale-105"
+                    >
+                      <img
+                        src={bizoomaLogo}
+                        alt="Bizooma Creative Agency"
+                        className="w-44 h-auto"
+                      />
+                    </a>
                   </div>
                   <div>
                     <Badge variant="secondary" className="mb-3">Our Story</Badge>
