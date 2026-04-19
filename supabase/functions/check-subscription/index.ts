@@ -20,6 +20,9 @@ const PRODUCT_TIERS: Record<string, string> = {
   "prod_UMhmmlTGrdiwoC": "starter", // $149
   "prod_UMhnb7QjgdDeqA": "professional", // $349
   "prod_UMhnzsjVPZBzZB": "enterprise", // $549
+  "prod_UMij41tBZvb2nm": "starter", // beta $59
+  "prod_UMij36M9v1d4wB": "professional", // beta $139
+  "prod_UMikVVq2T12jYy": "enterprise", // beta $219
 };
 
 // Tier → product bundle. Keep in sync with src/lib/aiTierLimits.ts TIER_PRODUCT_BUNDLES.
