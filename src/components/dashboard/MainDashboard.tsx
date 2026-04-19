@@ -100,7 +100,7 @@ const moduleCards = [
     route: 'analytics',
     status: 'active',
     color: 'success',
-    ready: false
+    ready: true
   },
   {
     title: 'Integrations',
