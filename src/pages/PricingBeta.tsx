@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,7 +71,15 @@ const BETA_TIERS = {
 const PricingBeta = () => {
   const [loading, setLoading] = useState<string | null>(null);
   const { user, loading: authLoading } = useAuth();
-  const { organization, loading: orgLoading } = useOrganization();
+  const { organization, organizations, loading: orgLoading } = useOrganization();
+  const [graceDone, setGraceDone] = useState(false);
+
+  // Give the org provider a brief grace period right after signup so a freshly
+  // provisioned beta org has time to load before we redirect away.
+  useEffect(() => {
+    const t = setTimeout(() => setGraceDone(true), 2500);
+    return () => clearTimeout(t);
+  }, []);
 
   if (authLoading || orgLoading) {
     return (
@@ -85,8 +93,19 @@ const PricingBeta = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Gate: only beta-flagged orgs can see this page
-  if (!organization || !(organization as any).is_beta_org) {
+  // If we have any beta org in the user's memberships, surface it (handles the
+  // case where another non-beta org was selected as the default).
+  const betaOrg = organizations.find((o) => (o as any).is_beta_org);
+  const activeOrg = (organization as any)?.is_beta_org ? organization : betaOrg;
+
+  if (!activeOrg) {
+    if (!graceDone) {
+      return (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      );
+    }
     return <Navigate to="/pricing" replace />;
   }
 
