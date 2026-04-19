@@ -139,7 +139,7 @@ export function StoriesManager({ organizationId }: Props) {
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.title}</TableCell>
                   <TableCell>{s.category || '—'}</TableCell>
-                  <TableCell>{s.is_featured && <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />}</TableCell>
+                  <TableCell>{s.is_featured && <Star className="h-4 w-4 text-primary fill-primary" />}</TableCell>
                   <TableCell>
                     <Badge variant={s.is_published ? 'default' : 'secondary'}>
                       {s.is_published ? 'Published' : 'Draft'}
