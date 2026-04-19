@@ -30,7 +30,47 @@ export function OrganizationManagement() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const { logAdminAction } = usePlatformAdmin();
+  const { user } = useAuth();
+  const { organizations: myOrgs, switchOrganization } = useOrganization();
+  const navigate = useNavigate();
+
+  const isMember = (orgId: string) => myOrgs.some((o) => o.id === orgId);
+
+  const handleAddSelfAsOwner = async (orgId: string) => {
+    if (!user) return;
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from('memberships')
+        .insert({ user_id: user.id, organization_id: orgId, role: 'owner' });
+      if (error) throw error;
+      await logAdminAction('add_self_as_owner', 'organization', orgId);
+      toast.success('Added you as owner. Reloading…');
+      window.location.reload();
+    } catch (e: any) {
+      toast.error(e.message ?? 'Failed to add membership');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleEnterOrg = async (orgId: string) => {
+    await logAdminAction('enter_organization', 'organization', orgId);
+    switchOrganization(orgId);
+    setDialogOpen(false);
+    toast.success('Switched organization');
+    navigate('/dashboard');
+  };
+
+  const handleManageMobileSettings = async (orgId: string) => {
+    await logAdminAction('open_mobile_settings', 'organization', orgId);
+    switchOrganization(orgId);
+    setDialogOpen(false);
+    navigate('/mobile-content');
+  };
 
   useEffect(() => {
     fetchOrganizations();
