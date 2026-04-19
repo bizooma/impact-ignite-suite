@@ -9,6 +9,7 @@ import { CampaignTimeline } from '@/components/campaigns/CampaignTimeline';
 import { CampaignContentLibrary } from '@/components/campaigns/CampaignContentLibrary';
 import { CampaignAudienceSelector } from '@/components/campaigns/CampaignAudienceSelector';
 import { CampaignAnalytics } from '@/components/campaigns/CampaignAnalytics';
+import givingTuesdayLogo from '@/assets/giving-tuesday-logo.png';
 
 export default function CampaignDetail({ organizationId }: { organizationId: string }) {
   const { id } = useParams<{ id: string }>();
