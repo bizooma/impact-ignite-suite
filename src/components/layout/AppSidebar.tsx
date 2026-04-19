@@ -19,6 +19,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
 import { Separator } from '@/components/ui/separator';
 import { useProductAccess, ProductId } from '@/hooks/useProductAccess';
+import { useOrganization } from '@/hooks/useOrganization';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const navigationItems: Array<{
   title: string;
@@ -38,8 +41,11 @@ const navigationItems: Array<{
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
   { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },
-  { title: 'Integrations', url: '/dashboard/integrations', icon: Settings, alwaysShow: true },
-  { title: 'Team Members', url: '/dashboard/members', icon: Users, alwaysShow: true },
+];
+
+const adminItems = [
+  { title: 'Integrations', url: '/dashboard/integrations', icon: Settings },
+  { title: 'Team Members', url: '/dashboard/members', icon: Users },
 ];
 
 const resourceItems = [
@@ -53,6 +59,24 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const { hasAccess } = useProductAccess();
+  const { organization } = useOrganization();
+  const [isOrgAdmin, setIsOrgAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user || !organization) {
+      setIsOrgAdmin(false);
+      return;
+    }
+    supabase
+      .from('memberships')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('organization_id', organization.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setIsOrgAdmin(data?.role === 'admin' || data?.role === 'owner');
+      });
+  }, [user, organization]);
 
   const initials = (profile?.display_name || user?.email || 'U')
     .split(' ')
@@ -132,6 +156,26 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {isOrgAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink to={item.url} className={getNavCls}>
+                        <item.icon className="w-4 h-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {isPlatformAdmin && (
           <SidebarGroup>
