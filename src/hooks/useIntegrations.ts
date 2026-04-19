@@ -112,23 +112,27 @@ export const useIntegrations = (organizationId: string) => {
 
   const testIntegration = async (id: string) => {
     try {
-      // This would call an edge function to test the integration
       const { data, error } = await supabase.functions.invoke('test-integration', {
         body: { integrationId: id }
       });
 
       if (error) throw error;
+      if (!data?.success) {
+        throw new Error(data?.error || 'Integration test failed');
+      }
 
       toast({
-        title: 'Success',
-        description: 'Integration test completed successfully',
+        title: 'Connection successful',
+        description: data.account?.name
+          ? `Connected to ${data.account.name}`
+          : 'Integration test completed successfully',
       });
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error testing integration:', error);
       toast({
-        title: 'Error',
-        description: 'Integration test failed',
+        title: 'Test failed',
+        description: error?.message || 'Integration test failed',
         variant: 'destructive',
       });
       throw error;
