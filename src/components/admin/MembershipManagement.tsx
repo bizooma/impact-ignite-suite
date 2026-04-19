@@ -35,6 +35,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { InviteMemberDialog } from './InviteMemberDialog';
 import { PendingInvitations } from './PendingInvitations';
 import { useInvitations } from '@/hooks/useInvitations';
+import { AIUsageDashboard } from './AIUsageDashboard';
+import { OpenAIKeySettings } from './OpenAIKeySettings';
 
 interface MembershipManagementProps {
   organizationId: string;
@@ -302,6 +304,11 @@ export function MembershipManagement({ organizationId }: MembershipManagementPro
       </Card>
 
       <PendingInvitations organizationId={organizationId} />
+
+      <div className="mt-6 space-y-6">
+        <AIUsageDashboard organizationId={organizationId} />
+        <OpenAIKeySettings organizationId={organizationId} />
+      </div>
 
       <InviteMemberDialog
         open={inviteDialogOpen}
