@@ -1,8 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Mail, MessageCircle, BookOpen, LifeBuoy } from 'lucide-react';
+import { Mail, BookOpen, LifeBuoy } from 'lucide-react';
+import { SupportChat } from '@/components/support/SupportChat';
+import { SupportInbox } from '@/components/support/SupportInbox';
+import { usePlatformAdmin } from '@/hooks/usePlatformAdmin';
 
 export default function Support() {
+  const { isPlatformAdmin } = usePlatformAdmin();
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -14,7 +18,11 @@ export default function Support() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <SupportChat />
+
+      {isPlatformAdmin && <SupportInbox />}
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
             <Mail className="w-6 h-6 text-primary mb-2" />
@@ -27,21 +35,6 @@ export default function Support() {
             <Button asChild>
               <a href="mailto:support@causeio.com">support@causeio.com</a>
             </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <MessageCircle className="w-6 h-6 text-primary mb-2" />
-            <CardTitle>Live Chat</CardTitle>
-            <CardDescription>
-              Look for the chat launcher in the bottom-right corner of this page to start a conversation with our team.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Available during business hours.
-            </p>
           </CardContent>
         </Card>
 

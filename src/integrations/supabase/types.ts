@@ -2629,6 +2629,82 @@ export type Database = {
           },
         ]
       }
+      support_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+          sender_role: Database["public"]["Enums"]["support_sender_role"]
+          thread_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          sender_role: Database["public"]["Enums"]["support_sender_role"]
+          thread_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          sender_role?: Database["public"]["Enums"]["support_sender_role"]
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "support_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_threads: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          last_message_at: string
+          organization_id: string
+          status: Database["public"]["Enums"]["support_thread_status"]
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          last_message_at?: string
+          organization_id: string
+          status?: Database["public"]["Enums"]["support_thread_status"]
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          last_message_at?: string
+          organization_id?: string
+          status?: Database["public"]["Enums"]["support_thread_status"]
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_threads_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_activity: {
         Row: {
           action: string
@@ -3016,6 +3092,8 @@ export type Database = {
         | "posted"
         | "rejected"
       social_platform: "facebook" | "instagram" | "linkedin" | "twitter"
+      support_sender_role: "user" | "support"
+      support_thread_status: "open" | "closed"
       task_status: "todo" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
@@ -3206,6 +3284,8 @@ export const Constants = {
         "rejected",
       ],
       social_platform: ["facebook", "instagram", "linkedin", "twitter"],
+      support_sender_role: ["user", "support"],
+      support_thread_status: ["open", "closed"],
       task_status: ["todo", "in_progress", "completed", "cancelled"],
     },
   },
