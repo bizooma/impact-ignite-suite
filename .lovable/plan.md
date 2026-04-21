@@ -1,35 +1,32 @@
 
-User wants 4 changes on the post-beta-signup experience:
+## Add Organization Name to Signup Flow
 
-1. **Red banner** — Make the "Beta Lifetime Pricing — Locked In Forever" banner on `/dashboard/pricing-beta` use a red background (currently primary teal gradient) so it stands out.
+Right now, signing up creates an auth user but no organization — users land in a "Welcome to Causeio / Create Organization" gate (handled by `DashboardLayout`) before they can access anything. Better UX: collect the org name during signup and provision the org immediately.
 
-2. **Free tier messaging** — Add copy on `PricingBeta.tsx` letting users know they can stay on the free tier and don't have to subscribe. Add a "Continue with Free Plan" or "Skip for now" link/button that takes them to `/dashboard`.
+### What will change
 
-3. **Sidebar product locks** — All sidebar products show locks except Campaigns and Mobile Content. Need to check `useProductAccess` / `AppSidebar` — likely the new beta org has no `purchased_products` set, so everything is locked. Free tier should grant baseline access matching the standard free tier (per `TIER_PRODUCT_BUNDLES.free` in `aiTierLimits.ts`). Need to verify what `purchased_products` a beta org gets at provision time and ensure it matches the free tier bundle until they subscribe.
+**1. Auth signup form (`src/pages/Auth.tsx`)**
+- Add an "Organization Name" field (required) to the sign-up form, placed between "Full name" and "Email".
+- Keep the sign-in form unchanged.
+- Pass the org name through to the signup handler.
 
-4. **Admin sidebar group** — User wants an "Admin" category in the sidebar (for org admins/owners, not platform admins) with sub-items for **Integrations** and **Team Members**. Currently `AppSidebar` has these scattered: `/dashboard/integrations` and `/dashboard/members` exist as routes but are mixed into other groups (or only shown via platform-admin section). Need to add a dedicated "Admin" `SidebarGroup` visible to org admins/owners that contains these two links.
+**2. Auth hook (`src/hooks/useAuth.tsx`)**
+- Extend `signUp(email, password, displayName, organizationName)` to accept the org name and stash it in `options.data.organization_name` (so it's available in the user's metadata after email confirmation).
 
-### Plan
+**3. Auto-provision org on first login (`src/hooks/useOrganization.tsx`)**
+- After `fetchOrganizations()` runs and finds zero memberships, check `user.user_metadata.organization_name`. If present, auto-create the org (reusing existing `createOrganization` logic with a slugified name) and clear the metadata flag so it only runs once.
+- This handles both flows: instant signup (no email confirmation) and delayed signup (after the user clicks the confirmation email).
 
-**File: `src/pages/PricingBeta.tsx`**
-- Change banner classes from `border-primary/30 bg-gradient-to-r from-primary/10 ...` to a red palette: `border-red-500/40 bg-gradient-to-r from-red-500/15 via-red-500/10 to-red-500/15`, icon bg `bg-red-500/20`, icon color `text-red-600`, headline kept bold.
-- Below the tier grid, add a centered note: "Not ready to subscribe? You can keep using Causeio on the **Free** plan — your beta lifetime discount stays locked in whenever you're ready." with a secondary `Button variant="ghost"` linking to `/dashboard` ("Continue with Free Plan").
+**4. Fallback gate (`src/components/layout/DashboardLayout.tsx`)**
+- Leaves the existing "Create Organization" dialog as a fallback for any edge cases (e.g., metadata missing, provisioning failed, or legacy users), so nobody gets stuck.
 
-**File: `supabase/functions/provision-beta-org/index.ts`**
-- When inserting the new org, set `subscription_tier: 'free'` and `purchased_products: TIER_PRODUCT_BUNDLES.free` equivalent array (`['chatbots','qr_codes','seo_audits','analytics']` — confirm by reading `aiTierLimits.ts`) so the free-tier products are unlocked immediately. This fixes the "everything locked" issue for new beta signups.
-- Also backfill: small migration to update existing beta orgs that have empty `purchased_products` to the free bundle.
+### Why this approach
+- Org name is captured up front → no awkward second step after signup.
+- Auto-provision runs client-side on first authenticated load, so it works even if Supabase email confirmation is enabled (the metadata persists across the confirmation redirect).
+- Slug is auto-generated from the org name (lowercased, dash-separated). If a slug collides, append a short random suffix.
+- No DB migration needed — uses existing `organizations` + `memberships` tables and the existing `createOrganization` flow.
 
-**File: `src/components/layout/AppSidebar.tsx`**
-- Add a new `SidebarGroup` titled "Admin" rendered when `isOrgAdmin` is true (already computed in the component), containing:
-  - Integrations → `/dashboard/integrations` (Plug icon)
-  - Team Members → `/dashboard/members` (Users icon)
-- Remove these items from wherever they currently live if duplicated (verify with a quick read).
-
-### Technical notes
-- Free tier product bundle source of truth: `src/lib/aiTierLimits.ts` `TIER_PRODUCT_BUNDLES.free`. Mirror that exact array in the edge function (edge functions can't import src). Add a comment to keep them in sync.
-- The grace-period redirect logic in `PricingBeta.tsx` stays unchanged.
-- No DB schema changes needed; just data updates.
-
-### Out of scope / assumptions
-- Assuming free tier should include the same products as the standard `free` tier defined in `aiTierLimits.ts`. If you want beta free users to have *more* unlocked (e.g. CRM, Campaigns) tell me which products and I'll widen the bundle.
-- Keeping the existing teal/primary styling on the rest of the page; only the top banner becomes red.
+### Files to edit
+- `src/pages/Auth.tsx` — add Organization Name input to signup form
+- `src/hooks/useAuth.tsx` — accept + forward `organizationName` in `signUp`
+- `src/hooks/useOrganization.tsx` — auto-create org from user metadata on first load
