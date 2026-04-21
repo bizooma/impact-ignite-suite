@@ -29,12 +29,10 @@ export default function Support() {
         .querySelectorAll('link[href*="widget.css"], link[href*="/embed/"]')
         .forEach((el) => el.remove());
       // Clear globals so re-mount works
-      // @ts-expect-error - widget globals
-      delete window.CauseioWidget;
-      // @ts-expect-error - widget globals
-      delete window.__CAUSEIO_WIDGET_LOADED__;
-      // @ts-expect-error - widget globals
-      delete window.__CAUSEIO_WIDGET_LOADING__;
+      const w = window as unknown as Record<string, unknown>;
+      delete w.CauseioWidget;
+      delete w.__CAUSEIO_WIDGET_LOADED__;
+      delete w.__CAUSEIO_WIDGET_LOADING__;
     };
   }, []);
 
