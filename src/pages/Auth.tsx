@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
