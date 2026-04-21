@@ -1,25 +1,60 @@
 
 
 ## Goal
-Embed the live chat widget **only** on `/dashboard/support` — not globally across the site.
+Add an inline in-app support chat directly on `/dashboard/support` — no floating widget, no third-party. Users (org members) start a thread with Causeio's support team; platform admins see and reply to all threads from the same page.
 
-## Approach
-Inject the widget's `<script>` tag dynamically when the Support page mounts, and remove it (plus any DOM it created) when the user navigates away. This keeps `index.html` clean and scopes the widget to a single route.
+## How It Works
 
-## Changes
+**For end users (org members):**
+A "Chat with Support" panel embedded on the page shows their current support thread. They type, hit send, message is stored in Supabase. They see replies appear in real time.
 
-### 1. `src/pages/Support.tsx` — mount widget per-route
-Add a `useEffect` that:
-- Creates a `<script>` element pointing at the widget's `embed.js` URL with the appropriate `data-chatbot-id`, `data-primary-color`, and `data-accent-color` attributes (same values currently in `index.html`).
-- Appends it to `document.body` on mount.
-- On unmount: removes the injected `<script>`, removes the widget's root container (`#causeio-widget-root` — created by `widget-entry.tsx`), removes the injected `<link>` for `widget.css`, and clears the `window.__CAUSEIO_WIDGET_LOADED__` / `window.__CAUSEIO_WIDGET_LOADING__` flags + `window.CauseioWidget` so a fresh init works on re-entry.
+**For platform admins (your support team):**
+The same `/dashboard/support` page shows an additional "Support Inbox" section listing every open support thread across all orgs. Selecting one opens the conversation inline, where they can reply. Replies appear instantly to the user via Supabase Realtime.
 
-Replace the current "Start a Chat" card's button behavior with a small note like "Chat widget available in the bottom-right corner" (or keep the button as a no-op visual cue), since the launcher itself appears via the embedded widget.
+No floating launcher. Everything lives inside the page card layout, so it can't conflict with the public chatbot widget.
 
-### 2. `index.html` — remove the global embed
-Delete the `<script src="/embed.js?v=20251020" data-chatbot-id="..." ...>` tag from the body so the widget no longer loads on every page (landing, auth, dashboards, etc.). The Webability accessibility widget stays.
+## Database (new tables via migration)
 
-## Notes
-- The exact chatbot ID + colors will be copied verbatim from the current `index.html` block so behavior on the Support page is identical to today.
-- Cleanup is important — without it, navigating away and back would either leave a stale launcher visible on other routes or fail to re-initialize.
+**`support_threads`**
+- `id`, `organization_id` (FK), `created_by` (user_id), `subject` (nullable), `status` (`open` | `closed`), `last_message_at`, `created_at`, `updated_at`
+- RLS: org members can SELECT/INSERT their own org's threads; platform admins can SELECT/UPDATE all.
+
+**`support_messages`**
+- `id`, `thread_id` (FK), `sender_id` (user_id), `sender_role` (`user` | `support`), `content`, `created_at`
+- RLS: org members can SELECT/INSERT messages on their org's threads; platform admins can SELECT/INSERT on all.
+- Trigger: on INSERT, update parent thread's `last_message_at` and bump `status` to `open`.
+
+Realtime enabled on `support_messages` so both sides get instant updates.
+
+## UI Changes
+
+**`src/pages/Support.tsx`** — replace the "Live Chat" card with an inline `<SupportChat />` panel (full-width card, ~500px tall, message list + input). Keep Email, Docs, Submit Request, FAQ cards.
+
+**New `src/components/support/SupportChat.tsx`** — user-side panel:
+- Loads current org's most recent open thread (or creates one on first send)
+- Message list with user/support bubbles, timestamps
+- Text input + Send button
+- Subscribes to realtime inserts on `support_messages` for the thread
+
+**New `src/components/support/SupportInbox.tsx`** — admin-side panel, only rendered when `usePlatformAdmin().isPlatformAdmin` is true:
+- Left column: list of all threads (org name, last message preview, unread indicator, sorted by `last_message_at`)
+- Right column: selected thread's messages + reply box
+- Realtime subscription to all `support_messages`
+
+Conditionally renders below the user chat panel on the same page.
+
+## Notifications (lightweight, no push)
+- Sidebar badge on "Support" nav item showing unread count for the user (or open-thread count for admins). Defer to a follow-up if you want to keep this round small — call it out and I'll skip it.
+
+## Out of Scope (this round)
+- Email notifications when a reply arrives
+- File attachments
+- Multiple subjects/threads per org (one open thread at a time keeps UX simple — can extend later)
+- Mobile push
+
+## Technical Notes
+- Migration creates 2 tables, 2 enums (or text+check), RLS policies, and a trigger to update `last_message_at`.
+- Realtime: enable replication on `support_messages` and add to `supabase_realtime` publication.
+- Permissions reuse `is_org_member()` and `is_platform_admin()` — no new helpers needed.
+- All UI uses existing shadcn `Card`, `Input`, `Button`, `ScrollArea`, `Avatar`.
 
