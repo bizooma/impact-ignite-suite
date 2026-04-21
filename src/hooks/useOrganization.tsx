@@ -86,11 +86,61 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
         if (orgs.length > 0 && !organization) {
           setOrganization(orgs[0]);
         }
+
+        // Auto-provision org from signup metadata if user has none
+        if (orgs.length === 0 && user) {
+          const pendingOrgName = (user as any)?.user_metadata?.organization_name as string | undefined;
+          if (pendingOrgName && pendingOrgName.trim().length >= 2) {
+            await autoProvisionOrg(pendingOrgName.trim());
+            return;
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching organizations:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const slugify = (name: string) =>
+    name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'org';
+
+  const autoProvisionOrg = async (name: string) => {
+    if (!user) return;
+    try {
+      const baseSlug = slugify(name);
+      const slug = `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
+
+      const { data: newOrg, error: orgError } = await supabase
+        .from('organizations')
+        .insert([{ name, slug }])
+        .select()
+        .single();
+
+      if (orgError) throw orgError;
+
+      const { error: membershipError } = await supabase
+        .from('memberships')
+        .insert([{ user_id: user.id, organization_id: newOrg.id, role: 'owner' }]);
+
+      if (membershipError) throw membershipError;
+
+      // Clear metadata so this only runs once
+      await supabase.auth.updateUser({ data: { organization_name: null } });
+
+      const org = {
+        ...newOrg,
+        purchased_products: Array.isArray(newOrg.purchased_products)
+          ? (newOrg.purchased_products as string[])
+          : [],
+      } as Organization;
+
+      setOrganizations([org]);
+      setOrganization(org);
+      toast.success(`Welcome! ${name} is ready to go.`);
+    } catch (error: any) {
+      console.error('Auto-provision org failed:', error);
     }
   };
 

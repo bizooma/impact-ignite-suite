@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const signUpSchema = z.object({
   displayName: z.string().trim().min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters'),
+  organizationName: z.string().trim().min(2, 'Organization name must be at least 2 characters').max(100, 'Organization name must be less than 100 characters'),
   email: z.string().trim().email('Please enter a valid email address').max(255, 'Email must be less than 255 characters'),
   password: z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password must be less than 128 characters'),
 });
@@ -83,6 +84,7 @@ export default function Auth() {
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       displayName: '',
+      organizationName: '',
       email: inviteEmail || '',
       password: '',
     },
@@ -102,7 +104,7 @@ export default function Auth() {
   }
 
   const handleSignUp = async (data: SignUpFormData) => {
-    const { error } = await signUp(data.email, data.password, data.displayName);
+    const { error } = await signUp(data.email, data.password, data.displayName, data.organizationName);
     
     if (error) {
       if (error.message.includes('User already registered')) {
@@ -218,6 +220,21 @@ export default function Auth() {
                   {signUpForm.formState.errors.displayName && (
                     <p className="text-sm text-destructive">
                       {signUpForm.formState.errors.displayName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2 text-center">
+                  <label className="text-sm font-medium block">Organization name</label>
+                  <Input
+                    placeholder="Enter your nonprofit/organization name"
+                    autoComplete="organization"
+                    disabled={loading}
+                    {...signUpForm.register('organizationName')}
+                  />
+                  {signUpForm.formState.errors.organizationName && (
+                    <p className="text-sm text-destructive">
+                      {signUpForm.formState.errors.organizationName.message}
                     </p>
                   )}
                 </div>
