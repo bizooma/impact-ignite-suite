@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import causeioLogo from '@/assets/causeio-logo-full.png';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Heart, Shield, Users } from 'lucide-react';
+import { Shield, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const signUpSchema = z.object({
@@ -159,12 +160,13 @@ export default function Auth() {
         {/* Header */}
         <div className="text-center space-y-6">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
-              <Heart className="w-8 h-8 text-primary-foreground" />
-            </div>
+            <img 
+              src={causeioLogo} 
+              alt="Causeio" 
+              className="h-16 w-auto object-contain"
+            />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Causeio</h1>
             <p className="text-muted-foreground mt-2 text-lg">
               Empowering nonprofits with compassionate technology
             </p>
