@@ -362,7 +362,7 @@ export default function Auth() {
         {/* Footer message */}
         <p className="text-center text-sm text-muted-foreground">
           By continuing, you agree to our compassionate approach to data{" "}
-          <Link to="/privacy" className="text-primary hover:underline">
+          <Link to="/privacy" className="text-primary underline hover:no-underline">
             Privacy
           </Link>{" "}
           and security.
