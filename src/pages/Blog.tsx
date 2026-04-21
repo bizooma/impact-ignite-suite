@@ -49,7 +49,7 @@ const blogPosts = [
     excerpt: "QR codes turn every flyer, sign, and t-shirt into a measurable fundraising channel — if you use them right.",
     image: qrCodesImage,
     author: "Joseph Murphy",
-    date: "Nov. 1, 2025",
+    date: "Jan. 11, 2026",
     readTime: "7 min read",
     category: "Marketing",
     slug: "/blog/qr-codes-nonprofits-2025"

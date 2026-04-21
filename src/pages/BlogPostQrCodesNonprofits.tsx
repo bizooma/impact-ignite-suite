@@ -56,7 +56,7 @@ const BlogPostQrCodesNonprofits = () => {
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span>Nov. 1, 2025</span>
+              <span>Jan. 11, 2026</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
