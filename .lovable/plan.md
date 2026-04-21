@@ -1,32 +1,25 @@
 
-## Add Organization Name to Signup Flow
 
-Right now, signing up creates an auth user but no organization — users land in a "Welcome to Causeio / Create Organization" gate (handled by `DashboardLayout`) before they can access anything. Better UX: collect the org name during signup and provision the org immediately.
+## Goal
+Embed the live chat widget **only** on `/dashboard/support` — not globally across the site.
 
-### What will change
+## Approach
+Inject the widget's `<script>` tag dynamically when the Support page mounts, and remove it (plus any DOM it created) when the user navigates away. This keeps `index.html` clean and scopes the widget to a single route.
 
-**1. Auth signup form (`src/pages/Auth.tsx`)**
-- Add an "Organization Name" field (required) to the sign-up form, placed between "Full name" and "Email".
-- Keep the sign-in form unchanged.
-- Pass the org name through to the signup handler.
+## Changes
 
-**2. Auth hook (`src/hooks/useAuth.tsx`)**
-- Extend `signUp(email, password, displayName, organizationName)` to accept the org name and stash it in `options.data.organization_name` (so it's available in the user's metadata after email confirmation).
+### 1. `src/pages/Support.tsx` — mount widget per-route
+Add a `useEffect` that:
+- Creates a `<script>` element pointing at the widget's `embed.js` URL with the appropriate `data-chatbot-id`, `data-primary-color`, and `data-accent-color` attributes (same values currently in `index.html`).
+- Appends it to `document.body` on mount.
+- On unmount: removes the injected `<script>`, removes the widget's root container (`#causeio-widget-root` — created by `widget-entry.tsx`), removes the injected `<link>` for `widget.css`, and clears the `window.__CAUSEIO_WIDGET_LOADED__` / `window.__CAUSEIO_WIDGET_LOADING__` flags + `window.CauseioWidget` so a fresh init works on re-entry.
 
-**3. Auto-provision org on first login (`src/hooks/useOrganization.tsx`)**
-- After `fetchOrganizations()` runs and finds zero memberships, check `user.user_metadata.organization_name`. If present, auto-create the org (reusing existing `createOrganization` logic with a slugified name) and clear the metadata flag so it only runs once.
-- This handles both flows: instant signup (no email confirmation) and delayed signup (after the user clicks the confirmation email).
+Replace the current "Start a Chat" card's button behavior with a small note like "Chat widget available in the bottom-right corner" (or keep the button as a no-op visual cue), since the launcher itself appears via the embedded widget.
 
-**4. Fallback gate (`src/components/layout/DashboardLayout.tsx`)**
-- Leaves the existing "Create Organization" dialog as a fallback for any edge cases (e.g., metadata missing, provisioning failed, or legacy users), so nobody gets stuck.
+### 2. `index.html` — remove the global embed
+Delete the `<script src="/embed.js?v=20251020" data-chatbot-id="..." ...>` tag from the body so the widget no longer loads on every page (landing, auth, dashboards, etc.). The Webability accessibility widget stays.
 
-### Why this approach
-- Org name is captured up front → no awkward second step after signup.
-- Auto-provision runs client-side on first authenticated load, so it works even if Supabase email confirmation is enabled (the metadata persists across the confirmation redirect).
-- Slug is auto-generated from the org name (lowercased, dash-separated). If a slug collides, append a short random suffix.
-- No DB migration needed — uses existing `organizations` + `memberships` tables and the existing `createOrganization` flow.
+## Notes
+- The exact chatbot ID + colors will be copied verbatim from the current `index.html` block so behavior on the Support page is identical to today.
+- Cleanup is important — without it, navigating away and back would either leave a stale launcher visible on other routes or fail to re-initialize.
 
-### Files to edit
-- `src/pages/Auth.tsx` — add Organization Name input to signup form
-- `src/hooks/useAuth.tsx` — accept + forward `organizationName` in `signUp`
-- `src/hooks/useOrganization.tsx` — auto-create org from user metadata on first load
