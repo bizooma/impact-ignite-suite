@@ -1,8 +1,41 @@
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Mail, MessageCircle, BookOpen, LifeBuoy } from 'lucide-react';
 
+const WIDGET_SCRIPT_ID = 'causeio-support-widget-script';
+const WIDGET_ROOT_ID = 'causeio-widget-root';
+const CHATBOT_ID = '3c83a2ce-c387-47bd-8f86-b10154810d16';
+const PRIMARY_COLOR = '#0066CC';
+const ACCENT_COLOR = '#00AA44';
+
 export default function Support() {
+  useEffect(() => {
+    if (document.getElementById(WIDGET_SCRIPT_ID)) return;
+
+    const script = document.createElement('script');
+    script.id = WIDGET_SCRIPT_ID;
+    script.src = `/embed.js?v=20251020`;
+    script.async = true;
+    script.setAttribute('data-chatbot-id', CHATBOT_ID);
+    script.setAttribute('data-primary-color', PRIMARY_COLOR);
+    script.setAttribute('data-accent-color', ACCENT_COLOR);
+    document.body.appendChild(script);
+
+    return () => {
+      document.getElementById(WIDGET_SCRIPT_ID)?.remove();
+      document.getElementById(WIDGET_ROOT_ID)?.remove();
+      document
+        .querySelectorAll('link[href*="widget.css"], link[href*="/embed/"]')
+        .forEach((el) => el.remove());
+      // Clear globals so re-mount works
+      const w = window as unknown as Record<string, unknown>;
+      delete w.CauseioWidget;
+      delete w.__CAUSEIO_WIDGET_LOADED__;
+      delete w.__CAUSEIO_WIDGET_LOADING__;
+    };
+  }, []);
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
@@ -34,11 +67,13 @@ export default function Support() {
             <MessageCircle className="w-6 h-6 text-primary mb-2" />
             <CardTitle>Live Chat</CardTitle>
             <CardDescription>
-              Chat with our support team in real time during business hours.
+              Look for the chat launcher in the bottom-right corner of this page to start a conversation with our team.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline">Start a Chat</Button>
+            <p className="text-sm text-muted-foreground">
+              Available during business hours.
+            </p>
           </CardContent>
         </Card>
 
