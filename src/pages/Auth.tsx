@@ -225,6 +225,21 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2 text-center">
+                  <label className="text-sm font-medium block">Organization name</label>
+                  <Input
+                    placeholder="Enter your nonprofit/organization name"
+                    autoComplete="organization"
+                    disabled={loading}
+                    {...signUpForm.register('organizationName')}
+                  />
+                  {signUpForm.formState.errors.organizationName && (
+                    <p className="text-sm text-destructive">
+                      {signUpForm.formState.errors.organizationName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Email</label>
                   <Input
                     type="email"
