@@ -37,7 +37,16 @@ export function SupportInbox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
+  const [notifyEnabled, setNotifyEnabled] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(NOTIFY_PREF_KEY) === '1';
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
+  const threadsRef = useRef<Thread[]>([]);
+  const notifyEnabledRef = useRef(notifyEnabled);
+
+  useEffect(() => { threadsRef.current = threads; }, [threads]);
+  useEffect(() => { notifyEnabledRef.current = notifyEnabled; }, [notifyEnabled]);
 
   const loadThreads = async () => {
     const { data } = await supabase
