@@ -3,36 +3,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Mail, MessageCircle, BookOpen, LifeBuoy } from 'lucide-react';
 
-const WIDGET_SCRIPT_ID = 'causeio-support-widget-script';
-const WIDGET_ROOT_ID = 'causeio-widget-root';
-const CHATBOT_ID = '3c83a2ce-c387-47bd-8f86-b10154810d16';
-const PRIMARY_COLOR = '#0066CC';
-const ACCENT_COLOR = '#00AA44';
+const TAWK_SCRIPT_ID = 'tawk-to-support-script';
+const TAWK_SRC = 'https://embed.tawk.to/69e7bf9e5977cf1c37318b05/1jmok919v';
 
 export default function Support() {
   useEffect(() => {
-    if (document.getElementById(WIDGET_SCRIPT_ID)) return;
+    if (document.getElementById(TAWK_SCRIPT_ID)) return;
+
+    const w = window as unknown as Record<string, unknown>;
+    w.Tawk_API = w.Tawk_API || {};
+    w.Tawk_LoadStart = new Date();
 
     const script = document.createElement('script');
-    script.id = WIDGET_SCRIPT_ID;
-    script.src = `/embed.js?v=20251020`;
+    script.id = TAWK_SCRIPT_ID;
+    script.src = TAWK_SRC;
     script.async = true;
-    script.setAttribute('data-chatbot-id', CHATBOT_ID);
-    script.setAttribute('data-primary-color', PRIMARY_COLOR);
-    script.setAttribute('data-accent-color', ACCENT_COLOR);
+    script.charset = 'UTF-8';
+    script.setAttribute('crossorigin', '*');
     document.body.appendChild(script);
 
     return () => {
-      document.getElementById(WIDGET_SCRIPT_ID)?.remove();
-      document.getElementById(WIDGET_ROOT_ID)?.remove();
+      document.getElementById(TAWK_SCRIPT_ID)?.remove();
       document
-        .querySelectorAll('link[href*="widget.css"], link[href*="/embed/"]')
+        .querySelectorAll(
+          'iframe[src*="tawk.to"], iframe[title*="chat" i], div[class*="tawk-" i], #tawkchat-container, .widget-visible'
+        )
         .forEach((el) => el.remove());
-      // Clear globals so re-mount works
-      const w = window as unknown as Record<string, unknown>;
-      delete w.CauseioWidget;
-      delete w.__CAUSEIO_WIDGET_LOADED__;
-      delete w.__CAUSEIO_WIDGET_LOADING__;
+      const win = window as unknown as Record<string, unknown>;
+      delete win.Tawk_API;
+      delete win.Tawk_LoadStart;
     };
   }, []);
 
