@@ -67,7 +67,46 @@ export function SupportInbox() {
         table: 'support_threads',
       }, () => loadThreads())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    // Global subscription for desktop notifications on new user messages
+    const msgChannel = supabase
+      .channel('support_inbox_all_msgs')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'support_messages',
+      }, (payload) => {
+        const m = payload.new as Message;
+        if (m.sender_role !== 'user') return;
+        if (!notifyEnabledRef.current) return;
+        if (typeof window === 'undefined' || !('Notification' in window)) return;
+        if (Notification.permission !== 'granted') return;
+
+        const thread = threadsRef.current.find(t => t.id === m.thread_id);
+        const orgName = thread?.organizations?.name || 'a user';
+        const preview = m.content.length > 140 ? m.content.slice(0, 140) + '…' : m.content;
+
+        try {
+          const n = new Notification(`New support chat from ${orgName}`, {
+            body: preview,
+            icon: '/favicon.ico',
+            tag: m.thread_id,
+          });
+          n.onclick = () => {
+            window.focus();
+            setSelectedId(m.thread_id);
+            n.close();
+          };
+        } catch {
+          // ignore notification errors
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+      supabase.removeChannel(msgChannel);
+    };
   }, []);
 
   useEffect(() => {
