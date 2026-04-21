@@ -210,7 +210,7 @@ export default function Auth() {
             {isSignUp ? (
               <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
                 <div className="space-y-2 text-center">
-                  <label className="text-sm font-medium block">Full name</label>
+                  <label className="text-sm font-medium block">Full name <span className="text-destructive">*</span></label>
                   <Input
                     placeholder="Enter your full name"
                     autoComplete="name"
@@ -225,7 +225,7 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2 text-center">
-                  <label className="text-sm font-medium block">Organization name</label>
+                  <label className="text-sm font-medium block">Organization name <span className="text-destructive">*</span></label>
                   <Input
                     placeholder="Enter your nonprofit/organization name"
                     autoComplete="organization"
@@ -240,7 +240,7 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2 text-center">
-                  <label className="text-sm font-medium block">Email</label>
+                  <label className="text-sm font-medium block">Email <span className="text-destructive">*</span></label>
                   <Input
                     type="email"
                     placeholder="Enter your email address"
@@ -256,7 +256,7 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2 text-center">
-                  <label className="text-sm font-medium block">Password</label>
+                  <label className="text-sm font-medium block">Password <span className="text-destructive">*</span></label>
                   <Input
                     type="password"
                     placeholder="Create a secure password"
