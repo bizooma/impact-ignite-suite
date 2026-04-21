@@ -259,7 +259,8 @@ export default function Auth() {
 
                 <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Password <span className="text-destructive">*</span></label>
-                  <div className="relative">
+                  <div className="relative w-full">
+                    <span className="sr-only">Password input with visibility toggle</span>
                     <Input
                       type={showSignUpPassword ? 'text' : 'password'}
                       placeholder="Create a secure password"
@@ -309,7 +310,8 @@ export default function Auth() {
 
                 <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Password</label>
-                  <div className="relative">
+                  <div className="relative w-full">
+                    <span className="sr-only">Password input with visibility toggle</span>
                     <Input
                       type={showSignInPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
