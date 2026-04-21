@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Shield, Users } from 'lucide-react';
+import { Shield, Users, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const signUpSchema = z.object({
@@ -31,6 +31,8 @@ type SignInFormData = z.infer<typeof signInSchema>;
 export default function Auth() {
   const { user, signUp, signIn, loading } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite');
   const [inviteEmail, setInviteEmail] = useState<string | null>(null);
@@ -257,13 +259,25 @@ export default function Auth() {
 
                 <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Password <span className="text-destructive">*</span></label>
-                  <Input
-                    type="password"
-                    placeholder="Create a secure password"
-                    autoComplete="new-password"
-                    disabled={loading}
-                    {...signUpForm.register('password')}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showSignUpPassword ? 'text' : 'password'}
+                      placeholder="Create a secure password"
+                      autoComplete="new-password"
+                      disabled={loading}
+                      className="pr-10"
+                      {...signUpForm.register('password')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignUpPassword((v) => !v)}
+                      disabled={loading}
+                      aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {showSignUpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {signUpForm.formState.errors.password && (
                     <p className="text-sm text-destructive">
                       {signUpForm.formState.errors.password.message}
@@ -295,13 +309,25 @@ export default function Auth() {
 
                 <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Password</label>
-                  <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    autoComplete="current-password"
-                    disabled={loading}
-                    {...signInForm.register('password')}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showSignInPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      autoComplete="current-password"
+                      disabled={loading}
+                      className="pr-10"
+                      {...signInForm.register('password')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignInPassword((v) => !v)}
+                      disabled={loading}
+                      aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {showSignInPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {signInForm.formState.errors.password && (
                     <p className="text-sm text-destructive">
                       {signInForm.formState.errors.password.message}
