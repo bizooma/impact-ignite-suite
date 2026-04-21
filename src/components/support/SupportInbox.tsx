@@ -164,12 +164,56 @@ export function SupportInbox() {
     }
   };
 
+  const handleToggleNotify = async (checked: boolean) => {
+    if (!checked) {
+      setNotifyEnabled(false);
+      localStorage.setItem(NOTIFY_PREF_KEY, '0');
+      toast.success('Desktop notifications disabled');
+      return;
+    }
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      toast.error('This browser does not support desktop notifications');
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      setNotifyEnabled(true);
+      localStorage.setItem(NOTIFY_PREF_KEY, '1');
+      toast.success('Desktop notifications enabled');
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      toast.error('Notifications are blocked. Enable them in your browser settings.');
+      return;
+    }
+    const result = await Notification.requestPermission();
+    if (result === 'granted') {
+      setNotifyEnabled(true);
+      localStorage.setItem(NOTIFY_PREF_KEY, '1');
+      toast.success('Desktop notifications enabled');
+    } else {
+      toast.error('Permission denied');
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <Inbox className="w-5 h-5 text-primary" />
-          <CardTitle>Support Inbox (Admin)</CardTitle>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Inbox className="w-5 h-5 text-primary" />
+            <CardTitle>Support Inbox (Admin)</CardTitle>
+          </div>
+          <div className="flex items-center gap-2">
+            <Bell className="w-4 h-4 text-muted-foreground" />
+            <Label htmlFor="notify-toggle" className="text-sm font-normal cursor-pointer">
+              Desktop notifications
+            </Label>
+            <Switch
+              id="notify-toggle"
+              checked={notifyEnabled}
+              onCheckedChange={handleToggleNotify}
+            />
+          </div>
         </div>
         <CardDescription>
           All support conversations across organizations. Reply to users in real time.
