@@ -41,6 +41,7 @@ import Campaigns from "./pages/Campaigns";
 import CampaignDetail from "./pages/CampaignDetail";
 import PricingBeta from "./pages/PricingBeta";
 import Privacy from "./pages/Privacy";
+import Support from "./pages/Support";
 
 const queryClient = new QueryClient();
 
@@ -246,6 +247,7 @@ const App = () => (
                               <Route path="/profile" element={<Profile />} />
                               <Route path="/pricing-beta" element={<PricingBeta />} />
                               <Route path="/resources/google-ad-grants" element={<GoogleAdGrants />} />
+                              <Route path="/support" element={<Support />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           )}
