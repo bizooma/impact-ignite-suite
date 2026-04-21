@@ -177,7 +177,7 @@ const BlogPostGoogleGrants = () => {
       <footer className="w-full border-t bg-muted/50 py-12 px-6 mt-20">
         <div className="w-full max-w-7xl mx-auto text-center">
           <p className="text-muted-foreground">
-            &copy; 2025 Causeio, A <a href="https://bizooma.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline">Bizooma, LLC</a> Company | All rights reserved.
+            &copy; 2026 Causeio, A <a href="https://bizooma.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline">Bizooma, LLC</a> Company | All rights reserved.
           </p>
         </div>
       </footer>
