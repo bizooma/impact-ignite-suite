@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -361,7 +361,11 @@ export default function Auth() {
 
         {/* Footer message */}
         <p className="text-center text-sm text-muted-foreground">
-          By continuing, you agree to our compassionate approach to data privacy and security.
+          By continuing, you agree to our compassionate approach to data{" "}
+          <Link to="/privacy" className="text-primary hover:underline">
+            Privacy
+          </Link>{" "}
+          and security.
         </p>
       </div>
     </div>
