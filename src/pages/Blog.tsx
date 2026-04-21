@@ -7,6 +7,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import googleAdGrantsImage from "@/assets/blog/google-ad-grants-nonprofits.jpg";
 import volunteerChatbotsImage from "@/assets/blog/volunteer-recruitment-chatbots.jpg";
 import aiVideoMultichannelImage from "@/assets/blog/ai-video-multichannel-nonprofits.jpg";
+import qrCodesImage from "@/assets/blog/qr-codes-nonprofits.jpg";
 
 const blogPosts = [
   {
@@ -41,6 +42,17 @@ const blogPosts = [
     readTime: "7 min read",
     category: "Volunteer Engagement",
     slug: "/blog/volunteer-recruitment-chatbots-2025"
+  },
+  {
+    id: 4,
+    title: "QR Codes for Nonprofits: Best Practices to Boost Donations, Events & Engagement in 2025",
+    excerpt: "QR codes turn every flyer, sign, and t-shirt into a measurable fundraising channel — if you use them right.",
+    image: qrCodesImage,
+    author: "Joseph Murphy",
+    date: "Nov. 1, 2025",
+    readTime: "7 min read",
+    category: "Marketing",
+    slug: "/blog/qr-codes-nonprofits-2025"
   }
 ];
 
