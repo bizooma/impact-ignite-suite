@@ -259,7 +259,8 @@ export default function Auth() {
 
                 <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Password <span className="text-destructive">*</span></label>
-                  <div className="relative">
+                  <div className="relative w-full">
+                    <span className="sr-only">Password input with visibility toggle</span>
                     <Input
                       type={showSignUpPassword ? 'text' : 'password'}
                       placeholder="Create a secure password"
@@ -273,7 +274,7 @@ export default function Auth() {
                       onClick={() => setShowSignUpPassword((v) => !v)}
                       disabled={loading}
                       aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     >
                       {showSignUpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -309,7 +310,8 @@ export default function Auth() {
 
                 <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Password</label>
-                  <div className="relative">
+                  <div className="relative w-full">
+                    <span className="sr-only">Password input with visibility toggle</span>
                     <Input
                       type={showSignInPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
@@ -323,7 +325,7 @@ export default function Auth() {
                       onClick={() => setShowSignInPassword((v) => !v)}
                       disabled={loading}
                       aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     >
                       {showSignInPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
