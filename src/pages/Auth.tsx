@@ -84,6 +84,7 @@ export default function Auth() {
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       displayName: '',
+      organizationName: '',
       email: inviteEmail || '',
       password: '',
     },
