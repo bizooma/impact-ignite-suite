@@ -154,7 +154,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background flex items-center justify-center p-4">
+    <div className="fixed inset-0 min-h-screen w-full bg-gradient-to-br from-background via-accent/20 to-background flex items-center justify-center p-4 overflow-auto">
       <div className="w-full max-w-md mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-6">
