@@ -3,10 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Inbox, Send } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Bell, Inbox, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+
+const NOTIFY_PREF_KEY = 'support_inbox_desktop_notifications';
 
 interface Thread {
   id: string;
@@ -33,7 +37,16 @@ export function SupportInbox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
+  const [notifyEnabled, setNotifyEnabled] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(NOTIFY_PREF_KEY) === '1';
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
+  const threadsRef = useRef<Thread[]>([]);
+  const notifyEnabledRef = useRef(notifyEnabled);
+
+  useEffect(() => { threadsRef.current = threads; }, [threads]);
+  useEffect(() => { notifyEnabledRef.current = notifyEnabled; }, [notifyEnabled]);
 
   const loadThreads = async () => {
     const { data } = await supabase
@@ -54,7 +67,46 @@ export function SupportInbox() {
         table: 'support_threads',
       }, () => loadThreads())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    // Global subscription for desktop notifications on new user messages
+    const msgChannel = supabase
+      .channel('support_inbox_all_msgs')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'support_messages',
+      }, (payload) => {
+        const m = payload.new as Message;
+        if (m.sender_role !== 'user') return;
+        if (!notifyEnabledRef.current) return;
+        if (typeof window === 'undefined' || !('Notification' in window)) return;
+        if (Notification.permission !== 'granted') return;
+
+        const thread = threadsRef.current.find(t => t.id === m.thread_id);
+        const orgName = thread?.organizations?.name || 'a user';
+        const preview = m.content.length > 140 ? m.content.slice(0, 140) + '…' : m.content;
+
+        try {
+          const n = new Notification(`New support chat from ${orgName}`, {
+            body: preview,
+            icon: '/favicon.ico',
+            tag: m.thread_id,
+          });
+          n.onclick = () => {
+            window.focus();
+            setSelectedId(m.thread_id);
+            n.close();
+          };
+        } catch {
+          // ignore notification errors
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+      supabase.removeChannel(msgChannel);
+    };
   }, []);
 
   useEffect(() => {
@@ -112,12 +164,56 @@ export function SupportInbox() {
     }
   };
 
+  const handleToggleNotify = async (checked: boolean) => {
+    if (!checked) {
+      setNotifyEnabled(false);
+      localStorage.setItem(NOTIFY_PREF_KEY, '0');
+      toast.success('Desktop notifications disabled');
+      return;
+    }
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      toast.error('This browser does not support desktop notifications');
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      setNotifyEnabled(true);
+      localStorage.setItem(NOTIFY_PREF_KEY, '1');
+      toast.success('Desktop notifications enabled');
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      toast.error('Notifications are blocked. Enable them in your browser settings.');
+      return;
+    }
+    const result = await Notification.requestPermission();
+    if (result === 'granted') {
+      setNotifyEnabled(true);
+      localStorage.setItem(NOTIFY_PREF_KEY, '1');
+      toast.success('Desktop notifications enabled');
+    } else {
+      toast.error('Permission denied');
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <Inbox className="w-5 h-5 text-primary" />
-          <CardTitle>Support Inbox (Admin)</CardTitle>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Inbox className="w-5 h-5 text-primary" />
+            <CardTitle>Support Inbox (Admin)</CardTitle>
+          </div>
+          <div className="flex items-center gap-2">
+            <Bell className="w-4 h-4 text-muted-foreground" />
+            <Label htmlFor="notify-toggle" className="text-sm font-normal cursor-pointer">
+              Desktop notifications
+            </Label>
+            <Switch
+              id="notify-toggle"
+              checked={notifyEnabled}
+              onCheckedChange={handleToggleNotify}
+            />
+          </div>
         </div>
         <CardDescription>
           All support conversations across organizations. Reply to users in real time.
