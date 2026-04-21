@@ -40,6 +40,7 @@ import GoogleAdGrants from "./pages/GoogleAdGrants";
 import Campaigns from "./pages/Campaigns";
 import CampaignDetail from "./pages/CampaignDetail";
 import PricingBeta from "./pages/PricingBeta";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
