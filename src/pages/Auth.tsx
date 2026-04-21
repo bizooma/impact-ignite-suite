@@ -274,7 +274,7 @@ export default function Auth() {
                       onClick={() => setShowSignUpPassword((v) => !v)}
                       disabled={loading}
                       aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     >
                       {showSignUpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -325,7 +325,7 @@ export default function Auth() {
                       onClick={() => setShowSignInPassword((v) => !v)}
                       disabled={loading}
                       aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-muted-foreground hover:text-foreground p-1 rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     >
                       {showSignInPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
