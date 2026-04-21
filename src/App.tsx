@@ -42,6 +42,7 @@ import CampaignDetail from "./pages/CampaignDetail";
 import PricingBeta from "./pages/PricingBeta";
 import Privacy from "./pages/Privacy";
 import Support from "./pages/Support";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
                 <Route path="/payment-cancel" element={<PaymentCancel />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/privacy" element={<Privacy />} />
+                <Route path="/unsubscribe" element={<Unsubscribe />} />
                 
                 {/* Admin route with sidebar */}
                 <Route path="/admin" element={
