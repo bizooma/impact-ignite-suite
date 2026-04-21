@@ -1,39 +1,8 @@
-import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Mail, MessageCircle, BookOpen, LifeBuoy } from 'lucide-react';
 
-const TAWK_SCRIPT_ID = 'tawk-to-support-script';
-const TAWK_SRC = 'https://embed.tawk.to/69e7bf9e5977cf1c37318b05/1jmok919v';
-
 export default function Support() {
-  useEffect(() => {
-    if (document.getElementById(TAWK_SCRIPT_ID)) return;
-
-    const w = window as unknown as Record<string, unknown>;
-    w.Tawk_API = w.Tawk_API || {};
-    w.Tawk_LoadStart = new Date();
-
-    const script = document.createElement('script');
-    script.id = TAWK_SCRIPT_ID;
-    script.src = TAWK_SRC;
-    script.async = true;
-    script.charset = 'UTF-8';
-    script.setAttribute('crossorigin', '*');
-    document.body.appendChild(script);
-
-    return () => {
-      document.getElementById(TAWK_SCRIPT_ID)?.remove();
-      document
-        .querySelectorAll(
-          'iframe[src*="tawk.to"], iframe[title*="chat" i], div[class*="tawk-" i], #tawkchat-container, .widget-visible'
-        )
-        .forEach((el) => el.remove());
-      const win = window as unknown as Record<string, unknown>;
-      delete win.Tawk_API;
-      delete win.Tawk_LoadStart;
-    };
-  }, []);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
