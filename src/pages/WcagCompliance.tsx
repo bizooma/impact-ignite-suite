@@ -135,7 +135,7 @@ export default function WcagCompliance() {
 
         {/* Hero */}
         <section className="bg-gradient-to-br from-primary/10 via-background to-background border-b">
-          <div className="container mx-auto px-4 py-16 md:py-24">
+          <div className="mx-auto px-4 py-16 md:py-24 max-w-6xl">
             <div className="max-w-4xl mx-auto text-center">
               <Badge className="mb-4" variant="secondary">
                 <Shield className="w-3 h-3 mr-1" />
