@@ -120,7 +120,7 @@ export default function WcagCompliance() {
       <div className="min-h-screen bg-background">
         {/* Sticky Top Nav */}
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-          <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="mx-auto px-4 h-14 flex items-center justify-between max-w-6xl">
             <Link to="/" className="flex items-center">
               <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-10" />
             </Link>
@@ -135,7 +135,7 @@ export default function WcagCompliance() {
 
         {/* Hero */}
         <section className="bg-gradient-to-br from-primary/10 via-background to-background border-b">
-          <div className="container mx-auto px-4 py-16 md:py-24">
+          <div className="mx-auto px-4 py-16 md:py-24 max-w-6xl">
             <div className="max-w-4xl mx-auto text-center">
               <Badge className="mb-4" variant="secondary">
                 <Shield className="w-3 h-3 mr-1" />
@@ -161,7 +161,7 @@ export default function WcagCompliance() {
           </div>
         </section>
 
-        <div className="container mx-auto px-4 py-12 max-w-6xl space-y-12">
+        <div className="mx-auto px-4 py-12 max-w-6xl space-y-12">
           {/* The Problem */}
           <section>
             <div className="flex items-center gap-2 mb-6">
@@ -359,7 +359,7 @@ export default function WcagCompliance() {
 
         {/* Footer */}
         <footer className="border-t mt-12">
-          <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
+          <div className="mx-auto px-4 py-8 text-center text-sm text-muted-foreground max-w-6xl">
             &copy; 2026 Causeio. All rights reserved.
           </div>
         </footer>
