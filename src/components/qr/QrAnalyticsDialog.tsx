@@ -25,13 +25,17 @@ export const QrAnalyticsDialog: React.FC<QrAnalyticsDialogProps> = ({ open, onCl
     const load = async () => {
       if (!open || !qrCodeId) return;
       setLoading(true);
-      const data = await getQrScans(qrCodeId);
-      if (mounted) setScans(data);
-      setLoading(false);
+      try {
+        const data = await getQrScans(qrCodeId);
+        if (mounted) setScans(data);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
     load();
     return () => { mounted = false; };
-  }, [open, qrCodeId, getQrScans]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, qrCodeId]);
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
