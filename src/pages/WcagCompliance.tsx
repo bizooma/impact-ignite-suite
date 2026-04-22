@@ -113,7 +113,7 @@ export default function WcagCompliance() {
         title="WCAG Compliance & ADA Lawsuit Protection for Nonprofits"
         description="Protect your nonprofit website from ADA accessibility lawsuits. Causeio's compliance widget helps support WCAG 2.1/2.2 AA standards with a one-line install."
         keywords="WCAG compliance, ADA website lawsuit, nonprofit accessibility, ADA compliance widget, accessibility widget, Section 508"
-        canonicalUrl="/wcag-compliance"
+        canonical="/wcag-compliance"
       />
 
       <div className="min-h-screen bg-background">
