@@ -44,6 +44,7 @@ import PricingBeta from "./pages/PricingBeta";
 import Privacy from "./pages/Privacy";
 import Support from "./pages/Support";
 import Unsubscribe from "./pages/Unsubscribe";
+import WcagCompliance from "./pages/WcagCompliance";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/unsubscribe" element={<Unsubscribe />} />
+                <Route path="/wcag-compliance" element={<WcagCompliance />} />
                 
                 {/* Admin route with sidebar */}
                 <Route path="/admin" element={
