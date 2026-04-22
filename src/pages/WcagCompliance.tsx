@@ -161,7 +161,7 @@ export default function WcagCompliance() {
           </div>
         </section>
 
-        <div className="container mx-auto px-4 py-12 max-w-6xl space-y-12">
+        <div className="mx-auto px-4 py-12 max-w-6xl space-y-12">
           {/* The Problem */}
           <section>
             <div className="flex items-center gap-2 mb-6">
