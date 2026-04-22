@@ -45,20 +45,20 @@
     <priority>0.6</priority>
   </url>
 
-  <!-- WCAG Compliance / ADA Lawsuit Protection -->
-  <url>
-    <loc>https://yourdomain.com/wcag-compliance</loc>
-    <lastmod>2026-01-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
   <!-- Blog Post: QR Codes for Nonprofits -->
   <url>
     <loc>https://yourdomain.com/blog/qr-codes-nonprofits-2025</loc>
     <lastmod>2025-11-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+
+  <!-- WCAG Compliance / ADA Lawsuit Protection -->
+  <url>
+    <loc>https://yourdomain.com/wcag-compliance</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
 </urlset>
