@@ -120,7 +120,7 @@ export default function WcagCompliance() {
       <div className="min-h-screen bg-background">
         {/* Sticky Top Nav */}
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-          <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="mx-auto px-4 h-14 flex items-center justify-between max-w-6xl">
             <Link to="/" className="flex items-center">
               <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-10" />
             </Link>
