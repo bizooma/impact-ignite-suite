@@ -53,4 +53,12 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- WCAG Compliance / ADA Lawsuit Protection -->
+  <url>
+    <loc>https://yourdomain.com/wcag-compliance</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
