@@ -164,9 +164,9 @@ export default function WcagCompliance() {
         <div className="mx-auto px-4 py-12 max-w-6xl space-y-12">
           {/* The Problem */}
           <section>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center justify-center gap-2 mb-6">
               <AlertTriangle className="w-6 h-6 text-destructive" />
-              <h2 className="text-3xl font-bold">The Rising Cost of Inaccessible Websites</h2>
+              <h2 className="text-3xl font-bold text-center">The Rising Cost of Inaccessible Websites</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-4">
               <Card>
