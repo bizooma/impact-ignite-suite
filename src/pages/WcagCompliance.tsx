@@ -164,9 +164,9 @@ export default function WcagCompliance() {
         <div className="mx-auto px-4 py-12 max-w-6xl space-y-12">
           {/* The Problem */}
           <section>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center justify-center gap-2 mb-6">
               <AlertTriangle className="w-6 h-6 text-destructive" />
-              <h2 className="text-3xl font-bold">The Rising Cost of Inaccessible Websites</h2>
+              <h2 className="text-3xl font-bold text-center">The Rising Cost of Inaccessible Websites</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-4">
               <Card>
@@ -188,7 +188,7 @@ export default function WcagCompliance() {
                 </CardHeader>
               </Card>
             </div>
-            <p className="text-muted-foreground mt-6 leading-relaxed">
+            <p className="text-muted-foreground mt-6 leading-relaxed text-center max-w-3xl mx-auto">
               Nonprofits, foundations, and membership associations are increasingly treated by courts as "places of
               public accommodation" under ADA Title III — meaning the same lawsuits hitting e-commerce companies are
               now reaching mission-driven organizations.
@@ -197,11 +197,11 @@ export default function WcagCompliance() {
 
           {/* Recent News */}
           <section>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center justify-center gap-2 mb-6">
               <Newspaper className="w-6 h-6 text-primary" />
-              <h2 className="text-3xl font-bold">Recent News & Reports on ADA Website Lawsuits</h2>
+              <h2 className="text-3xl font-bold text-center">Recent News & Reports on ADA Website Lawsuits</h2>
             </div>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
               The threat isn't theoretical. Here's a sampling of recent reporting and industry research documenting the
               surge in accessibility-related litigation:
             </p>
@@ -229,9 +229,9 @@ export default function WcagCompliance() {
 
           {/* What is WCAG */}
           <section>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center justify-center gap-2 mb-6">
               <Scale className="w-6 h-6 text-primary" />
-              <h2 className="text-3xl font-bold">What is WCAG?</h2>
+              <h2 className="text-3xl font-bold text-center">What is WCAG?</h2>
             </div>
             <Card>
               <CardContent className="pt-6 space-y-4">
@@ -262,9 +262,9 @@ export default function WcagCompliance() {
 
           {/* Widget Features */}
           <section>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center justify-center gap-2 mb-6">
               <Accessibility className="w-6 h-6 text-primary" />
-              <h2 className="text-3xl font-bold">What Causeio's Compliance Widget Does</h2>
+              <h2 className="text-3xl font-bold text-center">What Causeio's Compliance Widget Does</h2>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {widgetFeatures.map((f) => (
@@ -283,7 +283,7 @@ export default function WcagCompliance() {
 
           {/* How It Helps */}
           <section>
-            <h2 className="text-3xl font-bold mb-6">How It Helps Reduce Legal Risk</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center">How It Helps Reduce Legal Risk</h2>
             <Card>
               <CardContent className="pt-6">
                 <ul className="space-y-3">
@@ -306,7 +306,7 @@ export default function WcagCompliance() {
 
           {/* Setup Steps */}
           <section>
-            <h2 className="text-3xl font-bold mb-6">How to Enable It</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center">How to Enable It</h2>
             <div className="grid md:grid-cols-3 gap-4">
               {[
                 { step: "1", title: "Sign Up", desc: "Create your free Causeio account in under a minute." },
