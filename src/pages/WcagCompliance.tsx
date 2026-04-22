@@ -359,7 +359,7 @@ export default function WcagCompliance() {
 
         {/* Footer */}
         <footer className="border-t mt-12">
-          <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
+          <div className="mx-auto px-4 py-8 text-center text-sm text-muted-foreground max-w-6xl">
             &copy; 2026 Causeio. All rights reserved.
           </div>
         </footer>
