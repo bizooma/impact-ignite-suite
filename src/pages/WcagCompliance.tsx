@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { SEOHead } from "@/components/seo/SEOHead";
+import causeioLogo from "@/assets/causeio-logo.png";
 import {
   Shield,
   Accessibility,
@@ -120,9 +121,8 @@ export default function WcagCompliance() {
         {/* Sticky Top Nav */}
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
           <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2 font-bold text-lg">
-              <Shield className="w-5 h-5 text-primary" />
-              Causeio
+            <Link to="/" className="flex items-center">
+              <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-10" />
             </Link>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/">
