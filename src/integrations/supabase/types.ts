@@ -108,6 +108,7 @@ export type Database = {
           statement_text: string | null
           updated_at: string
           widget_active: boolean
+          widget_position: string
         }
         Insert: {
           font_scaling?: boolean
@@ -120,6 +121,7 @@ export type Database = {
           statement_text?: string | null
           updated_at?: string
           widget_active?: boolean
+          widget_position?: string
         }
         Update: {
           font_scaling?: boolean
@@ -132,6 +134,7 @@ export type Database = {
           statement_text?: string | null
           updated_at?: string
           widget_active?: boolean
+          widget_position?: string
         }
         Relationships: [
           {
