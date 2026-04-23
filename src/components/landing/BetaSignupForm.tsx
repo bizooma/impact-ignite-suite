@@ -163,7 +163,7 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
         <CardTitle className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold`}>Early Adopters - Save Big!</CardTitle>
         <CardDescription className={`${compact ? 'text-sm' : 'text-lg'} mt-1`}>
           Create your account and lock in{" "}
-          <span className="text-primary font-semibold">lifetime beta pricing</span>
+          <span className="text-primary font-semibold">lifetime pricing</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
