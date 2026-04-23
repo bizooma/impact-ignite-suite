@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+export type WidgetPosition = 'left' | 'center' | 'right';
+
 export interface AccessibilitySettings {
   id: string;
   site_id: string;
@@ -11,6 +13,7 @@ export interface AccessibilitySettings {
   spacing: boolean;
   highlight_links: boolean;
   widget_active: boolean;
+  widget_position: WidgetPosition;
   statement_text: string | null;
   updated_at: string;
 }

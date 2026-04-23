@@ -38,12 +38,13 @@ serve(async (req) => {
 
     const { data: settings } = await admin
       .from('accessibility_settings')
-      .select('high_contrast, font_scaling, reduced_motion, spacing, highlight_links, widget_active')
+      .select('high_contrast, font_scaling, reduced_motion, spacing, highlight_links, widget_active, widget_position')
       .eq('site_id', site.id)
       .maybeSingle();
 
     return new Response(JSON.stringify({
       active: settings?.widget_active ?? true,
+      position: settings?.widget_position ?? 'right',
       features: {
         high_contrast: settings?.high_contrast ?? true,
         font_scaling: settings?.font_scaling ?? true,
