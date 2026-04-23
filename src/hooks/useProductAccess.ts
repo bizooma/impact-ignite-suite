@@ -11,7 +11,8 @@ export type ProductId =
   | 'tasks'
   | 'analytics'
   | 'crm'
-  | 'campaigns';
+  | 'campaigns'
+  | 'accessibility';
 
 export const ALL_PRODUCTS: { id: ProductId; label: string }[] = [
   { id: 'mobile_app', label: 'Mobile App' },
@@ -24,6 +25,7 @@ export const ALL_PRODUCTS: { id: ProductId; label: string }[] = [
   { id: 'analytics', label: 'Analytics' },
   { id: 'crm', label: 'CRM' },
   { id: 'campaigns', label: 'Campaigns' },
+  { id: 'accessibility', label: 'Accessibility' },
 ];
 
 export function useProductAccess() {

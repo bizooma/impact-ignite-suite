@@ -122,3 +122,9 @@ verify_jwt = false
 
 [functions.notify-support-message]
 verify_jwt = false
+
+[functions.accessibility-scan]
+verify_jwt = false
+
+[functions.accessibility-widget-config]
+verify_jwt = false
