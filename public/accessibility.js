@@ -16,8 +16,8 @@
     var attrPosition = (currentScript.getAttribute('data-position') || '').toLowerCase();
     var position = (attrPosition === 'left' || attrPosition === 'center' || attrPosition === 'right') ? attrPosition : 'right';
 
-    var origin = (src.split('/accessibility.js')[0]) || '';
-    var configUrl = origin + '/functions/v1/accessibility-widget-config?site=' + encodeURIComponent(siteId);
+    var SUPABASE_FUNCTIONS_URL = 'https://svuxuhrsrawdqqkepeye.supabase.co/functions/v1';
+    var configUrl = SUPABASE_FUNCTIONS_URL + '/accessibility-widget-config?site=' + encodeURIComponent(siteId);
 
     var STORAGE_KEY = 'lov_a11y_state_' + siteId;
     function loadState() {
