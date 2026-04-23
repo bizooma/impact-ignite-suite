@@ -13,6 +13,9 @@
     var siteId = (src.match(/[?&]site=([^&]+)/) || [])[1];
     if (!siteId) return;
 
+    var position = (currentScript.getAttribute('data-position') || 'right').toLowerCase();
+    if (position !== 'left' && position !== 'center' && position !== 'right') position = 'right';
+
     var origin = (src.split('/accessibility.js')[0]) || '';
     var configUrl = origin + '/functions/v1/accessibility-widget-config?site=' + encodeURIComponent(siteId);
 
@@ -24,14 +27,22 @@
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {}
     }
 
+    function posCss(sel) {
+      if (position === 'left') return sel + '{left:20px;right:auto}';
+      if (position === 'center') return sel + '{left:50%;right:auto;transform:translateX(-50%)}';
+      return sel + '{right:20px;left:auto}';
+    }
+
     function injectStyles() {
       if (document.getElementById('lov-a11y-styles')) return;
       var s = document.createElement('style');
       s.id = 'lov-a11y-styles';
       s.textContent = [
-        '.lov-a11y-launcher{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:#2563eb;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:2147483646;display:flex;align-items:center;justify-content:center;font-size:22px;font-family:system-ui,sans-serif}',
+        '.lov-a11y-launcher{position:fixed;bottom:20px;width:48px;height:48px;border-radius:50%;background:#2563eb;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:2147483646;display:flex;align-items:center;justify-content:center;font-size:22px;font-family:system-ui,sans-serif}',
+        posCss('.lov-a11y-launcher'),
         '.lov-a11y-launcher:focus{outline:3px solid #fff;outline-offset:2px}',
-        '.lov-a11y-panel{position:fixed;bottom:80px;right:20px;width:280px;background:#fff;color:#111;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);z-index:2147483647;font-family:system-ui,sans-serif;padding:14px;display:none}',
+        '.lov-a11y-panel{position:fixed;bottom:80px;width:280px;background:#fff;color:#111;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);z-index:2147483647;font-family:system-ui,sans-serif;padding:14px;display:none}',
+        posCss('.lov-a11y-panel'),
         '.lov-a11y-panel.open{display:block}',
         '.lov-a11y-panel h3{margin:0 0 8px;font-size:14px;font-weight:600}',
         '.lov-a11y-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:13px}',
