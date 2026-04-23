@@ -4,18 +4,22 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAccessibilitySettings, type WidgetPosition } from '@/hooks/useAccessibilitySettings';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Props {
   siteId: string;
+  /** DB row id for the site (used to load/save settings) */
+  siteRowId: string;
 }
 
-type Position = 'left' | 'center' | 'right';
-
-export function InstallSnippet({ siteId }: Props) {
+export function InstallSnippet({ siteId, siteRowId }: Props) {
   const [copied, setCopied] = useState(false);
-  const [position, setPosition] = useState<Position>('right');
+  const { settings, loading, update } = useAccessibilitySettings(siteRowId);
+  const position: WidgetPosition = settings?.widget_position ?? 'right';
+
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const snippet = `<script src="${origin}/accessibility.js?site=${siteId}" data-position="${position}" defer></script>`;
+  const snippet = `<script src="${origin}/accessibility.js?site=${siteId}" defer></script>`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(snippet);
@@ -28,16 +32,24 @@ export function InstallSnippet({ siteId }: Props) {
     <div className="space-y-3">
       <div className="flex items-center gap-3">
         <Label htmlFor="a11y-pos" className="text-sm">Widget position</Label>
-        <Select value={position} onValueChange={(v) => setPosition(v as Position)}>
-          <SelectTrigger id="a11y-pos" className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="left">Bottom left</SelectItem>
-            <SelectItem value="center">Bottom center</SelectItem>
-            <SelectItem value="right">Bottom right</SelectItem>
-          </SelectContent>
-        </Select>
+        {loading ? (
+          <Skeleton className="h-9 w-40" />
+        ) : (
+          <Select
+            value={position}
+            onValueChange={(v) => update({ widget_position: v as WidgetPosition })}
+          >
+            <SelectTrigger id="a11y-pos" className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Bottom left</SelectItem>
+              <SelectItem value="center">Bottom center</SelectItem>
+              <SelectItem value="right">Bottom right</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        <p className="text-xs text-muted-foreground">Saved automatically — no need to reinstall.</p>
       </div>
       <div className="rounded-md bg-muted p-3 font-mono text-xs break-all border">
         {snippet}

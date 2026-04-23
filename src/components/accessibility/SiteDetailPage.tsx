@@ -163,7 +163,7 @@ export function SiteDetailPage({ organizationId }: Props) {
                 <CheckCircle2 className="w-5 h-5 text-green-600" />
                 <span className="font-medium">Accessibility Layer ready</span>
               </div>
-              <InstallSnippet siteId={site.site_id} />
+              <InstallSnippet siteId={site.site_id} siteRowId={site.id} />
             </CardContent>
           </Card>
         </TabsContent>
