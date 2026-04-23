@@ -13,8 +13,8 @@
     var siteId = (src.match(/[?&]site=([^&]+)/) || [])[1];
     if (!siteId) return;
 
-    var position = (currentScript.getAttribute('data-position') || 'right').toLowerCase();
-    if (position !== 'left' && position !== 'center' && position !== 'right') position = 'right';
+    var attrPosition = (currentScript.getAttribute('data-position') || '').toLowerCase();
+    var position = (attrPosition === 'left' || attrPosition === 'center' || attrPosition === 'right') ? attrPosition : 'right';
 
     var origin = (src.split('/accessibility.js')[0]) || '';
     var configUrl = origin + '/functions/v1/accessibility-widget-config?site=' + encodeURIComponent(siteId);
@@ -131,6 +131,10 @@
     function init() {
       fetch(configUrl).then(function (r) { return r.json(); }).then(function (cfg) {
         if (!cfg || cfg.active === false) return;
+        // Saved position from dashboard wins unless overridden by data-position attribute
+        if (!attrPosition && cfg.position && (cfg.position === 'left' || cfg.position === 'center' || cfg.position === 'right')) {
+          position = cfg.position;
+        }
         var features = cfg.features || {};
         if (document.body) build(features);
         else document.addEventListener('DOMContentLoaded', function () { build(features); });
