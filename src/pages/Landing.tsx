@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { MessageSquare, QrCode, Share2, BarChart3, Users, Star, Building, CheckSquare, TrendingUp, Settings, Smartphone, Globe, Target, Heart, Clock, DollarSign, Sparkles, ArrowRight, UserPlus, Wrench, Megaphone } from "lucide-react";
+import { MessageSquare, QrCode, Share2, BarChart3, Users, Star, Building, CheckSquare, TrendingUp, Settings, Smartphone, Globe, Target, Heart, Clock, DollarSign, Sparkles, ArrowRight, UserPlus, Wrench, Megaphone, Accessibility } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -120,6 +120,7 @@ const Landing = () => {
         { icon: CheckSquare, name: "Task Management", desc: "Organize workflows & collaborate" },
         { icon: TrendingUp, name: "Analytics", desc: "Track performance across all tools" },
         { icon: Settings, name: "Integrations", desc: "Connect with tools you already use" },
+        { icon: Accessibility, name: "Accessibility Widget", desc: "One-line install for WCAG 2.2 AA compliance" },
         { icon: Globe, name: "Website Builder", desc: "Beautiful sites for your nonprofit", comingSoon: true },
       ]
     }
