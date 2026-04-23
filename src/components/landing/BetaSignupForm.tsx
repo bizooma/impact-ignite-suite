@@ -225,7 +225,7 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
           </div>
           <div className="pt-1">
             <Button type="submit" className="w-full bg-[hsl(217_91%_35%)] hover:bg-[hsl(217_91%_28%)] text-white" size={compact ? "default" : "lg"} disabled={loading}>
-              {loading ? "Creating your account..." : "Secure My Beta Access & Discount"}
+              {loading ? "Creating your account..." : "Secure My Access & Discount"}
             </Button>
           </div>
           <p className="text-xs text-muted-foreground text-center">
