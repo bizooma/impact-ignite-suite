@@ -28,18 +28,18 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
  */
 export type ProductId =
   | 'mobile_app' | 'chatbots' | 'qr_codes' | 'social_media' | 'seo_audits'
-  | 'google_business' | 'tasks' | 'analytics' | 'crm' | 'campaigns';
+  | 'google_business' | 'tasks' | 'analytics' | 'crm' | 'campaigns' | 'accessibility';
 
 export const TIER_PRODUCT_BUNDLES: Record<SubscriptionTier, ProductId[]> = {
   free: ['chatbots', 'qr_codes'],
-  starter: ['chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics'],
+  starter: ['chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics', 'accessibility'],
   professional: [
     'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
-    'crm', 'tasks', 'google_business', 'campaigns',
+    'crm', 'tasks', 'google_business', 'campaigns', 'accessibility',
   ],
   enterprise: [
     'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
-    'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app',
+    'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app', 'accessibility',
   ],
 };
 
