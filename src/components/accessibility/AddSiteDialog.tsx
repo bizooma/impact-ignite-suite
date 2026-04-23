@@ -76,7 +76,7 @@ export function AddSiteDialog({ onCreate }: Props) {
             <p className="text-sm text-muted-foreground">
               Install the Accessibility Layer on your site by pasting this snippet before the closing <code className="px-1 bg-muted rounded">&lt;/body&gt;</code> tag.
             </p>
-            <InstallSnippet siteId={created.site_id} />
+            <InstallSnippet siteId={created.site_id} siteRowId={created.id} />
             <DialogFooter>
               <Button onClick={() => setOpen(false)}>Done</Button>
             </DialogFooter>
