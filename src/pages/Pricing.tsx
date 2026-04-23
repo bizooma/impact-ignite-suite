@@ -42,6 +42,7 @@ const tiers = {
       "3 Social Media Accounts",
       "SEO Audits",
       "Analytics",
+      "Accessibility Widget",
       "Email Support",
       "Custom Branding"
     ]
@@ -60,6 +61,7 @@ const tiers = {
       "10 Social Media Accounts",
       "CRM, Tasks, Campaigns & Google Business",
       "SEO Audits & Analytics",
+      "Accessibility Widget",
       "Custom Branding",
       "Priority Support"
     ]
@@ -77,6 +79,7 @@ const tiers = {
       "Unlimited QR Codes",
       "Unlimited Social Accounts",
       "All CRM, Campaigns, SEO & Analytics tools",
+      "Accessibility Widget",
       "Custom Branding",
       "SLA Guarantee"
     ]
