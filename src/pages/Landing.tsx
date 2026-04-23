@@ -107,6 +107,7 @@ const Landing = () => {
         { icon: QrCode, name: "QR Codes", desc: "Trackable codes for events & campaigns" },
         { icon: BarChart3, name: "SEO Analytics", desc: "Rank higher in search & voice results" },
         { icon: Building, name: "Google Business", desc: "Optimize your local profile" },
+        { icon: Heart, name: "Campaigns", desc: "Run Giving Tuesday & year-round appeals" },
         { icon: Target, name: "PPC Management", desc: "Maximize Google Ad Grants ROI", comingSoon: true },
       ]
     },
