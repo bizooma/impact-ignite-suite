@@ -120,6 +120,7 @@ const Landing = () => {
         { icon: CheckSquare, name: "Task Management", desc: "Organize workflows & collaborate" },
         { icon: TrendingUp, name: "Analytics", desc: "Track performance across all tools" },
         { icon: Settings, name: "Integrations", desc: "Connect with tools you already use" },
+        { icon: Accessibility, name: "Accessibility Widget", desc: "One-line install for WCAG 2.2 AA compliance" },
         { icon: Globe, name: "Website Builder", desc: "Beautiful sites for your nonprofit", comingSoon: true },
       ]
     }
