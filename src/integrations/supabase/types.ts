@@ -14,6 +14,176 @@ export type Database = {
   }
   public: {
     Tables: {
+      accessibility_issues: {
+        Row: {
+          category: Database["public"]["Enums"]["accessibility_issue_category"]
+          created_at: string
+          description: string
+          element_snippet: string | null
+          id: string
+          page_url: string | null
+          recommendation: string
+          scan_id: string
+          severity: Database["public"]["Enums"]["accessibility_issue_severity"]
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["accessibility_issue_category"]
+          created_at?: string
+          description: string
+          element_snippet?: string | null
+          id?: string
+          page_url?: string | null
+          recommendation: string
+          scan_id: string
+          severity: Database["public"]["Enums"]["accessibility_issue_severity"]
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["accessibility_issue_category"]
+          created_at?: string
+          description?: string
+          element_snippet?: string | null
+          id?: string
+          page_url?: string | null
+          recommendation?: string
+          scan_id?: string
+          severity?: Database["public"]["Enums"]["accessibility_issue_severity"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessibility_issues_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "accessibility_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accessibility_scans: {
+        Row: {
+          created_at: string
+          id: string
+          pages_scanned: number
+          score: number
+          site_id: string
+          status: Database["public"]["Enums"]["accessibility_scan_status"]
+          summary: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pages_scanned?: number
+          score?: number
+          site_id: string
+          status?: Database["public"]["Enums"]["accessibility_scan_status"]
+          summary?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pages_scanned?: number
+          score?: number
+          site_id?: string
+          status?: Database["public"]["Enums"]["accessibility_scan_status"]
+          summary?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessibility_scans_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "accessibility_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accessibility_settings: {
+        Row: {
+          font_scaling: boolean
+          high_contrast: boolean
+          highlight_links: boolean
+          id: string
+          reduced_motion: boolean
+          site_id: string
+          spacing: boolean
+          statement_text: string | null
+          updated_at: string
+          widget_active: boolean
+        }
+        Insert: {
+          font_scaling?: boolean
+          high_contrast?: boolean
+          highlight_links?: boolean
+          id?: string
+          reduced_motion?: boolean
+          site_id: string
+          spacing?: boolean
+          statement_text?: string | null
+          updated_at?: string
+          widget_active?: boolean
+        }
+        Update: {
+          font_scaling?: boolean
+          high_contrast?: boolean
+          highlight_links?: boolean
+          id?: string
+          reduced_motion?: boolean
+          site_id?: string
+          spacing?: boolean
+          statement_text?: string | null
+          updated_at?: string
+          widget_active?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessibility_settings_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: true
+            referencedRelation: "accessibility_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accessibility_sites: {
+        Row: {
+          business_name: string | null
+          created_at: string
+          domain: string
+          id: string
+          is_active: boolean
+          organization_id: string
+          site_id: string
+          updated_at: string
+        }
+        Insert: {
+          business_name?: string | null
+          created_at?: string
+          domain: string
+          id?: string
+          is_active?: boolean
+          organization_id: string
+          site_id?: string
+          updated_at?: string
+        }
+        Update: {
+          business_name?: string | null
+          created_at?: string
+          domain?: string
+          id?: string
+          is_active?: boolean
+          organization_id?: string
+          site_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessibility_sites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -3057,6 +3227,17 @@ export type Database = {
       }
     }
     Enums: {
+      accessibility_issue_category:
+        | "image"
+        | "form"
+        | "heading"
+        | "structure"
+        | "contrast"
+        | "link"
+        | "language"
+        | "other"
+      accessibility_issue_severity: "low" | "medium" | "high"
+      accessibility_scan_status: "pending" | "running" | "completed" | "failed"
       app_role: "owner" | "admin" | "editor" | "viewer"
       approval_action: "approved" | "rejected" | "edited" | "posted"
       audit_severity: "low" | "medium" | "high" | "critical"
@@ -3243,6 +3424,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      accessibility_issue_category: [
+        "image",
+        "form",
+        "heading",
+        "structure",
+        "contrast",
+        "link",
+        "language",
+        "other",
+      ],
+      accessibility_issue_severity: ["low", "medium", "high"],
+      accessibility_scan_status: ["pending", "running", "completed", "failed"],
       app_role: ["owner", "admin", "editor", "viewer"],
       approval_action: ["approved", "rejected", "edited", "posted"],
       audit_severity: ["low", "medium", "high", "critical"],
