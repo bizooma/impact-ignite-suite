@@ -45,6 +45,8 @@ import PricingBeta from "./pages/PricingBeta";
 import Privacy from "./pages/Privacy";
 import Support from "./pages/Support";
 import Unsubscribe from "./pages/Unsubscribe";
+import { AccessibilityDashboard } from "./components/accessibility/AccessibilityDashboard";
+import { SiteDetailPage } from "./components/accessibility/SiteDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -227,6 +229,32 @@ const App = () => (
                                   ]}
                                 >
                                   <AnalyticsDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/accessibility" element={
+                                <ProtectedProductRoute
+                                  productId="accessibility"
+                                  productName="Accessibility Layer"
+                                  description="Accessibility Enhancement System for ongoing website monitoring and usability improvement"
+                                  features={[
+                                    "Install a lightweight accessibility widget on any site",
+                                    "Scan pages for missing alt text, labels, headings, and more",
+                                    "Visitor-facing tools: contrast, font size, motion, spacing, link highlighting",
+                                    "Auto-generated accessibility statement",
+                                    "Ongoing monitoring and risk-reduction reporting"
+                                  ]}
+                                >
+                                  <AccessibilityDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/accessibility/:siteId" element={
+                                <ProtectedProductRoute
+                                  productId="accessibility"
+                                  productName="Accessibility Layer"
+                                  description="Accessibility Enhancement System for ongoing website monitoring and usability improvement"
+                                  features={[]}
+                                >
+                                  <SiteDetailPage organizationId={organizationId} />
                                 </ProtectedProductRoute>
                               } />
                               <Route path="/integrations" element={<IntegrationsDashboard organizationId={organizationId} />} />
