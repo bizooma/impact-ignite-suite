@@ -29,10 +29,7 @@ const PRODUCT_TIERS: Record<string, string> = {
 const TIER_BUNDLES: Record<string, string[]> = {
   free: ['qr_codes', 'seo_audits', 'accessibility', 'tasks'],
   starter: ['qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots', 'social_media', 'crm'],
-  professional: [
-    'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
-    'crm', 'tasks', 'google_business', 'campaigns', 'accessibility',
-  ],
+  professional: ['qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots', 'social_media', 'crm', 'analytics'],
   enterprise: [
     'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
     'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app', 'accessibility',
