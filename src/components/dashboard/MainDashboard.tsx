@@ -83,7 +83,7 @@ const moduleCards = [
     route: 'campaigns',
     status: 'active',
     color: 'warning',
-    ready: true
+    ready: false
   },
   {
     title: 'Tasks',
