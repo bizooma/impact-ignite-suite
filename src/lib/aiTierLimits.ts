@@ -51,13 +51,15 @@ export interface QuantityLimits {
   chatbots: number | null;
   qrCodes: number | null;
   socialAccounts: number | null;
+  accessibilitySites: number | null;
+  seoAuditsPerMonth: number | null;
 }
 
 export const TIER_QUANTITY_LIMITS: Record<SubscriptionTier, QuantityLimits> = {
-  free: { chatbots: 1, qrCodes: 5, socialAccounts: 1 },
-  starter: { chatbots: 3, qrCodes: 25, socialAccounts: 3 },
-  professional: { chatbots: 10, qrCodes: 100, socialAccounts: 10 },
-  enterprise: { chatbots: null, qrCodes: null, socialAccounts: null },
+  free: { chatbots: 1, qrCodes: 5, socialAccounts: 1, accessibilitySites: 1, seoAuditsPerMonth: 2 },
+  starter: { chatbots: 3, qrCodes: 25, socialAccounts: 3, accessibilitySites: 3, seoAuditsPerMonth: 20 },
+  professional: { chatbots: 10, qrCodes: 100, socialAccounts: 10, accessibilitySites: 10, seoAuditsPerMonth: 100 },
+  enterprise: { chatbots: null, qrCodes: null, socialAccounts: null, accessibilitySites: null, seoAuditsPerMonth: null },
 };
 
 export function getQuantityLimits(tier: string | null | undefined): QuantityLimits {
