@@ -15,8 +15,8 @@ export interface TierLimits {
 }
 
 export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
-  free: { monthlyMessageCap: 50, label: "Free" },
-  starter: { monthlyMessageCap: 1_000, label: "Starter" },
+  free: { monthlyMessageCap: 0, label: "Free" },
+  starter: { monthlyMessageCap: 50, label: "Starter" },
   professional: { monthlyMessageCap: 5_000, label: "Professional" },
   enterprise: { monthlyMessageCap: 25_000, label: "Enterprise" },
 };
@@ -32,7 +32,7 @@ export type ProductId =
 
 export const TIER_PRODUCT_BUNDLES: Record<SubscriptionTier, ProductId[]> = {
   free: ['qr_codes', 'seo_audits', 'accessibility', 'tasks'],
-  starter: ['chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics', 'accessibility'],
+  starter: ['qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots', 'social_media', 'crm'],
   professional: [
     'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
     'crm', 'tasks', 'google_business', 'campaigns', 'accessibility',
@@ -53,13 +53,14 @@ export interface QuantityLimits {
   socialAccounts: number | null;
   accessibilitySites: number | null;
   seoAuditsPerMonth: number | null;
+  crmContacts: number | null;
 }
 
 export const TIER_QUANTITY_LIMITS: Record<SubscriptionTier, QuantityLimits> = {
-  free: { chatbots: 1, qrCodes: 5, socialAccounts: 1, accessibilitySites: 1, seoAuditsPerMonth: 2 },
-  starter: { chatbots: 3, qrCodes: 25, socialAccounts: 3, accessibilitySites: 3, seoAuditsPerMonth: 20 },
-  professional: { chatbots: 10, qrCodes: 100, socialAccounts: 10, accessibilitySites: 10, seoAuditsPerMonth: 100 },
-  enterprise: { chatbots: null, qrCodes: null, socialAccounts: null, accessibilitySites: null, seoAuditsPerMonth: null },
+  free: { chatbots: 0, qrCodes: 5, socialAccounts: 0, accessibilitySites: 1, seoAuditsPerMonth: 2, crmContacts: 0 },
+  starter: { chatbots: 3, qrCodes: 25, socialAccounts: 2, accessibilitySites: 3, seoAuditsPerMonth: 20, crmContacts: 100 },
+  professional: { chatbots: 10, qrCodes: 100, socialAccounts: 10, accessibilitySites: 10, seoAuditsPerMonth: 100, crmContacts: 5000 },
+  enterprise: { chatbots: null, qrCodes: null, socialAccounts: null, accessibilitySites: null, seoAuditsPerMonth: null, crmContacts: null },
 };
 
 export function getQuantityLimits(tier: string | null | undefined): QuantityLimits {
