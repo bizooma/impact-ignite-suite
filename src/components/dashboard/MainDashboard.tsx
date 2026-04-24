@@ -18,7 +18,8 @@ import {
   TrendingUp, 
   Users,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  Accessibility
 } from 'lucide-react';
 
 interface MainDashboardProps {
