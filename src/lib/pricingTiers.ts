@@ -85,8 +85,10 @@ export function getUpgradeOptionsFor(
   currentTier: SubscriptionTier
 ): TierPricing[] {
   const currentIdx = TIER_ORDER.indexOf(currentTier);
-  return (TIER_ORDER.slice(currentIdx + 1) as Exclude<SubscriptionTier, 'free'>[])
-    .filter((t) => t !== 'free')
+  const higher = TIER_ORDER.slice(currentIdx + 1).filter(
+    (t): t is Exclude<SubscriptionTier, 'free'> => t !== 'free'
+  );
+  return higher
     .map((t) => TIER_CATALOG[t])
     .filter((t) => TIER_PRODUCT_BUNDLES[t.tier].includes(productId));
 }

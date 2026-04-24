@@ -21,6 +21,7 @@ export function ProtectedProductRoute({
   if (!hasAccess(productId)) {
     return (
       <UpgradePrompt
+        productId={productId}
         productName={productName}
         description={description}
         features={features}

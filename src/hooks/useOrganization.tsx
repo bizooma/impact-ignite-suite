@@ -16,6 +16,7 @@ interface Organization {
   brand_color?: string;
   is_beta_org?: boolean;
   beta_signup_id?: string | null;
+  subscription_tier?: string | null;
 }
 
 interface OrganizationContextType {
@@ -62,7 +63,8 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
             purchased_products,
             brand_color,
             is_beta_org,
-            beta_signup_id
+            beta_signup_id,
+            subscription_tier
           )
         `)
         .eq('user_id', user?.id);
