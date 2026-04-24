@@ -77,13 +77,13 @@ const moduleCards = [
     ready: false
   },
   {
-    title: 'Content Templates',
-    description: 'Create and manage reusable content templates',
+    title: 'Campaigns',
+    description: 'Run Giving Tuesday & year-round fundraising appeals',
     icon: FileText,
-    route: 'content',
+    route: 'campaigns',
     status: 'active',
     color: 'warning',
-    ready: false
+    ready: true
   },
   {
     title: 'Tasks',
