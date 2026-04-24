@@ -31,7 +31,7 @@ export type ProductId =
   | 'google_business' | 'tasks' | 'analytics' | 'crm' | 'campaigns' | 'accessibility';
 
 export const TIER_PRODUCT_BUNDLES: Record<SubscriptionTier, ProductId[]> = {
-  free: ['chatbots', 'qr_codes', 'seo_audits', 'accessibility', 'tasks', 'analytics'],
+  free: ['qr_codes', 'seo_audits', 'accessibility', 'tasks'],
   starter: ['chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics', 'accessibility'],
   professional: [
     'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
