@@ -46,16 +46,13 @@ const tiers = {
     priceId: "price_1TNyNQEV6sbsDlR8l8rCOmOJ",
     popular: true,
     features: [
-      `${TIER_LIMITS.professional.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
+      "Everything in Free & Starter, plus:",
+      "AI Chatbots (1,000 conversations/month)",
       "Bring your own OpenAI key (unlimited messages)",
-      "10 AI Chatbots",
-      "100 QR Codes",
+      "CRM (up to 1,000 contacts)",
       "10 Social Media Accounts",
-      "CRM, Tasks, Campaigns & Google Business",
-      "SEO Audits & Analytics",
-      "Accessibility Widget",
-      "Custom Branding",
-      "Priority Support"
+      "Analytics",
+      "Priority Support",
     ]
   },
   enterprise: {
