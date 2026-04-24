@@ -31,8 +31,8 @@ const TIER_BUNDLES: Record<string, string[]> = {
   starter: ['qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots', 'social_media', 'crm'],
   professional: ['qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots', 'social_media', 'crm', 'analytics'],
   enterprise: [
-    'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
-    'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app', 'accessibility',
+    'qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots',
+    'social_media', 'crm', 'analytics', 'campaigns', 'google_business', 'mobile_app',
   ],
 };
 
