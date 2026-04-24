@@ -27,15 +27,15 @@ const PRODUCT_TIERS: Record<string, string> = {
 
 // Tier → product bundle. Keep in sync with src/lib/aiTierLimits.ts TIER_PRODUCT_BUNDLES.
 const TIER_BUNDLES: Record<string, string[]> = {
-  free: ['chatbots', 'qr_codes'],
-  starter: ['chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics'],
+  free: ['chatbots', 'qr_codes', 'seo_audits', 'accessibility', 'tasks', 'analytics'],
+  starter: ['chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics', 'accessibility'],
   professional: [
     'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
-    'crm', 'tasks', 'google_business', 'campaigns',
+    'crm', 'tasks', 'google_business', 'campaigns', 'accessibility',
   ],
   enterprise: [
     'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
-    'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app',
+    'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app', 'accessibility',
   ],
 };
 
