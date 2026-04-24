@@ -23,7 +23,6 @@ const tiers = {
       "2 SEO Audits/month",
       "1 Accessibility Widget",
       "Tasks Management",
-      "Community Support",
     ]
   },
   starter: {
