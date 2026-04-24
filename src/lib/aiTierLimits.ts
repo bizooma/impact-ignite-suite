@@ -18,7 +18,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
   free: { monthlyMessageCap: 0, label: "Free" },
   starter: { monthlyMessageCap: 50, label: "Starter" },
   professional: { monthlyMessageCap: 1_000, label: "Professional" },
-  enterprise: { monthlyMessageCap: 25_000, label: "Enterprise" },
+  enterprise: { monthlyMessageCap: 5_000, label: "Enterprise" },
 };
 
 /**
@@ -35,8 +35,8 @@ export const TIER_PRODUCT_BUNDLES: Record<SubscriptionTier, ProductId[]> = {
   starter: ['qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots', 'social_media', 'crm'],
   professional: ['qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots', 'social_media', 'crm', 'analytics'],
   enterprise: [
-    'chatbots', 'qr_codes', 'social_media', 'seo_audits', 'analytics',
-    'crm', 'tasks', 'google_business', 'campaigns', 'mobile_app', 'accessibility',
+    'qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots',
+    'social_media', 'crm', 'analytics', 'campaigns', 'google_business', 'mobile_app',
   ],
 };
 

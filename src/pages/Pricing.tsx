@@ -62,15 +62,14 @@ const tiers = {
     priceId: "price_1TNyNrEV6sbsDlR8lgWPM1AV",
     popular: false,
     features: [
-      `${TIER_LIMITS.enterprise.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
-      "Bring your own OpenAI key (unlimited messages)",
-      "Unlimited AI Chatbots",
+      "Everything in Free, Starter & Professional, plus:",
+      "AI Chatbots (5,000 conversations/month)",
+      "Unlimited CRM Contacts",
       "Unlimited QR Codes",
-      "Unlimited Social Accounts",
-      "All CRM, Campaigns, SEO & Analytics tools",
-      "Accessibility Widget",
-      "Custom Branding",
-      "SLA Guarantee"
+      "Unlimited Social Media Accounts",
+      "Campaigns & Google Business Profile",
+      "Custom Mobile App (monthly)",
+      "SLA Guarantee",
     ]
   }
 };
