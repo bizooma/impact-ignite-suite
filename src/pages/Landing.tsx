@@ -347,7 +347,7 @@ const Landing = () => {
                     <Badge variant="secondary" className="mb-3">Our Story</Badge>
                     <h3 className="text-2xl font-bold mb-3">Built by Bizooma Creative Agency</h3>
                     <p className="text-muted-foreground mb-3">
-                      Causeio was created by <span className="font-semibold text-foreground">Bizooma</span>, a creative agency that has spent years building marketing platforms for law firms. Along the way, we noticed something powerful: so many of the firms we work with launch their own foundations and nonprofits — pouring their success back into the causes they care about.
+                      Causeio was created by <span className="font-semibold text-foreground">Bizooma, LLC</span>, a creative agency that has spent years building marketing platforms for law firms. Along the way, we noticed something powerful: so many of the firms we work with launch their own foundations and nonprofits — pouring their success back into the causes they care about.
                     </p>
                     <p className="text-muted-foreground">
                       That insight became Causeio. The same engine that drives our law firm marketing platform now powers a tool built specifically for nonprofits — so mission-driven teams get the technology, automation, and reach typically reserved for high-budget firms.
