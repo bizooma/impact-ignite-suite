@@ -352,6 +352,9 @@ const Landing = () => {
                     <p className="text-muted-foreground">
                       That insight became Causeio. The same engine that drives our law firm marketing platform now powers a tool built specifically for nonprofits — so mission-driven teams get the technology, automation, and reach typically reserved for high-budget firms.
                     </p>
+                    <p className="text-sm font-medium text-foreground pt-2">
+                      Offices: Jacksonville, FL & Amarillo, TX
+                    </p>
                   </div>
                 </div>
               </CardContent>
