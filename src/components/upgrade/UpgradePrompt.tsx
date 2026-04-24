@@ -132,8 +132,8 @@ export function UpgradePrompt({ productId, productName, description, features }:
       </div>
 
       {isBeta && (
-        <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-4 py-3 text-center text-sm">
-          <span className="font-semibold text-red-700 dark:text-red-400">Beta lifetime pricing</span>
+        <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-center text-sm">
+          <span className="font-semibold text-destructive">Beta lifetime pricing</span>
           <span className="text-muted-foreground"> — your discount stays locked in for as long as your subscription is active.</span>
         </div>
       )}
