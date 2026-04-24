@@ -23,9 +23,12 @@ const tiers = {
       "Bring your own OpenAI key (unlimited messages)",
       "1 AI Chatbot",
       "5 QR Codes",
+      "1 Accessibility Widget",
+      "2 SEO Audits/month",
+      "Tasks Management",
       "1 Social Media Account",
-      "Community Support",
       "Basic Analytics",
+      "Community Support",
     ]
   },
   starter: {
