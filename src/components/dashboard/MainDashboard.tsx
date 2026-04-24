@@ -18,7 +18,8 @@ import {
   TrendingUp, 
   Users,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  Accessibility
 } from 'lucide-react';
 
 interface MainDashboardProps {
@@ -110,6 +111,15 @@ const moduleCards = [
     status: 'active',
     color: 'primary',
     ready: true
+  },
+  {
+    title: 'Accessibility Widget',
+    description: 'One-line install for WCAG-aligned accessibility enhancements',
+    icon: Accessibility,
+    route: 'accessibility',
+    status: 'active',
+    color: 'primary',
+    ready: false
   }
 ];
 
