@@ -8,7 +8,8 @@ import { AdminAuditLogs } from './AdminAuditLogs';
 import { MobileAppSeeding } from './MobileAppSeeding';
 import { FlipbookManager } from './FlipbookManager';
 import { BetaSignupsManager } from './BetaSignupsManager';
-import { Shield, Users, Building2, BarChart3, FileText, Smartphone, BookOpen, Mail } from 'lucide-react';
+import { ProductFeedbackManager } from './ProductFeedbackManager';
+import { Shield, Users, Building2, BarChart3, FileText, Smartphone, BookOpen, Mail, Lightbulb } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface PlatformStats {
@@ -112,7 +113,7 @@ export function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
@@ -124,6 +125,10 @@ export function AdminDashboard() {
           <TabsTrigger value="beta-signups" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
             Beta Signups
+          </TabsTrigger>
+          <TabsTrigger value="feedback" className="flex items-center gap-2">
+            <Lightbulb className="h-4 w-4" />
+            Feedback
           </TabsTrigger>
           <TabsTrigger value="mobile-apps" className="flex items-center gap-2">
             <Smartphone className="h-4 w-4" />
@@ -153,6 +158,10 @@ export function AdminDashboard() {
 
         <TabsContent value="beta-signups" className="space-y-4">
           <BetaSignupsManager />
+        </TabsContent>
+
+        <TabsContent value="feedback" className="space-y-4">
+          <ProductFeedbackManager />
         </TabsContent>
 
         <TabsContent value="mobile-apps" className="space-y-4">
