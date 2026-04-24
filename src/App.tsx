@@ -275,8 +275,36 @@ const App = () => (
                                 </ProtectedProductRoute>
                               } />
                               <Route path="/mobile-content" element={<MobileContentDashboard organizationId={organizationId} />} />
-                              <Route path="/campaigns" element={<Campaigns organizationId={organizationId} />} />
-                              <Route path="/campaigns/:id" element={<CampaignDetail organizationId={organizationId} />} />
+                              <Route path="/campaigns" element={
+                                <ProtectedProductRoute
+                                  productId="campaigns"
+                                  productName="Campaigns"
+                                  description="Plan and execute multi-channel fundraising and awareness campaigns"
+                                  features={[
+                                    "Campaign timeline and milestones",
+                                    "Goal tracking with thermometer",
+                                    "Coordinated content across channels",
+                                    "Real-time campaign analytics"
+                                  ]}
+                                >
+                                  <Campaigns organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
+                              <Route path="/campaigns/:id" element={
+                                <ProtectedProductRoute
+                                  productId="campaigns"
+                                  productName="Campaigns"
+                                  description="Plan and execute multi-channel fundraising and awareness campaigns"
+                                  features={[
+                                    "Campaign timeline and milestones",
+                                    "Goal tracking with thermometer",
+                                    "Coordinated content across channels",
+                                    "Real-time campaign analytics"
+                                  ]}
+                                >
+                                  <CampaignDetail organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
                               <Route path="/members" element={<MembershipManagement organizationId={organizationId} />} />
                               <Route path="/profile" element={<Profile />} />
                               <Route path="/pricing-beta" element={<PricingBeta />} />
