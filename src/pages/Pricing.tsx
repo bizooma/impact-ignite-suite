@@ -37,6 +37,7 @@ const tiers = {
       "CRM (up to 100 contacts)",
       "2 Social Media Accounts",
       "Email Support",
+      "SLA Guarantee",
     ]
   },
   professional: {
@@ -52,7 +53,8 @@ const tiers = {
       "CRM (up to 1,000 contacts)",
       "10 Social Media Accounts",
       "Analytics",
-      "Priority Support",
+      "Email Support",
+      "SLA Guarantee",
     ]
   },
   enterprise: {
@@ -69,6 +71,7 @@ const tiers = {
       "Unlimited Social Media Accounts",
       "Campaigns & Google Business Profile",
       "Custom Mobile App (monthly)",
+      "Email Support",
       "SLA Guarantee",
     ]
   }
