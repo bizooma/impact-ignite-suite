@@ -81,13 +81,13 @@ export function ProductFeedbackManager() {
         ? supabase.from('organizations').select('id, name').in('id', orgIds)
         : Promise.resolve({ data: [] as any[] }),
       userIds.length
-        ? supabase.from('profiles').select('user_id, display_name, email').in('user_id', userIds)
+        ? supabase.from('profiles').select('user_id, display_name').in('user_id', userIds)
         : Promise.resolve({ data: [] as any[] }),
     ]);
 
     const orgMap = new Map((orgs || []).map((o: any) => [o.id, o.name]));
     const profileMap = new Map(
-      (profiles || []).map((p: any) => [p.user_id, p.email || p.display_name || p.user_id])
+      (profiles || []).map((p: any) => [p.user_id, p.display_name || p.user_id])
     );
 
     setItems(
