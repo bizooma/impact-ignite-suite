@@ -21,6 +21,7 @@ import {
   BookOpen,
   Accessibility
 } from 'lucide-react';
+import { FeedbackCard } from './FeedbackCard';
 
 interface MainDashboardProps {
   organizationId: string;
@@ -286,52 +287,8 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
         </div>
       )}
 
-      {/* Call to Action */}
-      <Card 
-        className={isCalFarleys ? "border-2" : "bg-accent border-2 border-accent-foreground/20"}
-        style={isCalFarleys ? { backgroundColor: CAL_FARLEYS_GOLD } : undefined}
-      >
-        <CardContent className="p-8 text-center">
-          <h3 className={`text-xl font-semibold mb-4 ${isCalFarleys ? 'text-gray-900' : 'text-accent-foreground'}`}>
-            Ready to amplify your impact?
-          </h3>
-          <p className={`mb-6 max-w-md mx-auto ${isCalFarleys ? 'text-gray-800' : 'text-accent-foreground/80'}`}>
-            Your complete nonprofit technology platform is now live! Start with any module to begin amplifying your mission and connecting with your community.
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Button asChild className={calFarleysButtonClass}>
-              <Link to="chatbots">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Create Chatbot
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className={calFarleysOutlineClass}>
-              <Link to="social">
-                <Calendar className="w-4 h-4 mr-2" />
-                Social Media
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className={calFarleysOutlineClass}>
-              <Link to="qr-codes">
-                <QrCode className="w-4 h-4 mr-2" />
-                Generate QR Code
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className={calFarleysOutlineClass}>
-              <Link to="seo">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                SEO Audit
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className={calFarleysOutlineClass}>
-              <Link to="gbp">
-                <Building className="w-4 h-4 mr-2" />
-                Google Business
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Wishlist & Feedback */}
+      <FeedbackCard organizationId={organizationId} />
 
       {/* Flipbook Viewer Dialog */}
       {selectedFlipbook && (
