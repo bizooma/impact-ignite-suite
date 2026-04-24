@@ -19,15 +19,10 @@ const tiers = {
     popular: false,
     isFree: true,
     features: [
-      `${TIER_LIMITS.free.monthlyMessageCap.toLocaleString()} AI chat messages/month`,
-      "Bring your own OpenAI key (unlimited messages)",
-      "1 AI Chatbot",
       "5 QR Codes",
-      "1 Accessibility Widget",
       "2 SEO Audits/month",
+      "1 Accessibility Widget",
       "Tasks Management",
-      "1 Social Media Account",
-      "Basic Analytics",
       "Community Support",
     ]
   },
