@@ -111,12 +111,12 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                You need to connect at least one Facebook Page to publish posts. Click "Connect Facebook" below to get started.
+                Connect a Facebook Page or LinkedIn Company Page to start publishing posts.
               </AlertDescription>
             </Alert>
           )}
 
-          {/* Connected Pages */}
+          {/* Connected Facebook Pages */}
           {facebookIntegrations.map((integration) => {
             const cfg = (integration.config ?? {}) as Record<string, any>;
             return (
@@ -138,6 +138,7 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
                   )}
                   <div>
                     <div className="flex items-center gap-2">
+                      <Facebook className="h-4 w-4 text-[#1877F2]" />
                       <h4 className="font-medium">{cfg.page_name ?? 'Facebook Page'}</h4>
                       <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                         <CheckCircle className="h-3 w-3 mr-1" />
@@ -166,7 +167,58 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
             );
           })}
 
-          {/* Connect / add another */}
+          {/* Connected LinkedIn Pages */}
+          {linkedinIntegrations.map((integration) => {
+            const cfg = (integration.config ?? {}) as Record<string, any>;
+            return (
+              <div
+                key={integration.id}
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  {cfg.picture_url ? (
+                    <img
+                      src={cfg.picture_url}
+                      alt={cfg.page_name ?? 'LinkedIn Page'}
+                      className="h-10 w-10 rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="text-[#0A66C2]">
+                      <Linkedin className="h-8 w-8" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Linkedin className="h-4 w-4 text-[#0A66C2]" />
+                      <h4 className="font-medium">{cfg.page_name ?? 'LinkedIn Page'}</h4>
+                      <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Connected
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      LinkedIn Company Page
+                      {cfg.connected_at && (
+                        <> · Connected {new Date(cfg.connected_at).toLocaleDateString()}</>
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setPendingDisconnect(integration)}
+                  >
+                    Disconnect
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Connect Facebook */}
           <div className="flex items-center justify-between p-4 border-2 border-dashed rounded-lg">
             <div className="flex items-center gap-3">
               <div className="text-[#1877F2]">
@@ -174,7 +226,7 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
               </div>
               <div>
                 <h4 className="font-medium">
-                  {hasAnyConnected ? 'Connect another Facebook Page' : 'Connect Facebook'}
+                  {facebookIntegrations.length > 0 ? 'Connect another Facebook Page' : 'Connect Facebook'}
                 </h4>
                 <p className="text-sm text-muted-foreground">
                   Authorize Causeio to publish posts to a Facebook Page you manage
@@ -188,18 +240,70 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
                   <span>
                     <Button
                       size="sm"
-                      onClick={startFacebookConnect}
+                      onClick={() => startConnect('facebook')}
                       className="gap-2"
-                      disabled={!canCreate.socialAccount || connecting}
+                      disabled={!canCreate.socialAccount || connecting !== null}
                     >
-                      {connecting ? (
+                      {connecting === 'facebook' ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Redirecting…
                         </>
                       ) : (
                         <>
-                          {hasAnyConnected ? 'Add Page' : 'Connect Facebook'}
+                          {facebookIntegrations.length > 0 ? 'Add Page' : 'Connect Facebook'}
+                          <ExternalLink className="h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {!canCreate.socialAccount && (
+                  <TooltipContent>
+                    <p>
+                      You've connected {counts.socialAccounts}/{formatCap(limits.socialAccounts)} social accounts on the {tier} plan.
+                    </p>
+                    <Link to="/pricing" className="underline">Upgrade to add more</Link>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          {/* Connect LinkedIn */}
+          <div className="flex items-center justify-between p-4 border-2 border-dashed rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="text-[#0A66C2]">
+                <Linkedin className="h-8 w-8" />
+              </div>
+              <div>
+                <h4 className="font-medium">
+                  {linkedinIntegrations.length > 0 ? 'Connect another LinkedIn Page' : 'Connect LinkedIn'}
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Authorize Causeio to publish posts to a LinkedIn Company Page you administer
+                </p>
+              </div>
+            </div>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button
+                      size="sm"
+                      onClick={() => startConnect('linkedin')}
+                      className="gap-2"
+                      disabled={!canCreate.socialAccount || connecting !== null}
+                    >
+                      {connecting === 'linkedin' ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Redirecting…
+                        </>
+                      ) : (
+                        <>
+                          {linkedinIntegrations.length > 0 ? 'Add Page' : 'Connect LinkedIn'}
                           <ExternalLink className="h-4 w-4" />
                         </>
                       )}
@@ -222,7 +326,7 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
           <div className="pt-4 border-t space-y-2">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Coming soon</p>
             <div className="flex flex-wrap gap-2">
-              {['Instagram', 'LinkedIn', 'Twitter / X'].map((name) => (
+              {['Instagram', 'Twitter / X'].map((name) => (
                 <Badge key={name} variant="outline" className="bg-muted text-muted-foreground">
                   <XCircle className="h-3 w-3 mr-1" />
                   {name}
