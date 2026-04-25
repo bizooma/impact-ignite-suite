@@ -467,6 +467,32 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                 />
               )}
 
+              {platform === 'linkedin' && (
+                <div className="rounded-lg border bg-background p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    {organization?.logo_url ? (
+                      <img src={organization.logo_url} alt="" className="w-12 h-12 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                        <Linkedin className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-semibold text-sm">{organization?.name || "Organization"}</div>
+                      <div className="text-xs text-muted-foreground">Just now · 🌐</div>
+                    </div>
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap">{content || "Your post content will appear here..."}</p>
+                  {mediaUrls.length > 0 && (
+                    <div className="grid grid-cols-2 gap-1 rounded overflow-hidden">
+                      {mediaUrls.slice(0, 4).map((url, i) => (
+                        <img key={i} src={url} alt="" className="w-full h-32 object-cover" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {platform === 'twitter' && (
                 <div className="p-8 rounded-lg border bg-background text-center">
                   <Twitter className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
