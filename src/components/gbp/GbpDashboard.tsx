@@ -89,7 +89,7 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Google Business Profile</h2>
             <p className="text-muted-foreground">
-              Manage your Google Business Profile presence and optimization
+              Monitor and respond to your Google reviews
             </p>
           </div>
           <Button onClick={() => setShowProfileManager(true)}>
@@ -236,12 +236,18 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={async () => {
+                        await supabase.functions.invoke('gbp-sync-reviews');
+                        await fetchReviews();
+                        await refetchProfiles();
+                      }}
+                    >
                       <RefreshCw className="h-4 w-4 mr-1" />
-                      Sync
-                    </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
-                      Optimize
+                      Sync Reviews
                     </Button>
                   </div>
                 </CardContent>
