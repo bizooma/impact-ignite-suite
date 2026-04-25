@@ -103,7 +103,7 @@ const Landing = () => {
       icon: Megaphone,
       color: "bg-amber-50 text-amber-600",
       features: [
-        { icon: Share2, name: "Social Media", desc: "Schedule & manage across all platforms" },
+        { icon: Share2, name: "Social Media", desc: "Schedule Facebook posts (more platforms coming)" },
         { icon: QrCode, name: "QR Codes", desc: "Trackable codes for events & campaigns" },
         { icon: BarChart3, name: "SEO Analytics", desc: "Rank higher in search & voice results" },
         { icon: Building, name: "Google Business", desc: "Monitor & reply to your Google reviews" },
