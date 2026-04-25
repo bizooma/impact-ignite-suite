@@ -1,81 +1,300 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
+// Real Facebook publisher. Looks up the per-organization integration row
+// produced by facebook-oauth-callback, then publishes via the Graph API
+// using that organization's stored Page Access Token.
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.58.0";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
+const FB_API_VERSION = "v19.0";
+
+interface PublishRequest {
+  postId: string;
+}
+
+async function publishToFacebookPage(args: {
+  pageId: string;
+  pageAccessToken: string;
+  message: string;
+  mediaUrls: string[];
+}): Promise<{ id: string }> {
+  const { pageId, pageAccessToken, message, mediaUrls } = args;
+
+  // No media → simple text post
+  if (mediaUrls.length === 0) {
+    const url =
+      `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/feed`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        message,
+        access_token: pageAccessToken,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json?.error?.message || `Facebook API error ${res.status}`);
+    }
+    return { id: json.id };
+  }
+
+  // Single image → /photos with message
+  if (mediaUrls.length === 1) {
+    const url =
+      `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/photos`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        url: mediaUrls[0],
+        caption: message,
+        access_token: pageAccessToken,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json?.error?.message || `Facebook API error ${res.status}`);
+    }
+    return { id: json.post_id || json.id };
+  }
+
+  // Multi-image → upload each as unpublished, then create a feed post
+  // referencing them via attached_media
+  const photoIds: string[] = [];
+  for (const mediaUrl of mediaUrls) {
+    const phRes = await fetch(
+      `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/photos`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          url: mediaUrl,
+          published: "false",
+          access_token: pageAccessToken,
+        }),
+      },
+    );
+    const phJson = await phRes.json();
+    if (!phRes.ok || !phJson.id) {
+      throw new Error(phJson?.error?.message || "Failed to upload photo");
+    }
+    photoIds.push(phJson.id);
+  }
+
+  const attached = photoIds.map((id) => ({ media_fbid: id }));
+  const feedRes = await fetch(
+    `https://graph.facebook.com/${FB_API_VERSION}/${pageId}/feed`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message,
+        attached_media: attached,
+        access_token: pageAccessToken,
+      }),
+    },
+  );
+  const feedJson = await feedRes.json();
+  if (!feedRes.ok) {
+    throw new Error(feedJson?.error?.message || `Facebook API error ${feedRes.status}`);
+  }
+  return { id: feedJson.id };
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+  const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+  // Auth: use service-role for DB writes but verify the caller's JWT first
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
+    auth: { persistSession: false },
+  });
+
+  const { data: { user }, error: authErr } = await supabase.auth.getUser(
+    authHeader.replace("Bearer ", ""),
+  );
+  if (authErr || !user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  let body: PublishRequest;
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
-    const { postId, platform } = await req.json();
+  if (!body.postId) {
+    return new Response(JSON.stringify({ error: "postId required" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
-    console.log('Publishing post:', { postId, platform });
-
-    // Get the post data
-    const { data: post, error: postError } = await supabaseClient
-      .from('social_posts')
-      .select('*')
-      .eq('id', postId)
+  try {
+    // Load the post
+    const { data: post, error: postErr } = await supabase
+      .from("social_posts")
+      .select("*")
+      .eq("id", body.postId)
       .single();
-
-    if (postError) {
-      console.error('Error fetching post:', postError);
-      throw new Error(`Failed to fetch post: ${postError.message}`);
+    if (postErr || !post) {
+      return new Response(
+        JSON.stringify({ error: postErr?.message || "Post not found" }),
+        {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    console.log('Post data:', post);
+    // Authorize: caller must be a member of the post's organization
+    const { data: isMember } = await supabase.rpc("is_org_member", {
+      _user_id: user.id,
+      _org_id: post.organization_id,
+    });
+    if (!isMember) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    // For now, we'll just simulate publishing
-    // In a real implementation, you would integrate with social media APIs
-    const publishResult = {
-      success: true,
-      platform: platform,
-      external_post_id: `${platform}_${Date.now()}`,
-      published_at: new Date().toISOString(),
-      message: `Successfully published to ${platform}`
-    };
+    if (post.platform !== "facebook") {
+      const reason = `Publishing for "${post.platform}" is not yet supported. Facebook is the only live integration.`;
+      await supabase.from("social_posts").update({
+        status: "failed",
+        metadata: { ...(post.metadata || {}), publish_error: reason },
+      }).eq("id", post.id);
+      return new Response(JSON.stringify({ error: reason }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    // Update the post status
-    const { error: updateError } = await supabaseClient
-      .from('social_posts')
+    // Find the integration row to publish through
+    const targetPageId = (post.metadata as any)?.target_page_id ?? null;
+    let integrationQuery = supabase
+      .from("integrations")
+      .select("id, config, encrypted_tokens, status")
+      .eq("organization_id", post.organization_id)
+      .eq("provider", "facebook")
+      .eq("status", "active");
+
+    if (targetPageId) {
+      integrationQuery = integrationQuery.contains("config", { page_id: targetPageId });
+    }
+
+    const { data: integrations } = await integrationQuery;
+    const integration = integrations?.[0];
+    if (!integration) {
+      const reason = targetPageId
+        ? `No active Facebook integration found for Page ${targetPageId}. Reconnect from Social Integrations.`
+        : "No active Facebook Page connected. Connect a Page from Social Integrations first.";
+      await supabase.from("social_posts").update({
+        status: "failed",
+        metadata: { ...(post.metadata || {}), publish_error: reason },
+      }).eq("id", post.id);
+      return new Response(JSON.stringify({ error: reason }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const cfg = integration.config as any;
+    const tokens = integration.encrypted_tokens as any;
+    const pageId: string = cfg?.page_id;
+    const pageAccessToken: string = tokens?.page_access_token;
+    if (!pageId || !pageAccessToken) {
+      const reason = "Facebook integration is missing page_id or access token. Please reconnect.";
+      await supabase.from("social_posts").update({
+        status: "failed",
+        metadata: { ...(post.metadata || {}), publish_error: reason },
+      }).eq("id", post.id);
+      return new Response(JSON.stringify({ error: reason }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Publish
+    const result = await publishToFacebookPage({
+      pageId,
+      pageAccessToken,
+      message: post.content ?? "",
+      mediaUrls: Array.isArray(post.media_urls) ? post.media_urls : [],
+    });
+
+    const publishedAt = new Date().toISOString();
+    const { error: updErr } = await supabase
+      .from("social_posts")
       .update({
-        status: 'published',
-        published_at: publishResult.published_at,
-        external_post_id: publishResult.external_post_id
+        status: "published",
+        published_at: publishedAt,
+        external_post_id: result.id,
+        metadata: {
+          ...(post.metadata || {}),
+          published_page_id: pageId,
+          published_page_name: cfg.page_name,
+        },
       })
-      .eq('id', postId);
-
-    if (updateError) {
-      console.error('Error updating post:', updateError);
-      throw new Error(`Failed to update post: ${updateError.message}`);
+      .eq("id", post.id);
+    if (updErr) {
+      console.error("[social-publisher] update error", updErr);
     }
 
-    console.log('Post published successfully:', publishResult);
-
-    return new Response(JSON.stringify(publishResult), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error('Error in social-publisher function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(JSON.stringify({ 
-      error: errorMessage,
-      details: 'Check function logs for more information'
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        platform: "facebook",
+        page_id: pageId,
+        external_post_id: result.id,
+        published_at: publishedAt,
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
+  } catch (error: any) {
+    console.error("[social-publisher] error", error);
+    const reason = error?.message || "Unknown error";
+    // Best-effort failure recording
+    if (body.postId) {
+      await supabase.from("social_posts").update({
+        status: "failed",
+        metadata: { publish_error: reason, failed_at: new Date().toISOString() },
+      }).eq("id", body.postId).then(() => {}).catch(() => {});
+    }
+    return new Response(
+      JSON.stringify({ error: reason }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 });
