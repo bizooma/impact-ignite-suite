@@ -65,6 +65,39 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  // Handle ?compose=1&date=YYYY-MM-DD&awareness=<key> from awareness day popover
+  useEffect(() => {
+    if (searchParams.get('compose') !== '1') return;
+
+    const dateStr = searchParams.get('date');
+    const awarenessKey = searchParams.get('awareness');
+
+    let initialDate: Date | undefined;
+    if (dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      if (y && m && d) initialDate = new Date(y, m - 1, d);
+    }
+
+    let initialContent: string | undefined;
+    if (awarenessKey) {
+      const event = AWARENESS_EVENTS.find((e) => e.key === awarenessKey);
+      if (event) {
+        const tag = '#' + event.name.replace(/[^a-zA-Z0-9]+/g, '');
+        initialContent = `${event.name} — ${event.description}\n\n${tag} #Nonprofit`;
+      }
+    }
+
+    setComposerInitialContent(initialContent);
+    setComposerInitialDate(initialDate);
+    setShowComposer(true);
+
+    const next = new URLSearchParams(searchParams);
+    next.delete('compose');
+    next.delete('date');
+    next.delete('awareness');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
 
   const platforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook },
