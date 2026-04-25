@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { useOrganization } from '@/hooks/useOrganization';
-import { CalendarIcon, Facebook, Twitter, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { CalendarIcon, Facebook, Twitter, Linkedin, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,7 +32,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   campaigns
 }) => {
   const [content, setContent] = useState('');
-  const [platform, setPlatform] = useState<'facebook' | 'twitter'>('facebook');
+  const [platform, setPlatform] = useState<'facebook' | 'linkedin' | 'twitter'>('facebook');
   const [scheduledDate, setScheduledDate] = useState<Date>();
   const [scheduledTime, setScheduledTime] = useState('');
   const [campaignId, setCampaignId] = useState<string>('none');
@@ -126,7 +126,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       scheduled_for: scheduledFor,
       campaign_id: campaignId === 'none' ? undefined : campaignId,
       media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
-      target_page_id: platform === 'facebook' && targetPageId ? targetPageId : undefined,
+      target_page_id: (platform === 'facebook' || platform === 'linkedin') && targetPageId ? targetPageId : undefined,
     });
 
     setContent('');
@@ -141,6 +141,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   const getPlatformIcon = (platformName: string) => {
     switch (platformName) {
       case 'facebook': return <Facebook className="h-4 w-4" />;
+      case 'linkedin': return <Linkedin className="h-4 w-4" />;
       case 'twitter': return <Twitter className="h-4 w-4" />;
       default: return null;
     }
@@ -149,6 +150,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   const getCharacterLimit = (platformName: string) => {
     switch (platformName) {
       case 'twitter': return 280;
+      case 'linkedin': return 3000;
       case 'facebook': return 63206;
       default: return 1000;
     }
@@ -190,6 +192,12 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                       <div className="flex items-center gap-2">
                         <Facebook className="h-4 w-4" />
                         Facebook
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="linkedin">
+                      <div className="flex items-center gap-2">
+                        <Linkedin className="h-4 w-4" />
+                        LinkedIn
                       </div>
                     </SelectItem>
                     <SelectItem value="twitter" disabled>
