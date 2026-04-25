@@ -13,6 +13,7 @@ import { TaskManager } from './TaskManager';
 import { ReviewsManager } from './ReviewsManager';
 import { GbpSetupGuide } from './GbpSetupGuide';
 import { IntegrationStatusBanner } from './IntegrationStatusBanner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GbpDashboardProps {
   organizationId: string;
