@@ -149,12 +149,6 @@ const Landing = () => {
             <img src={causeioLogo} alt="Causeio - Where Purpose Meets Performance" className="h-12" />
           </div>
           <div className="flex items-center space-x-3">
-            <Link to="/blog">
-              <Button variant="ghost" size="sm">Blog</Button>
-            </Link>
-            <Link to="/pricing">
-              <Button variant="ghost" size="sm">Pricing</Button>
-            </Link>
             {loading ? (
               <Button variant="outline" disabled size="sm">Loading...</Button>
             ) : user ? (
