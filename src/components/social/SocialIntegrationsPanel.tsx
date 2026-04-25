@@ -340,7 +340,7 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
       <AlertDialog open={!!pendingDisconnect} onOpenChange={(o) => !o && setPendingDisconnect(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Disconnect Facebook Page?</AlertDialogTitle>
+            <AlertDialogTitle>Disconnect {pendingDisconnect?.provider === 'linkedin' ? 'LinkedIn' : 'Facebook'} Page?</AlertDialogTitle>
             <AlertDialogDescription>
               {pendingDisconnect && (
                 <>
