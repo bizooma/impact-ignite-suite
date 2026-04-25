@@ -493,7 +493,6 @@ const Landing = () => {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
                 <li><Link to="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
-                <li><Link to="/google-ad-grants" className="hover:text-primary transition-colors">Google Ad Grants</Link></li>
               </ul>
             </div>
             <div>
