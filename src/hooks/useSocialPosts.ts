@@ -59,24 +59,30 @@ export const useSocialPosts = (organizationId?: string) => {
     scheduled_for?: string;
     campaign_id?: string;
     media_urls?: string[];
+    target_page_id?: string;
   }) => {
     if (!organizationId) return null;
 
     try {
+      const { target_page_id, ...rest } = postData;
+      const insertPayload: any = {
+        organization_id: organizationId,
+        ...rest,
+        status: postData.scheduled_for ? 'scheduled' : 'draft',
+      };
+      if (target_page_id) {
+        insertPayload.metadata = { target_page_id };
+      }
       const { data, error } = await supabase
         .from('social_posts')
-        .insert({
-          organization_id: organizationId,
-          ...postData,
-          status: postData.scheduled_for ? 'scheduled' : 'draft'
-        })
+        .insert(insertPayload)
         .select()
         .single();
 
       if (error) throw error;
 
       setPosts(prev => [data, ...prev]);
-      
+
       toast({
         title: "Success",
         description: "Social post created successfully",
