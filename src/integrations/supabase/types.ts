@@ -2776,6 +2776,33 @@ export type Database = {
           },
         ]
       }
+      social_calendar_settings: {
+        Row: {
+          created_at: string
+          enabled_categories: string[]
+          id: string
+          organization_id: string
+          show_awareness_days: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled_categories?: string[]
+          id?: string
+          organization_id: string
+          show_awareness_days?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled_categories?: string[]
+          id?: string
+          organization_id?: string
+          show_awareness_days?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       social_posts: {
         Row: {
           campaign_id: string | null
