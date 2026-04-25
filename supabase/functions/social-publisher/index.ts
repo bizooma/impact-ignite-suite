@@ -283,11 +283,15 @@ serve(async (req) => {
     console.error("[social-publisher] error", error);
     const reason = error?.message || "Unknown error";
     // Best-effort failure recording
-    if (body.postId) {
-      await supabase.from("social_posts").update({
-        status: "failed",
-        metadata: { publish_error: reason, failed_at: new Date().toISOString() },
-      }).eq("id", body.postId).then(() => {}).catch(() => {});
+    if (body?.postId) {
+      try {
+        await supabase.from("social_posts").update({
+          status: "failed",
+          metadata: { publish_error: reason, failed_at: new Date().toISOString() },
+        }).eq("id", body.postId);
+      } catch (recordErr) {
+        console.error("[social-publisher] could not record failure", recordErr);
+      }
     }
     return new Response(
       JSON.stringify({ error: reason }),
