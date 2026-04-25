@@ -171,13 +171,13 @@ const App = () => (
                                 <ProtectedProductRoute
                                   productId="google_business"
                                   productName="Google Business Profile Manager"
-                                  description="Optimize and manage your Google Business Profile"
+                                  description="Monitor and respond to your Google reviews"
                                   features={[
-                                    "Sync and update your Google Business Profile",
-                                    "Track profile completeness and optimization",
-                                    "Manage business categories and attributes",
-                                    "Monitor profile performance",
-                                    "Receive optimization recommendations"
+                                    "Connect your Google Business Profile",
+                                    "Auto-sync new reviews from Google",
+                                    "AI-drafted response suggestions",
+                                    "Approve and post replies in one click",
+                                    "Track response rate and average rating"
                                   ]}
                                 >
                                   <GbpDashboard organizationId={organizationId} />

@@ -10,15 +10,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { useOrganization } from '@/hooks/useOrganization';
-import { CalendarIcon, Facebook, Twitter, Instagram, Linkedin, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { CalendarIcon, Facebook, Twitter, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { FacebookPreview } from './previews/FacebookPreview';
-import { InstagramPreview } from './previews/InstagramPreview';
-import { LinkedInPreview } from './previews/LinkedInPreview';
 
 interface PostComposerProps {
   open: boolean;
@@ -34,7 +32,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   campaigns
 }) => {
   const [content, setContent] = useState('');
-  const [platform, setPlatform] = useState<'facebook' | 'twitter' | 'instagram' | 'linkedin'>('facebook');
+  const [platform, setPlatform] = useState<'facebook' | 'twitter'>('facebook');
   const [scheduledDate, setScheduledDate] = useState<Date>();
   const [scheduledTime, setScheduledTime] = useState('');
   const [campaignId, setCampaignId] = useState<string>('none');
@@ -142,8 +140,6 @@ export const PostComposer: React.FC<PostComposerProps> = ({
     switch (platformName) {
       case 'facebook': return <Facebook className="h-4 w-4" />;
       case 'twitter': return <Twitter className="h-4 w-4" />;
-      case 'instagram': return <Instagram className="h-4 w-4" />;
-      case 'linkedin': return <Linkedin className="h-4 w-4" />;
       default: return null;
     }
   };
@@ -152,8 +148,6 @@ export const PostComposer: React.FC<PostComposerProps> = ({
     switch (platformName) {
       case 'twitter': return 280;
       case 'facebook': return 63206;
-      case 'instagram': return 2200;
-      case 'linkedin': return 1300;
       default: return 1000;
     }
   };
@@ -196,22 +190,11 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                         Facebook
                       </div>
                     </SelectItem>
-                    <SelectItem value="twitter">
+                    <SelectItem value="twitter" disabled>
                       <div className="flex items-center gap-2">
                         <Twitter className="h-4 w-4" />
-                        Twitter
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="instagram">
-                      <div className="flex items-center gap-2">
-                        <Instagram className="h-4 w-4" />
-                        Instagram
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="linkedin">
-                      <div className="flex items-center gap-2">
-                        <Linkedin className="h-4 w-4" />
-                        LinkedIn
+                        Twitter / X
+                        <span className="ml-2 text-xs rounded bg-muted px-1.5 py-0.5">Coming Soon</span>
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -372,29 +355,11 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                 />
               )}
 
-              {platform === 'instagram' && (
-                <InstagramPreview
-                  content={content}
-                  mediaUrls={mediaUrls}
-                  organizationName={organization?.name || "Organization"}
-                  organizationLogo={organization?.logo_url}
-                />
-              )}
-
-              {platform === 'linkedin' && (
-                <LinkedInPreview
-                  content={content}
-                  mediaUrls={mediaUrls}
-                  organizationName={organization?.name || "Organization"}
-                  organizationLogo={organization?.logo_url}
-                />
-              )}
-
               {platform === 'twitter' && (
                 <div className="p-8 rounded-lg border bg-background text-center">
                   <Twitter className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
                   <p className="text-sm text-muted-foreground">
-                    Twitter preview coming soon
+                    Twitter / X publishing coming soon
                   </p>
                 </div>
               )}

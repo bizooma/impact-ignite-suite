@@ -70,7 +70,7 @@ const moduleCards = [
   },
   {
     title: 'Google Business',
-    description: 'Optimize your Google Business Profile for community visibility',
+    description: 'Monitor and respond to your Google reviews',
     icon: Building,
     route: 'gbp',
     status: 'active',

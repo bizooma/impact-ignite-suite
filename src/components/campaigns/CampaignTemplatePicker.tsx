@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card } from '@/components/ui/card';
-import { Heart, Calendar, Plus } from 'lucide-react';
+import { Heart, Plus } from 'lucide-react';
 import { useCampaigns } from '@/hooks/useCampaigns';
 import { useNavigate } from 'react-router-dom';
 
@@ -41,7 +41,7 @@ export function CampaignTemplatePicker({ open, onOpenChange, organizationId }: P
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <Card
             onClick={handleGivingTuesday}
             className="p-5 cursor-pointer hover:border-primary transition-all hover:shadow-md"
@@ -52,14 +52,6 @@ export function CampaignTemplatePicker({ open, onOpenChange, organizationId }: P
               Complete 8-week plan with timeline, social posts, emails, SMS, chatbot FAQs, and tasks.
             </p>
             <div className="text-xs text-primary mt-3">Recommended ⭐</div>
-          </Card>
-
-          <Card className="p-5 cursor-not-allowed opacity-60">
-            <Calendar className="h-8 w-8 mb-3 text-blue-600" />
-            <h3 className="font-semibold mb-1">Year-End Giving</h3>
-            <p className="text-sm text-muted-foreground">
-              December push for year-end donations. Coming soon.
-            </p>
           </Card>
 
           <Card

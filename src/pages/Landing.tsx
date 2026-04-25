@@ -22,8 +22,8 @@ const Landing = () => {
       "@type": "Organization",
       "name": "Causeio",
       "description": "AI-powered marketing platform helping businesses grow with intelligent chatbots, dynamic QR codes, social media automation, and comprehensive SEO optimization.",
-      "url": "https://yourdomain.com",
-      "logo": "https://yourdomain.com/assets/causeio-logo.png",
+      "url": "https://causeio.com",
+      "logo": "https://causeio.com/assets/causeio-logo.png",
       "sameAs": [
         "https://twitter.com/causeio",
         "https://linkedin.com/company/causeio",
@@ -103,10 +103,10 @@ const Landing = () => {
       icon: Megaphone,
       color: "bg-amber-50 text-amber-600",
       features: [
-        { icon: Share2, name: "Social Media", desc: "Schedule & manage across all platforms" },
+        { icon: Share2, name: "Social Media", desc: "Schedule Facebook posts (more platforms coming)" },
         { icon: QrCode, name: "QR Codes", desc: "Trackable codes for events & campaigns" },
         { icon: BarChart3, name: "SEO Analytics", desc: "Rank higher in search & voice results" },
-        { icon: Building, name: "Google Business", desc: "Optimize your local profile" },
+        { icon: Building, name: "Google Business", desc: "Monitor & reply to your Google reviews" },
         { icon: Heart, name: "Campaigns", desc: "Run Giving Tuesday & year-round appeals" },
         { icon: Target, name: "PPC Management", desc: "Maximize Google Ad Grants ROI", comingSoon: true },
       ]

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useSocialPosts } from '@/hooks/useSocialPosts';
-import { Calendar, Share2, Users, TrendingUp, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { Calendar, Share2, Users, TrendingUp, Facebook, Twitter } from 'lucide-react';
 import { PostComposer } from './PostComposer';
 import { CampaignManager } from './CampaignManager';
 import SocialIntegrationsPanel from './SocialIntegrationsPanel';
@@ -26,9 +26,7 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
 
   const platforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook },
-    { id: 'twitter', name: 'Twitter', icon: Twitter },
-    { id: 'instagram', name: 'Instagram', icon: Instagram },
-    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin }
+    { id: 'twitter', name: 'Twitter / X (Coming Soon)', icon: Twitter },
   ];
 
   const statuses = [
@@ -63,8 +61,6 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
     switch (platform) {
       case 'facebook': return <Facebook className="h-4 w-4" />;
       case 'twitter': return <Twitter className="h-4 w-4" />;
-      case 'instagram': return <Instagram className="h-4 w-4" />;
-      case 'linkedin': return <Linkedin className="h-4 w-4" />;
       default: return <Share2 className="h-4 w-4" />;
     }
   };
