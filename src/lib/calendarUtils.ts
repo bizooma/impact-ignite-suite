@@ -1,4 +1,5 @@
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isToday, format, addDays } from 'date-fns';
+import { AWARENESS_EVENTS, type AwarenessEvent } from './campaignTemplates/awarenessCalendar';
 
 export interface CalendarDay {
   date: Date;
@@ -71,4 +72,45 @@ export function formatTime(dateString: string): string {
 
 export function isSameDayCustom(date1: Date, date2: Date): boolean {
   return isSameDay(date1, date2);
+}
+
+/**
+ * Resolve every awareness event for the year of `monthDate` and bucket them
+ * by exact day (for "day" scope) or by month (for "month" / "week" scope).
+ *
+ * Returns only events whose category is in `enabledCategories`.
+ */
+export function getAwarenessEventsForMonth(
+  monthDate: Date,
+  enabledCategories: string[],
+): {
+  dayEvents: Map<string, AwarenessEvent[]>;
+  monthEvents: AwarenessEvent[];
+} {
+  const year = monthDate.getFullYear();
+  const monthNum = monthDate.getMonth() + 1; // 1-12
+  const enabled = new Set(enabledCategories);
+
+  const dayEvents = new Map<string, AwarenessEvent[]>();
+  const monthEvents: AwarenessEvent[] = [];
+
+  for (const event of AWARENESS_EVENTS) {
+    if (!enabled.has(event.category)) continue;
+    if (event.month !== monthNum) continue;
+
+    if (event.scope === 'month') {
+      monthEvents.push(event);
+      continue;
+    }
+
+    // 'day' or 'week' — resolve to a specific date and bucket it
+    const date = event.resolve
+      ? event.resolve(year)
+      : new Date(year, event.month - 1, event.day || 1);
+    const key = format(date, 'yyyy-MM-dd');
+    const existing = dayEvents.get(key) ?? [];
+    dayEvents.set(key, [...existing, event]);
+  }
+
+  return { dayEvents, monthEvents };
 }
