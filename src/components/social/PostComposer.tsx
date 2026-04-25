@@ -183,7 +183,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
 
               <div className="space-y-2">
                 <Label htmlFor="platform">Platform</Label>
-                <Select value={platform} onValueChange={(value: any) => setPlatform(value)}>
+                <Select value={platform} onValueChange={(value: any) => { setPlatform(value); setTargetPageId(''); }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
