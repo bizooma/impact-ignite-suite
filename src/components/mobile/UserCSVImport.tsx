@@ -21,6 +21,7 @@ import {
 import { Upload, FileCheck, AlertCircle, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import Papa from 'papaparse';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CSVRow {
   full_name: string;
@@ -143,22 +144,28 @@ export function UserCSVImport({ open, onOpenChange, organizationId, onSuccess }:
     try {
       for (const user of validUsers) {
         try {
-          const userData = {
-            full_name: user.full_name,
-            username: user.username,
-            password_hash: user.password, // TODO: Hash via edge function
-            email: user.email || null,
-            phone_number: user.phone_number || null,
-            role: user.role,
-            is_active: user.is_active === 'false' ? false : true,
-            avatar_url: user.avatar_url || null,
-            assigned_resident_ids: [],
-            assigned_staff_ids: [],
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
+          // Use create_user_with_hash op so the edge function bcrypt-hashes the
+          // password server-side and creates a matching Supabase Auth user.
+          const { data: result, error } = await supabase.functions.invoke('mobile-app-proxy', {
+            body: {
+              operation: 'create_user_with_hash',
+              table: 'users',
+              organizationId,
+              data: {
+                full_name: user.full_name,
+                username: user.username,
+                password: user.password,
+                email: user.email || null,
+                phone_number: user.phone_number || null,
+                role: user.role,
+                is_active: user.is_active === 'false' ? false : true,
+                avatar_url: user.avatar_url || null,
+              },
+            },
+          });
 
-          await insertData('users', userData);
+          if (error) throw error;
+          if (!result?.success) throw new Error(result?.error || 'Import failed');
           successCount++;
         } catch (error) {
           console.error(`Failed to import user ${user.username}:`, error);

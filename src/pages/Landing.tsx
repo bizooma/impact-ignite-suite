@@ -22,8 +22,8 @@ const Landing = () => {
       "@type": "Organization",
       "name": "Causeio",
       "description": "AI-powered marketing platform helping businesses grow with intelligent chatbots, dynamic QR codes, social media automation, and comprehensive SEO optimization.",
-      "url": "https://yourdomain.com",
-      "logo": "https://yourdomain.com/assets/causeio-logo.png",
+      "url": "https://causeio.com",
+      "logo": "https://causeio.com/assets/causeio-logo.png",
       "sameAs": [
         "https://twitter.com/causeio",
         "https://linkedin.com/company/causeio",

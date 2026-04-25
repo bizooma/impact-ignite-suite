@@ -91,7 +91,7 @@ const Pricing = () => {
       "brand": { "@type": "Brand", "name": "Causeio" },
       "offers": {
         "@type": "Offer",
-        "url": "https://yourdomain.com/pricing",
+        "url": "https://causeio.com/pricing",
         "priceCurrency": "USD",
         "price": "0",
         "availability": "https://schema.org/InStock",
@@ -109,7 +109,7 @@ const Pricing = () => {
       },
       "offers": {
         "@type": "Offer",
-        "url": "https://yourdomain.com/pricing",
+        "url": "https://causeio.com/pricing",
         "priceCurrency": "USD",
         "price": "149",
         "priceValidUntil": "2025-12-31",
@@ -137,7 +137,7 @@ const Pricing = () => {
       },
       "offers": {
         "@type": "Offer",
-        "url": "https://yourdomain.com/pricing",
+        "url": "https://causeio.com/pricing",
         "priceCurrency": "USD",
         "price": "349",
         "priceValidUntil": "2025-12-31",
@@ -165,7 +165,7 @@ const Pricing = () => {
       },
       "offers": {
         "@type": "Offer",
-        "url": "https://yourdomain.com/pricing",
+        "url": "https://causeio.com/pricing",
         "priceCurrency": "USD",
         "price": "549",
         "priceValidUntil": "2025-12-31",
