@@ -18,7 +18,7 @@ import { Link } from 'react-router-dom';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { useTierLimits } from '@/hooks/useTierLimits';
 import { formatCap } from '@/lib/aiTierLimits';
-import { Facebook, CheckCircle, XCircle, AlertCircle, ExternalLink, Loader2 } from 'lucide-react';
+import { Facebook, Linkedin, CheckCircle, XCircle, AlertCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import type { Integration } from '@/types/database';
@@ -30,18 +30,23 @@ interface SocialIntegrationsPanelProps {
 const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organizationId }) => {
   const { integrations, loading, deleteIntegration, refetch } = useIntegrations(organizationId);
   const { canCreate, limits, counts, tier } = useTierLimits(organizationId);
-  const [connecting, setConnecting] = useState(false);
+  const [connecting, setConnecting] = useState<null | 'facebook' | 'linkedin'>(null);
   const [pendingDisconnect, setPendingDisconnect] = useState<Integration | null>(null);
 
-  // All connected Facebook Pages for this org (one row per Page)
   const facebookIntegrations = integrations.filter(
     (i) => i.provider === 'facebook' && i.status === 'active'
   );
+  const linkedinIntegrations = integrations.filter(
+    (i) => i.provider === 'linkedin' && i.status === 'active'
+  );
 
-  const startFacebookConnect = async () => {
-    setConnecting(true);
+  const startConnect = async (
+    provider: 'facebook' | 'linkedin',
+  ) => {
+    setConnecting(provider);
     try {
-      const { data, error } = await supabase.functions.invoke('facebook-oauth-start', {
+      const fnName = provider === 'facebook' ? 'facebook-oauth-start' : 'linkedin-oauth-start';
+      const { data, error } = await supabase.functions.invoke(fnName, {
         body: {
           organization_id: organizationId,
           return_to: '/dashboard/social',
@@ -49,22 +54,22 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
       });
       if (error) throw error;
       if (!data?.authorize_url) throw new Error('No authorize URL returned');
-      // Send the user to Facebook
       window.location.href = data.authorize_url;
     } catch (err: any) {
-      console.error('[SocialIntegrationsPanel] connect failed', err);
-      toast.error('Could not start Facebook connection', {
+      console.error(`[SocialIntegrationsPanel] ${provider} connect failed`, err);
+      toast.error(`Could not start ${provider === 'facebook' ? 'Facebook' : 'LinkedIn'} connection`, {
         description: err?.message ?? 'Unexpected error',
       });
-      setConnecting(false);
+      setConnecting(null);
     }
   };
 
   const confirmDisconnect = async () => {
     if (!pendingDisconnect) return;
+    const label = pendingDisconnect.provider === 'linkedin' ? 'LinkedIn Page' : 'Facebook Page';
     try {
       await deleteIntegration(pendingDisconnect.id);
-      toast.success('Facebook Page disconnected');
+      toast.success(`${label} disconnected`);
       setPendingDisconnect(null);
       refetch();
     } catch (err: any) {
@@ -90,7 +95,7 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
     );
   }
 
-  const hasAnyConnected = facebookIntegrations.length > 0;
+  const hasAnyConnected = facebookIntegrations.length > 0 || linkedinIntegrations.length > 0;
 
   return (
     <>
