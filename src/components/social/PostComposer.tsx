@@ -183,7 +183,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
 
               <div className="space-y-2">
                 <Label htmlFor="platform">Platform</Label>
-                <Select value={platform} onValueChange={(value: any) => setPlatform(value)}>
+                <Select value={platform} onValueChange={(value: any) => { setPlatform(value); setTargetPageId(''); }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -210,6 +210,58 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* LinkedIn Page selector */}
+              {platform === 'linkedin' && (() => {
+                const liPages = integrations.filter(
+                  (i) => i.provider === 'linkedin' && i.status === 'active'
+                );
+                if (liPages.length === 0) {
+                  return (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        No LinkedIn Page connected. Go to the Integrations tab and click "Connect LinkedIn" before publishing.
+                      </AlertDescription>
+                    </Alert>
+                  );
+                }
+                if (liPages.length === 1) {
+                  const cfg = (liPages[0].config ?? {}) as any;
+                  const pageId = cfg.page_urn ?? cfg.page_id ?? '';
+                  if (targetPageId !== pageId) setTargetPageId(pageId);
+                  return (
+                    <div className="text-sm text-muted-foreground">
+                      Publishing to <span className="font-medium text-foreground">{cfg.page_name ?? 'LinkedIn Page'}</span>
+                    </div>
+                  );
+                }
+                const firstId = ((liPages[0].config as any)?.page_urn ?? (liPages[0].config as any)?.page_id ?? '');
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="target-page-li">LinkedIn Page</Label>
+                    <Select
+                      value={targetPageId || firstId}
+                      onValueChange={setTargetPageId}
+                    >
+                      <SelectTrigger id="target-page-li">
+                        <SelectValue placeholder="Select a Page" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {liPages.map((i) => {
+                          const cfg = (i.config ?? {}) as any;
+                          const pageId = cfg.page_urn ?? cfg.page_id ?? i.id;
+                          return (
+                            <SelectItem key={i.id} value={pageId}>
+                              {cfg.page_name ?? 'LinkedIn Page'}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              })()}
 
               {/* Page selector — only show for Facebook when org has Pages connected */}
               {platform === 'facebook' && (() => {
@@ -413,6 +465,32 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                   organizationName={organization?.name || "Organization"}
                   organizationLogo={organization?.logo_url}
                 />
+              )}
+
+              {platform === 'linkedin' && (
+                <div className="rounded-lg border bg-background p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    {organization?.logo_url ? (
+                      <img src={organization.logo_url} alt="" className="w-12 h-12 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                        <Linkedin className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-semibold text-sm">{organization?.name || "Organization"}</div>
+                      <div className="text-xs text-muted-foreground">Just now · 🌐</div>
+                    </div>
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap">{content || "Your post content will appear here..."}</p>
+                  {mediaUrls.length > 0 && (
+                    <div className="grid grid-cols-2 gap-1 rounded overflow-hidden">
+                      {mediaUrls.slice(0, 4).map((url, i) => (
+                        <img key={i} src={url} alt="" className="w-full h-32 object-cover" />
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
 
               {platform === 'twitter' && (
