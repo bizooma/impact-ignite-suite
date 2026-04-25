@@ -106,7 +106,7 @@ const Landing = () => {
         { icon: Share2, name: "Social Media", desc: "Schedule & manage across all platforms" },
         { icon: QrCode, name: "QR Codes", desc: "Trackable codes for events & campaigns" },
         { icon: BarChart3, name: "SEO Analytics", desc: "Rank higher in search & voice results" },
-        { icon: Building, name: "Google Business", desc: "Optimize your local profile" },
+        { icon: Building, name: "Google Business", desc: "Monitor & reply to your Google reviews" },
         { icon: Heart, name: "Campaigns", desc: "Run Giving Tuesday & year-round appeals" },
         { icon: Target, name: "PPC Management", desc: "Maximize Google Ad Grants ROI", comingSoon: true },
       ]
