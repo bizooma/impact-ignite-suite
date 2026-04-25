@@ -1,6 +1,6 @@
-// Real Facebook publisher. Looks up the per-organization integration row
-// produced by facebook-oauth-callback, then publishes via the Graph API
-// using that organization's stored Page Access Token.
+// Real social publisher. Looks up the per-organization integration row
+// (Facebook or LinkedIn) and publishes via the platform's API using the
+// organization's stored access token.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.58.0";
 
@@ -11,9 +11,133 @@ const corsHeaders = {
 };
 
 const FB_API_VERSION = "v19.0";
+const LI_API_VERSION = "202405"; // LinkedIn versioned APIs (YYYYMM)
 
 interface PublishRequest {
   postId: string;
+}
+
+// ---------------- LinkedIn ----------------
+
+async function uploadLinkedInImage(args: {
+  ownerUrn: string;       // urn:li:organization:{id}
+  accessToken: string;
+  imageUrl: string;
+}): Promise<string> {
+  const { ownerUrn, accessToken, imageUrl } = args;
+
+  // 1. Initialize image upload
+  const initRes = await fetch(
+    "https://api.linkedin.com/rest/images?action=initializeUpload",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "LinkedIn-Version": LI_API_VERSION,
+        "X-Restli-Protocol-Version": "2.0.0",
+      },
+      body: JSON.stringify({ initializeUploadRequest: { owner: ownerUrn } }),
+    },
+  );
+  const initJson = await initRes.json();
+  if (!initRes.ok) {
+    throw new Error(
+      initJson?.message || `LinkedIn image init failed (${initRes.status})`,
+    );
+  }
+  const uploadUrl: string = initJson?.value?.uploadUrl;
+  const imageUrn: string = initJson?.value?.image;
+  if (!uploadUrl || !imageUrn) {
+    throw new Error("LinkedIn image init returned no uploadUrl/image URN");
+  }
+
+  // 2. Download the source image so we can stream the bytes to LinkedIn
+  const srcRes = await fetch(imageUrl);
+  if (!srcRes.ok) {
+    throw new Error(`Could not fetch source image: ${srcRes.status}`);
+  }
+  const bytes = new Uint8Array(await srcRes.arrayBuffer());
+
+  // 3. Upload to LinkedIn's signed URL
+  const upRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: bytes,
+  });
+  if (!upRes.ok) {
+    const text = await upRes.text().catch(() => "");
+    throw new Error(`LinkedIn image upload failed (${upRes.status}): ${text}`);
+  }
+
+  return imageUrn;
+}
+
+async function publishToLinkedInPage(args: {
+  ownerUrn: string;
+  accessToken: string;
+  text: string;
+  mediaUrls: string[];
+}): Promise<{ id: string }> {
+  const { ownerUrn, accessToken, text, mediaUrls } = args;
+
+  // Upload images first (LinkedIn supports either single image OR multi-image carousel)
+  const imageUrns: string[] = [];
+  for (const url of mediaUrls) {
+    const urn = await uploadLinkedInImage({ ownerUrn, accessToken, imageUrl: url });
+    imageUrns.push(urn);
+  }
+
+  let content: Record<string, unknown> = {};
+  if (imageUrns.length === 1) {
+    content = { media: { id: imageUrns[0] } };
+  } else if (imageUrns.length > 1) {
+    content = {
+      multiImage: {
+        images: imageUrns.map((id) => ({ id })),
+      },
+    };
+  }
+
+  const body = {
+    author: ownerUrn,
+    commentary: text,
+    visibility: "PUBLIC",
+    distribution: {
+      feedDistribution: "MAIN_FEED",
+      targetEntities: [],
+      thirdPartyDistributionChannels: [],
+    },
+    lifecycleState: "PUBLISHED",
+    isReshareDisabledByAuthor: false,
+    ...(Object.keys(content).length > 0 ? { content } : {}),
+  };
+
+  const res = await fetch("https://api.linkedin.com/rest/posts", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "LinkedIn-Version": LI_API_VERSION,
+      "X-Restli-Protocol-Version": "2.0.0",
+    },
+    body: JSON.stringify(body),
+  });
+
+  // LinkedIn returns the new post URN in the x-restli-id header on 201
+  const postUrn = res.headers.get("x-restli-id") || res.headers.get("X-RestLi-Id");
+  if (res.ok && postUrn) {
+    return { id: postUrn };
+  }
+
+  // Fall back to parsing JSON for error details
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      json?.message || `LinkedIn API error ${res.status}`,
+    );
+  }
+  return { id: json?.id ?? "unknown" };
 }
 
 async function publishToFacebookPage(args: {
