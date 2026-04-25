@@ -23,6 +23,8 @@ interface SocialMediaDashboardProps {
 const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizationId }) => {
   const { posts, campaigns, loading } = useSocialPosts(organizationId);
   const [showComposer, setShowComposer] = useState(false);
+  const [composerInitialContent, setComposerInitialContent] = useState<string | undefined>();
+  const [composerInitialDate, setComposerInitialDate] = useState<Date | undefined>();
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
