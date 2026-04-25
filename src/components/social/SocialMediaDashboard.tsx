@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useSocialPosts } from '@/hooks/useSocialPosts';
-import { Calendar, Share2, Users, TrendingUp, Facebook, Twitter } from 'lucide-react';
+import { Calendar, Share2, Users, TrendingUp, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { toast } from 'sonner';
 import { PostComposer } from './PostComposer';
 import { CampaignManager } from './CampaignManager';
@@ -27,10 +27,11 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Handle return from Facebook OAuth flow
+  // Handle return from Facebook / LinkedIn OAuth flows
   useEffect(() => {
     const fb = searchParams.get('fb');
-    if (!fb) return;
+    const li = searchParams.get('li');
+    if (!fb && !li) return;
     if (fb === 'connected') {
       const pages = searchParams.get('pages');
       toast.success('Facebook connected', {
@@ -42,9 +43,20 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
       const reason = searchParams.get('reason') ?? 'Unknown error';
       toast.error('Facebook connection failed', { description: reason });
     }
-    // Strip the params so a refresh doesn't re-toast
+    if (li === 'connected') {
+      const pages = searchParams.get('pages');
+      toast.success('LinkedIn connected', {
+        description: pages
+          ? `${pages} Page${pages === '1' ? '' : 's'} now available for publishing.`
+          : 'Page is now available for publishing.',
+      });
+    } else if (li === 'error') {
+      const reason = searchParams.get('reason') ?? 'Unknown error';
+      toast.error('LinkedIn connection failed', { description: reason });
+    }
     const next = new URLSearchParams(searchParams);
     next.delete('fb');
+    next.delete('li');
     next.delete('pages');
     next.delete('reason');
     setSearchParams(next, { replace: true });
@@ -53,6 +65,7 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
 
   const platforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook },
+    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin },
     { id: 'twitter', name: 'Twitter / X (Coming Soon)', icon: Twitter },
   ];
 
@@ -87,6 +100,7 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
   const getPlatformIcon = (platform: string) => {
     switch (platform) {
       case 'facebook': return <Facebook className="h-4 w-4" />;
+      case 'linkedin': return <Linkedin className="h-4 w-4" />;
       case 'twitter': return <Twitter className="h-4 w-4" />;
       default: return <Share2 className="h-4 w-4" />;
     }
