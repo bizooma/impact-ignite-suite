@@ -414,6 +414,151 @@ export default function GoogleAdGrants() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Done-For-You Managed Services */}
+          <Card className="mt-12 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-background overflow-hidden">
+            <CardHeader>
+              <Badge className="w-fit mb-2" variant="secondary">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Done-For-You by CauseIO
+              </Badge>
+              <CardTitle className="text-2xl md:text-3xl">
+                Don't have time to learn it all? Let our team do it for you.
+              </CardTitle>
+              <CardDescription className="text-base">
+                Most nonprofits leave thousands of dollars on the table every month because the application
+                process feels overwhelming and ongoing campaign management requires expertise they don't have
+                in-house. CauseIO's certified Google Ads team handles the entire process — from application
+                to optimization — so you can focus on your mission.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {/* Two-tier offering */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Tier 1: Setup */}
+                <Card className="border-2">
+                  <CardHeader>
+                    <Wrench className="w-8 h-8 text-primary mb-2" />
+                    <CardTitle className="text-xl">Grant Setup & Approval</CardTitle>
+                    <CardDescription>One-time engagement</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      We handle the entire application end-to-end so your nonprofit gets approved the
+                      first time around.
+                    </p>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>TechSoup verification & Google for Nonprofits enrollment</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Google Ad Grants account activation</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Conversion tracking installed on your website</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Initial keyword research & ad group structure</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>First 3 launch campaigns built & approved</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Landing page audit & recommendations</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Tier 2: Ongoing PPC */}
+                <Card className="border-2 border-primary relative">
+                  <Badge className="absolute -top-3 right-4">Most Popular</Badge>
+                  <CardHeader>
+                    <LineChart className="w-8 h-8 text-primary mb-2" />
+                    <CardTitle className="text-xl">Ongoing PPC Management</CardTitle>
+                    <CardDescription>Flat monthly fee</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Your $10,000/month grant only delivers results when someone is actively
+                      managing it. We keep you compliant, optimized, and growing.
+                    </p>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Weekly campaign optimization & bid management</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Keep CTR above 5% to avoid account suspension</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Quality Score monitoring & keyword cleanup</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>New ad copy & A/B testing each month</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Monthly performance report with ROI insights</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Annual program survey & policy compliance</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>Dedicated Google Ads strategist</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Why it matters */}
+              <div className="rounded-lg border bg-muted/30 p-6">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Why ongoing management matters
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Google suspends inactive Ad Grants accounts. Without monthly attention, your account
+                  can lose access to the full $10,000/month, drop below the 5% CTR threshold, or get
+                  flagged for policy violations. Our team makes sure your grant keeps working — so
+                  every month you're driving real donations, volunteers, and program awareness.
+                </p>
+              </div>
+
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button size="lg" asChild>
+                  <a
+                    href="https://calendly.com/joe-bizooma/30min"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Schedule a free consultation
+                  </a>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link to="/pricing">View pricing</Link>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Custom pricing based on grant size and campaign complexity. Most nonprofits start at a
+                flat monthly rate well below what they'd pay an in-house specialist.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>
