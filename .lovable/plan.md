@@ -1,132 +1,137 @@
-# Causeio Launch-Readiness Plan
+# Facebook Per-Tenant OAuth & Publishing — Full Build
 
-Goal: in 2 weeks, ship a site where every visible feature actually works. Anything not working gets either built, hidden, or clearly labeled.
+Build the complete per-organization Facebook integration end-to-end. The code will read `FACEBOOK_APP_ID` and `FACEBOOK_APP_SECRET` from Supabase secrets — once you add those (after creating the FB App on a different computer), the flow goes live with zero additional code changes.
+
+## Architecture
+
+Standard OAuth 2.0 Authorization Code flow, scoped per organization:
+
+```
+[Org Admin] → clicks "Connect Facebook" in SocialIntegrationsPanel
+   ↓
+[facebook-oauth-start] → generates CSRF state → 302 to facebook.com/dialog/oauth
+   ↓
+[Facebook] → user logs in, picks Pages, grants permissions
+   ↓
+[facebook-oauth-callback] → exchanges code → long-lived user token → fetches Pages → stores per-Page tokens in `integrations` (one row per Page, scoped to organization_id) → 302 back to /dashboard/social?fb=connected
+   ↓
+[social-publisher] → on publish, looks up the org's active Facebook integration → POSTs to graph.facebook.com/{page_id}/feed using stored Page Access Token
+```
+
+## Files to create/edit
+
+### 1. NEW: `supabase/functions/facebook-oauth-start/index.ts`
+- Validates caller JWT, requires `organization_id` query param
+- Verifies caller has `admin` or `owner` role on that org via `has_org_role` RPC
+- Generates a CSRF `state` token (random + signed JSON: `{ org_id, user_id, nonce, exp }`), HMAC'd with `SUPABASE_JWKS` or `SUPABASE_SERVICE_ROLE_KEY`-derived key
+- Returns `{ authorize_url }` JSON pointing to:
+  ```
+  https://www.facebook.com/v19.0/dialog/oauth
+    ?client_id={FACEBOOK_APP_ID}
+    &redirect_uri={SUPABASE_URL}/functions/v1/facebook-oauth-callback
+    &state={signed_state}
+    &scope=pages_show_list,pages_manage_posts,pages_read_engagement,business_management
+    &response_type=code
+  ```
+
+### 2. NEW: `supabase/functions/facebook-oauth-callback/index.ts`
+- Public endpoint (no JWT — Facebook calls it). Reads `code` and `state` from query.
+- Verifies HMAC on `state`, checks `exp`, extracts `org_id` and `user_id`
+- Exchanges `code` → short-lived user token: `GET graph.facebook.com/v19.0/oauth/access_token`
+- Exchanges short-lived → long-lived (~60-day) user token: `GET .../oauth/access_token?grant_type=fb_exchange_token`
+- Fetches user's Pages: `GET graph.facebook.com/v19.0/me/accounts?fields=id,name,access_token,category,picture`
+- For each Page, upserts a row in `integrations`:
+  - `organization_id`, `provider='facebook'`, `status='active'`
+  - `config = { page_id, page_name, account_name, category, picture_url }`
+  - `encrypted_tokens = { page_access_token, user_access_token, user_token_expires_at }`
+  - Note: Page Access Tokens are long-lived (don't expire) when derived from a long-lived user token
+- 302 redirects to `${origin}/dashboard/social?fb=connected&pages={count}`
+- On error → 302 to `/dashboard/social?fb=error&reason={msg}`
+
+### 3. REWRITE: `supabase/functions/social-publisher/index.ts`
+- Validates JWT, verifies caller can access the post's org
+- Fetches the post (must be `platform='facebook'`)
+- Looks up the matching `integrations` row (org + provider=facebook + status=active)
+  - If multiple Pages, uses `post.config.page_id` if specified, else first active
+- POSTs to Graph API:
+  ```
+  POST graph.facebook.com/v19.0/{page_id}/feed
+    body: { message: post.content, access_token: page_access_token }
+  ```
+  - With `media_urls`: posts to `/{page_id}/photos` (single) or creates unpublished photos + attached_media (multi-image)
+- On success: updates `social_posts` with `status='published'`, `published_at`, `external_post_id={page_id}_{post_id}`
+- On error: updates `status='failed'`, `error_message`, returns 500 with details
+- Removes ALL simulation code
+
+### 4. EDIT: `src/components/social/SocialIntegrationsPanel.tsx`
+- Replace `handleConnect` stub with real flow:
+  ```ts
+  const { data, error } = await supabase.functions.invoke('facebook-oauth-start', {
+    body: { organization_id: organizationId }
+  });
+  if (data?.authorize_url) window.location.href = data.authorize_url;
+  ```
+- Replace `handleDisconnect` with real `deleteIntegration(integration.id)` call + confirmation dialog
+- Add a "Reconnect" button that runs the same OAuth start flow (overwrites tokens)
+- Show connected Page name + picture from `integration.config`
+
+### 5. EDIT: `src/components/social/SocialMediaDashboard.tsx`
+- Read `?fb=connected` / `?fb=error` query params on mount via `useSearchParams`
+- Show success toast: "Facebook Page connected — N page(s) available for posting"
+- Show error toast with reason on failure
+- Strip the params from URL after handling
+
+### 6. EDIT: `src/components/social/PostComposer.tsx`
+- If org has multiple connected FB Pages, add a Page selector dropdown (defaults to first)
+- Pass `page_id` into `createPost` so publisher knows which Page to target
+- Disable submit with helpful tooltip if no FB Page connected
+
+### 7. EDIT: `src/hooks/useSocialPosts.ts`
+- `createPost` accepts optional `page_id` → stored in `social_posts.config` (JSONB) or new column
+- May require small migration: add `target_page_id text` to `social_posts` (nullable)
+
+### 8. Migration (if needed)
+- Add `target_page_id text NULL` to `social_posts` so multi-Page orgs can pick which Page to publish to
+- No RLS changes needed — existing `social_posts` policies cover it
+- Confirm `integrations.provider` enum includes `'facebook'` (it does per the existing `enforce_integration_quota` function)
+
+## Secrets needed (you add later)
+
+When you finally get into the FB Developer console:
+- `FACEBOOK_APP_ID` — from FB App Settings → Basic
+- `FACEBOOK_APP_SECRET` — same screen, click "Show"
+
+I'll request both via the secure secrets form when you say you're ready. Until then, the OAuth start function will return a clear "Facebook integration not yet configured by platform admin" error — but all the wiring, UI, callback, and publisher code will be live.
+
+## What works immediately after this build
+
+- ✅ All edge functions deployed and live
+- ✅ "Connect Facebook" button wired and clickable (will show "not configured" error until secrets added)
+- ✅ OAuth callback handler ready to receive Meta's redirect
+- ✅ Real Graph API publishing logic in `social-publisher` (no more simulation)
+- ✅ Disconnect/reconnect flows functional
+- ✅ Multi-Page support in UI
+- ✅ Success/error feedback in dashboard
+
+## What activates once you add `FACEBOOK_APP_ID` + `FACEBOOK_APP_SECRET`
+
+- 🚀 The full Connect → Authorize → Publish loop, end-to-end, for any org
+
+## Out of scope (deliberately deferred)
+
+- Meta App Review submission (you handle externally; required to allow non-Tester FB accounts to connect)
+- Webhook subscriptions for FB Page events (not needed for publishing)
+- Long-lived token auto-refresh cron (Page tokens are effectively permanent; user tokens refresh next time admin reconnects)
+- Instagram/LinkedIn/Twitter (still hidden per prior plan)
+
+## Pre-launch QA (after secrets added)
+
+1. Connect FB Page from Bizooma org → verify `integrations` row created with correct `page_id`
+2. Compose post → publish → verify it appears on the actual FB Page
+3. Verify `social_posts.external_post_id` populated and `status='published'`
+4. Disconnect → verify integration row deleted, button reverts to "Connect"
+5. Try connecting from a different org → verify tokens scoped correctly (no cross-org leakage)
 
 ---
 
-## Phase 1 — Critical fixes (do first, ~1 day)
-
-### 1.1 Fix mobile-app password hashing (SECURITY)
-- **Problem:** `src/components/mobile/UserCSVImport.tsx:149` stores plaintext passwords as `password_hash`.
-- **Fix:**
-  - Create new edge function `mobile-hash-password` that takes a plaintext password, hashes it with bcrypt (already used in `mobile-app-proxy/create_user_with_hash`), and returns the hash. Auth-gated to org admins.
-  - Update `UserCSVImport.tsx` to call this function for each row before inserting via `mobile-app-proxy`. Reject rows whose password is empty/too short.
-  - Add a length/strength check (min 8 chars).
-
-### 1.2 Fix `yourdomain.com` in SEO schemas
-- Replace all 6 occurrences in `src/pages/Landing.tsx` (lines 25-26) and `src/pages/Pricing.tsx` (lines 94, 112, 140, 168) with `https://causeio.com` (or the published domain you're using).
-- Replace `https://yourdomain.com/assets/causeio-logo.png` with the actual hosted logo URL.
-
-### 1.3 Hide placeholder Mobile App Analytics tab
-- In `MobileAppDashboard.tsx`, remove the "Analytics" `TabsTrigger` and `TabsContent` for `MobileAppAnalytics` until real analytics ship. Delete `MobileAppAnalytics.tsx`.
-
-### 1.4 Remove "Year-End Giving" template tile
-- In `src/components/campaigns/CampaignTemplatePicker.tsx`, delete the disabled `<Card>` block for "Year-End Giving" (lines 57-63). Adjust grid to `md:grid-cols-2`.
-
----
-
-## Phase 2 — Google Business: strip to reviews-only (~0.5 day)
-
-We keep what already works (OAuth + review monitoring) and remove the simulated stats/tasks.
-
-### 2.1 Edge function changes
-- **Delete or stop using** `gbp-sync` entirely (the `simulateGbpSync` function with `Math.random()` fake metrics).
-- **Keep** `gbp-oauth-callback`, `gbp-sync-reviews`, `gbp-generate-response`, `gbp-post-response`, `gbp-quick-approve`, `gbp-notify-review`.
-- Verify `gbp-sync-reviews` actually hits the Google My Business API (read its body and confirm — if it's also stubbed, we'll either implement it for real or hide GBP entirely; will report findings during build).
-
-### 2.2 UI changes (`src/components/gbp/GbpDashboard.tsx`)
-- Remove all stat cards that reference fake metrics (views, clicks, calls, directions). Keep:
-  - **Reviews** count and average rating (real, from `gbp_reviews` table)
-  - **Pending review responses** counter
-  - **Profile completeness** card (real, calculated from user-entered profile data, not the random fake)
-- Remove the "Sync Profile" button (or rename to "Sync Reviews" and call `gbp-sync-reviews`).
-- Remove the `TaskManager` tab and the auto-generated optimization tasks fed by `simulateGbpSync` results.
-- Update copy/description to "Monitor and respond to Google reviews."
-
-### 2.3 Module card and product gating
-- In `src/components/dashboard/MainDashboard.tsx`, update the Google Business card description to "Monitor and respond to your Google reviews."
-- In `src/App.tsx` `ProtectedProductRoute`, update `description` and `features` arrays for `google_business` to match the trimmed scope.
-- Update landing page copy in `src/pages/Landing.tsx` for "Google Business" feature.
-
----
-
-## Phase 3 — Social Media: ship Facebook only, hide the rest (~4-5 days)
-
-### 3.1 Hide Instagram, LinkedIn (keep Twitter as visual "Coming Soon")
-- In `src/components/social/SocialIntegrationsPanel.tsx`: keep only the Facebook entry in `socialPlatforms`. Remove Instagram, LinkedIn entries.
-- In `src/components/social/SocialMediaDashboard.tsx`: remove Instagram/LinkedIn from `platforms` filter array. Keep Twitter with a "Coming Soon" badge in the platform list and the composer's platform select.
-- In `src/components/social/PostComposer.tsx`: in the platform `<Select>`, keep Facebook as the only enabled option; show Twitter as disabled with "Coming Soon" badge; remove Instagram and LinkedIn options.
-- Delete preview components for `InstagramPreview.tsx` and `LinkedInPreview.tsx` (they're not needed). Keep `FacebookPreview.tsx`. Twitter preview already shows "Coming soon" — keep as is.
-- Update DB enum / `social_publisher` switch to only handle `facebook` going forward.
-
-### 3.2 Build real Facebook OAuth
-- Create new edge function `facebook-oauth-start` — generates Facebook Login URL with required scopes (`pages_show_list`, `pages_manage_posts`, `pages_read_engagement`) and `state` param for CSRF.
-- Create new edge function `facebook-oauth-callback` — exchanges `code` for short-lived user token, exchanges that for a long-lived token, fetches the user's Pages list, lets user pick a Page (we'll persist the first one for v1, or show a selector), stores Page ID + Page Access Token in `integrations.encrypted_tokens`. Sets `provider='facebook'`, `status='active'`.
-- Wire `SocialIntegrationsPanel.handleConnect('facebook')` to call `facebook-oauth-start` and redirect.
-- Wire `SocialIntegrationsPanel.handleDisconnect('facebook')` to call existing `deleteIntegration` and revoke (best effort).
-
-**Required from you before we can ship this:** create a Facebook App in https://developers.facebook.com, add Facebook Login product, configure OAuth redirect URI to our `facebook-oauth-callback` URL, and provide:
-- `FACEBOOK_APP_ID`
-- `FACEBOOK_APP_SECRET`
-
-(Lovable Cloud / Supabase secrets — I'll request these via the secret tool when we get to this step.)
-
-### 3.3 Replace simulated `social-publisher` with real Facebook publishing
-- Rewrite `supabase/functions/social-publisher/index.ts`:
-  - Look up the post and the org's active Facebook integration.
-  - For `platform === 'facebook'`: POST to `https://graph.facebook.com/v19.0/{page-id}/feed` (or `/photos` for image posts) using the Page Access Token from `encrypted_tokens`.
-  - On success: store the returned `id` as `external_post_id`, set `published_at` to actual API timestamp, status `published`.
-  - On failure: set status `failed`, record error in metadata, surface error toast in UI.
-  - For any other platform: return `{ error: "Platform not yet supported" }` and don't fake success.
-- Update `useSocialPosts` toast handling so failures actually show an error to the user.
-
-### 3.4 Update Stats card and copy
-- Landing page "Social Media" feature card → "Schedule Facebook posts (Instagram & LinkedIn coming soon)".
-
----
-
-## Phase 4 — Smaller polish (~0.5 day)
-
-### 4.1 Mailchimp sync count accuracy (optional but recommended)
-- After submitting a Mailchimp batch, poll `/batches/{id}` (with timeout/backoff) to get accurate `total_operations`, `finished_operations`, `errored_operations`. Update `crm_mailchimp_sync_logs` with real counts. If we run out of time, leave the existing `// Note:` comment but update the UI to say "approximate".
-
-### 4.2 Verify Calendly link
-- Confirm `https://calendly.com/joe-bizooma/30min` in `src/pages/Landing.tsx` (lines 460, 509) is the right link for Causeio (vs. a Causeio-branded Calendly). If wrong, replace.
-
----
-
-## Phase 5 — Pre-launch QA pass
-
-After all phases, walk every dashboard route logged in as a fresh org and verify:
-- No "Coming Soon" or "will be implemented" text reaches the user except where intentional (Twitter, future modules badged on landing page).
-- `Math.random()` fake data is gone everywhere user-facing.
-- All product cards on `/dashboard` resolve to working features (or are removed).
-- Stripe checkout works for Starter / Professional / Enterprise on both standard and beta pricing.
-- Beta signup form on landing page successfully creates a record and triggers CRM sync.
-- Mobile app login + content management via proxy still works.
-- Run security scan + linter; address any new findings.
-
----
-
-## Out of scope (post-launch)
-- Instagram + LinkedIn publishing (Meta IG requires the same App; LinkedIn needs separate developer setup + company page).
-- Twitter/X publishing (paid API).
-- Real Mobile App analytics dashboard.
-- Year-End Giving campaign template.
-- PPC Management & Website Builder modules (already labeled "Coming Soon" on landing).
-- Full Google My Business integration beyond reviews (requires Google API verification, multi-week review).
-
----
-
-## Estimated timeline (~7 working days, leaves buffer in your 2 weeks)
-
-| Day | Work |
-|---|---|
-| 1 | Phase 1 (security + SEO fixes + hide stubs) |
-| 2 | Phase 2 (GBP trim) + Phase 3.1 (social UI cleanup) + verify gbp-sync-reviews |
-| 3-4 | Phase 3.2 (Facebook OAuth — depends on you creating the FB App and providing secrets) |
-| 5 | Phase 3.3 (real Facebook publishing) |
-| 6 | Phase 4 (polish) + Phase 5 QA pass |
-| 7 | Buffer / fixes from QA |
-
-Approve this plan and I'll execute Phase 1 immediately, then hit you for the Facebook App credentials when we reach Phase 3.2.
+**Approve to build everything except the FB App creation itself. You'll just add the two secrets later and it goes live.**

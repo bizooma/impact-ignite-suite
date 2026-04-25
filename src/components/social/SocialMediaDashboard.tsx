@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { Calendar, Share2, Users, TrendingUp, Facebook, Twitter } from 'lucide-react';
+import { toast } from 'sonner';
 import { PostComposer } from './PostComposer';
 import { CampaignManager } from './CampaignManager';
 import SocialIntegrationsPanel from './SocialIntegrationsPanel';
@@ -23,6 +25,31 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Handle return from Facebook OAuth flow
+  useEffect(() => {
+    const fb = searchParams.get('fb');
+    if (!fb) return;
+    if (fb === 'connected') {
+      const pages = searchParams.get('pages');
+      toast.success('Facebook connected', {
+        description: pages
+          ? `${pages} Page${pages === '1' ? '' : 's'} now available for publishing.`
+          : 'Page is now available for publishing.',
+      });
+    } else if (fb === 'error') {
+      const reason = searchParams.get('reason') ?? 'Unknown error';
+      toast.error('Facebook connection failed', { description: reason });
+    }
+    // Strip the params so a refresh doesn't re-toast
+    const next = new URLSearchParams(searchParams);
+    next.delete('fb');
+    next.delete('pages');
+    next.delete('reason');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
 
   const platforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook },

@@ -36,6 +36,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   const [scheduledDate, setScheduledDate] = useState<Date>();
   const [scheduledTime, setScheduledTime] = useState('');
   const [campaignId, setCampaignId] = useState<string>('none');
+  const [targetPageId, setTargetPageId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
@@ -125,6 +126,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       scheduled_for: scheduledFor,
       campaign_id: campaignId === 'none' ? undefined : campaignId,
       media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
+      target_page_id: platform === 'facebook' && targetPageId ? targetPageId : undefined,
     });
 
     setContent('');
@@ -200,6 +202,56 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Page selector — only show for Facebook when org has Pages connected */}
+              {platform === 'facebook' && (() => {
+                const fbPages = integrations.filter(
+                  (i) => i.provider === 'facebook' && i.status === 'active'
+                );
+                if (fbPages.length === 0) {
+                  return (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        No Facebook Page connected. Go to the Integrations tab and click "Connect Facebook" before publishing.
+                      </AlertDescription>
+                    </Alert>
+                  );
+                }
+                if (fbPages.length === 1) {
+                  // Auto-select the single page; show as info only
+                  const cfg = (fbPages[0].config ?? {}) as any;
+                  if (targetPageId !== cfg.page_id) setTargetPageId(cfg.page_id);
+                  return (
+                    <div className="text-sm text-muted-foreground">
+                      Publishing to <span className="font-medium text-foreground">{cfg.page_name}</span>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="target-page">Facebook Page</Label>
+                    <Select
+                      value={targetPageId || ((fbPages[0].config as any)?.page_id ?? '')}
+                      onValueChange={setTargetPageId}
+                    >
+                      <SelectTrigger id="target-page">
+                        <SelectValue placeholder="Select a Page" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {fbPages.map((i) => {
+                          const cfg = (i.config ?? {}) as any;
+                          return (
+                            <SelectItem key={i.id} value={cfg.page_id}>
+                              {cfg.page_name}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              })()}
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
