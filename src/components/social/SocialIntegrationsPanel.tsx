@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { useTierLimits } from '@/hooks/useTierLimits';
 import { formatCap } from '@/lib/aiTierLimits';
-import { Facebook, Instagram, Linkedin, CheckCircle, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { Facebook, CheckCircle, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SocialIntegrationsPanelProps {
@@ -26,20 +26,6 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
       icon: Facebook,
       color: 'text-[#1877F2]',
       description: 'Connect your Facebook Page to publish posts',
-    },
-    {
-      id: 'instagram',
-      name: 'Instagram',
-      icon: Instagram,
-      color: 'text-[#E4405F]',
-      description: 'Connect your Instagram Business account',
-    },
-    {
-      id: 'linkedin',
-      name: 'LinkedIn',
-      icon: Linkedin,
-      color: 'text-[#0A66C2]',
-      description: 'Connect your LinkedIn Organization page',
     },
   ];
 
