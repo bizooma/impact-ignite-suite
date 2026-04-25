@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,18 +23,32 @@ interface PostComposerProps {
   onClose: () => void;
   organizationId: string;
   campaigns: any[];
+  initialContent?: string;
+  initialDate?: Date;
 }
 
 export const PostComposer: React.FC<PostComposerProps> = ({
   open,
   onClose,
   organizationId,
-  campaigns
+  campaigns,
+  initialContent,
+  initialDate,
 }) => {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(initialContent ?? '');
   const [platform, setPlatform] = useState<'facebook' | 'linkedin' | 'twitter'>('facebook');
-  const [scheduledDate, setScheduledDate] = useState<Date>();
-  const [scheduledTime, setScheduledTime] = useState('');
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(initialDate);
+  const [scheduledTime, setScheduledTime] = useState(initialDate ? '09:00' : '');
+
+  // Apply prefill whenever the dialog opens with new values
+  useEffect(() => {
+    if (!open) return;
+    if (initialContent !== undefined) setContent(initialContent);
+    if (initialDate !== undefined) {
+      setScheduledDate(initialDate);
+      setScheduledTime((prev) => prev || '09:00');
+    }
+  }, [open, initialContent, initialDate]);
   const [campaignId, setCampaignId] = useState<string>('none');
   const [targetPageId, setTargetPageId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);

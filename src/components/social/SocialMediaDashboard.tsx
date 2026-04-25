@@ -14,6 +14,7 @@ import { CampaignManager } from './CampaignManager';
 import SocialIntegrationsPanel from './SocialIntegrationsPanel';
 import SocialCalendar from './SocialCalendar';
 import PostDetailsDialog from './PostDetailsDialog';
+import { AWARENESS_EVENTS } from '@/lib/campaignTemplates/awarenessCalendar';
 
 interface SocialMediaDashboardProps {
   organizationId: string;
@@ -22,6 +23,8 @@ interface SocialMediaDashboardProps {
 const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizationId }) => {
   const { posts, campaigns, loading } = useSocialPosts(organizationId);
   const [showComposer, setShowComposer] = useState(false);
+  const [composerInitialContent, setComposerInitialContent] = useState<string | undefined>();
+  const [composerInitialDate, setComposerInitialDate] = useState<Date | undefined>();
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
@@ -59,6 +62,39 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
     next.delete('li');
     next.delete('pages');
     next.delete('reason');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  // Handle ?compose=1&date=YYYY-MM-DD&awareness=<key> from awareness day popover
+  useEffect(() => {
+    if (searchParams.get('compose') !== '1') return;
+
+    const dateStr = searchParams.get('date');
+    const awarenessKey = searchParams.get('awareness');
+
+    let initialDate: Date | undefined;
+    if (dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      if (y && m && d) initialDate = new Date(y, m - 1, d);
+    }
+
+    let initialContent: string | undefined;
+    if (awarenessKey) {
+      const event = AWARENESS_EVENTS.find((e) => e.key === awarenessKey);
+      if (event) {
+        const tag = '#' + event.name.replace(/[^a-zA-Z0-9]+/g, '');
+        initialContent = `${event.name} — ${event.description}\n\n${tag} #Nonprofit`;
+      }
+    }
+
+    setComposerInitialContent(initialContent);
+    setComposerInitialDate(initialDate);
+    setShowComposer(true);
+
+    const next = new URLSearchParams(searchParams);
+    next.delete('compose');
+    next.delete('date');
+    next.delete('awareness');
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
@@ -344,9 +380,15 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
 
       <PostComposer 
         open={showComposer}
-        onClose={() => setShowComposer(false)}
+        onClose={() => {
+          setShowComposer(false);
+          setComposerInitialContent(undefined);
+          setComposerInitialDate(undefined);
+        }}
         organizationId={organizationId}
         campaigns={campaigns}
+        initialContent={composerInitialContent}
+        initialDate={composerInitialDate}
       />
 
       <PostDetailsDialog
