@@ -500,7 +500,7 @@ const Landing = () => {
               <h3 className="font-semibold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/blog/volunteer-recruitment" className="hover:text-primary transition-colors">Volunteer Recruitment</Link></li>
-                <li><Link to="/blog/google-grants" className="hover:text-primary transition-colors">Google Grants Guide</Link></li>
+                <li><Link to="/resources/google-ad-grants" className="hover:text-primary transition-colors">Google Grants Guide</Link></li>
               </ul>
             </div>
             <div>
