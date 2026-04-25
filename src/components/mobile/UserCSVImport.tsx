@@ -59,7 +59,7 @@ const VALID_ROLES = [
 ];
 
 export function UserCSVImport({ open, onOpenChange, organizationId, onSuccess }: UserCSVImportProps) {
-  const { insertData, fetchTableData } = useMobileAppData(organizationId);
+  const { fetchTableData } = useMobileAppData(organizationId);
   const [parsedUsers, setParsedUsers] = useState<ParsedUser[]>([]);
   const [importing, setImporting] = useState(false);
   const [importResults, setImportResults] = useState<{ success: number; failed: number } | null>(null);
