@@ -209,6 +209,7 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
             <div className="lg:col-span-3">
               <SocialCalendar
                 posts={posts}
+                organizationId={organizationId}
                 onPostClick={setSelectedPost}
                 selectedPlatforms={selectedPlatforms}
                 selectedStatuses={selectedStatuses}
