@@ -380,9 +380,15 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
 
       <PostComposer 
         open={showComposer}
-        onClose={() => setShowComposer(false)}
+        onClose={() => {
+          setShowComposer(false);
+          setComposerInitialContent(undefined);
+          setComposerInitialDate(undefined);
+        }}
         organizationId={organizationId}
         campaigns={campaigns}
+        initialContent={composerInitialContent}
+        initialDate={composerInitialDate}
       />
 
       <PostDetailsDialog
