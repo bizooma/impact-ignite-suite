@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Building2,
 } from "lucide-react";
+import { PublicNav } from "@/components/layout/PublicNav";
 
 export default function MicrosoftGrants() {
   return (
@@ -29,6 +30,7 @@ export default function MicrosoftGrants() {
       />
 
       <div className="min-h-screen bg-background">
+        <PublicNav />
         {/* Hero */}
         <div className="bg-gradient-to-br from-primary/10 via-background to-background border-b">
           <div className="container mx-auto px-4 py-16 md:py-24">
