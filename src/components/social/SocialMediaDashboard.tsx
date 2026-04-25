@@ -14,6 +14,7 @@ import { CampaignManager } from './CampaignManager';
 import SocialIntegrationsPanel from './SocialIntegrationsPanel';
 import SocialCalendar from './SocialCalendar';
 import PostDetailsDialog from './PostDetailsDialog';
+import { AWARENESS_EVENTS } from '@/lib/campaignTemplates/awarenessCalendar';
 
 interface SocialMediaDashboardProps {
   organizationId: string;
