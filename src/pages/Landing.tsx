@@ -501,6 +501,7 @@ const Landing = () => {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/blog/volunteer-recruitment" className="hover:text-primary transition-colors">Volunteer Recruitment</Link></li>
                 <li><Link to="/resources/google-ad-grants" className="hover:text-primary transition-colors">Google Grants Guide</Link></li>
+                <li><Link to="/resources/microsoft-grants" className="hover:text-primary transition-colors">Microsoft Grants</Link></li>
               </ul>
             </div>
             <div>

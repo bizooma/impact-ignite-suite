@@ -38,6 +38,7 @@ import { MobileContentDashboard } from "./components/mobile-content/MobileConten
 import Profile from "./pages/Profile";
 import { MembershipManagement } from "./components/admin/MembershipManagement";
 import GoogleAdGrants from "./pages/GoogleAdGrants";
+import MicrosoftGrants from "./pages/MicrosoftGrants";
 import WcagCompliance from "./pages/WcagCompliance";
 import Campaigns from "./pages/Campaigns";
 import CampaignDetail from "./pages/CampaignDetail";
@@ -75,6 +76,8 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/wcag-compliance" element={<WcagCompliance />} />
+                <Route path="/resources/google-ad-grants" element={<GoogleAdGrants />} />
+                <Route path="/resources/microsoft-grants" element={<MicrosoftGrants />} />
                 <Route path="/unsubscribe" element={<Unsubscribe />} />
                 
                 {/* Admin route with sidebar */}
