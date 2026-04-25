@@ -179,9 +179,14 @@ const Landing = () => {
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white hero-title"
               style={{ textShadow: "0 2px 12px rgba(0,0,0,0.45)" }}
             >
-              Your nonprofit deserves tools that{" "}
-              <span className="text-white">match your mission</span>
+              AI-Powered Marketing for Nonprofits That Want to Grow
             </h1>
+            <p
+              className="text-lg md:text-xl text-white leading-relaxed"
+              style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}
+            >
+              Causeio is a nationwide digital marketing platform helping nonprofit organizations increase donations, recruit volunteers, and improve engagement through websites, mobile apps, automation, and intelligent chatbots.
+            </p>
           </div>
           <div>
             <BetaSignupForm compact />
