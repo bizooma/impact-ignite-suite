@@ -307,8 +307,8 @@ serve(async (req) => {
       });
     }
 
-    if (post.platform !== "facebook") {
-      const reason = `Publishing for "${post.platform}" is not yet supported. Facebook is the only live integration.`;
+    if (post.platform !== "facebook" && post.platform !== "linkedin") {
+      const reason = `Publishing for "${post.platform}" is not yet supported. Connect Facebook or LinkedIn.`;
       await supabase.from("social_posts").update({
         status: "failed",
         metadata: { ...(post.metadata || {}), publish_error: reason },
@@ -325,7 +325,7 @@ serve(async (req) => {
       .from("integrations")
       .select("id, config, encrypted_tokens, status")
       .eq("organization_id", post.organization_id)
-      .eq("provider", "facebook")
+      .eq("provider", post.platform)
       .eq("status", "active");
 
     if (targetPageId) {
@@ -334,10 +334,11 @@ serve(async (req) => {
 
     const { data: integrations } = await integrationQuery;
     const integration = integrations?.[0];
+    const platformLabel = post.platform === "facebook" ? "Facebook" : "LinkedIn";
     if (!integration) {
       const reason = targetPageId
-        ? `No active Facebook integration found for Page ${targetPageId}. Reconnect from Social Integrations.`
-        : "No active Facebook Page connected. Connect a Page from Social Integrations first.";
+        ? `No active ${platformLabel} integration found for Page ${targetPageId}. Reconnect from Social Integrations.`
+        : `No active ${platformLabel} Page connected. Connect a Page from Social Integrations first.`;
       await supabase.from("social_posts").update({
         status: "failed",
         metadata: { ...(post.metadata || {}), publish_error: reason },
@@ -350,27 +351,58 @@ serve(async (req) => {
 
     const cfg = integration.config as any;
     const tokens = integration.encrypted_tokens as any;
-    const pageId: string = cfg?.page_id;
-    const pageAccessToken: string = tokens?.page_access_token;
-    if (!pageId || !pageAccessToken) {
-      const reason = "Facebook integration is missing page_id or access token. Please reconnect.";
-      await supabase.from("social_posts").update({
-        status: "failed",
-        metadata: { ...(post.metadata || {}), publish_error: reason },
-      }).eq("id", post.id);
-      return new Response(JSON.stringify({ error: reason }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const mediaUrls: string[] = Array.isArray(post.media_urls) ? post.media_urls : [];
+    const message: string = post.content ?? "";
 
-    // Publish
-    const result = await publishToFacebookPage({
-      pageId,
-      pageAccessToken,
-      message: post.content ?? "",
-      mediaUrls: Array.isArray(post.media_urls) ? post.media_urls : [],
-    });
+    let publishedExternalId: string;
+    let publishedPageId: string;
+
+    if (post.platform === "facebook") {
+      const pageId: string = cfg?.page_id;
+      const pageAccessToken: string = tokens?.page_access_token;
+      if (!pageId || !pageAccessToken) {
+        const reason = "Facebook integration is missing page_id or access token. Please reconnect.";
+        await supabase.from("social_posts").update({
+          status: "failed",
+          metadata: { ...(post.metadata || {}), publish_error: reason },
+        }).eq("id", post.id);
+        return new Response(JSON.stringify({ error: reason }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const result = await publishToFacebookPage({
+        pageId,
+        pageAccessToken,
+        message,
+        mediaUrls,
+      });
+      publishedExternalId = result.id;
+      publishedPageId = pageId;
+    } else {
+      // LinkedIn
+      const ownerUrn: string = cfg?.page_urn;
+      const accessToken: string = tokens?.access_token;
+      if (!ownerUrn || !accessToken) {
+        const reason = "LinkedIn integration is missing page_urn or access token. Please reconnect.";
+        await supabase.from("social_posts").update({
+          status: "failed",
+          metadata: { ...(post.metadata || {}), publish_error: reason },
+        }).eq("id", post.id);
+        return new Response(JSON.stringify({ error: reason }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const result = await publishToLinkedInPage({
+        ownerUrn,
+        accessToken,
+        text: message,
+        mediaUrls,
+      });
+      publishedExternalId = result.id;
+      publishedPageId = cfg?.page_id ?? ownerUrn;
+    }
 
     const publishedAt = new Date().toISOString();
     const { error: updErr } = await supabase
@@ -378,11 +410,11 @@ serve(async (req) => {
       .update({
         status: "published",
         published_at: publishedAt,
-        external_post_id: result.id,
+        external_post_id: publishedExternalId,
         metadata: {
           ...(post.metadata || {}),
-          published_page_id: pageId,
-          published_page_name: cfg.page_name,
+          published_page_id: publishedPageId,
+          published_page_name: cfg?.page_name,
         },
       })
       .eq("id", post.id);
@@ -393,9 +425,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        platform: "facebook",
-        page_id: pageId,
-        external_post_id: result.id,
+        platform: post.platform,
+        page_id: publishedPageId,
+        external_post_id: publishedExternalId,
         published_at: publishedAt,
       }),
       {
