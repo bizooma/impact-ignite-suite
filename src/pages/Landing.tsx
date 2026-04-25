@@ -190,10 +190,7 @@ const Landing = () => {
           </div>
           <div>
             <BetaSignupForm compact />
-            <p
-              className="mt-4 text-sm font-medium text-white text-center"
-              style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}
-            >
+            <p className="mt-4 text-sm font-medium text-muted-foreground text-center">
               Offices: Jacksonville, FL & Amarillo, TX
             </p>
           </div>
