@@ -20,6 +20,7 @@ import {
   Calendar
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { PublicNav } from "@/components/layout/PublicNav";
 
 export default function GoogleAdGrants() {
   return (
@@ -31,6 +32,7 @@ export default function GoogleAdGrants() {
       />
       
       <div className="min-h-screen bg-background">
+        <PublicNav />
         {/* Hero Section */}
         <div className="bg-gradient-to-br from-primary/10 via-background to-background border-b">
           <div className="container mx-auto px-4 py-16 md:py-24">
