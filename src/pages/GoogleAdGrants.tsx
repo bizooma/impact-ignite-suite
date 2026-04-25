@@ -13,8 +13,13 @@ import {
   ExternalLink,
   FileText,
   Clock,
-  Award
+  Award,
+  Sparkles,
+  Wrench,
+  LineChart,
+  Calendar
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function GoogleAdGrants() {
   return (
