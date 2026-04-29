@@ -34,6 +34,7 @@ import { Shield, Trash2, UserCog, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { InviteMemberDialog } from './InviteMemberDialog';
 import { PendingInvitations } from './PendingInvitations';
+import { JoinRequestsManager } from './JoinRequestsManager';
 import { useInvitations } from '@/hooks/useInvitations';
 import { AIUsageDashboard } from './AIUsageDashboard';
 import { OpenAIKeySettings } from './OpenAIKeySettings';
@@ -302,6 +303,8 @@ export function MembershipManagement({ organizationId }: MembershipManagementPro
           </Table>
         </CardContent>
       </Card>
+
+      <JoinRequestsManager organizationId={organizationId} />
 
       <PendingInvitations organizationId={organizationId} />
 

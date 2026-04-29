@@ -153,61 +153,44 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
       let org: Organization;
       let isNewOrg = true;
 
-      // If mobile app code is provided, check if organization already exists
+      // If mobile app code is provided, see if it matches an existing org.
+      // Joining is gated through a secure RPC + owner approval — never an
+      // immediate self-granted membership.
       if (mobileAppCode) {
-        const { data: existingOrg, error: lookupError } = await supabase
-          .from('organizations')
-          .select('*')
-          .eq('mobile_app_code', mobileAppCode)
-          .maybeSingle();
+        const { data: rpcData, error: rpcError } = await supabase.rpc('request_org_join', {
+          p_mobile_app_code: mobileAppCode,
+        });
 
-        if (lookupError) throw lookupError;
+        if (rpcError) throw rpcError;
 
-        if (existingOrg) {
-          // Organization exists, check if user is already a member
-          const { data: existingMembership } = await supabase
-            .from('memberships')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('organization_id', existingOrg.id)
-            .maybeSingle();
+        const result = rpcData as {
+          status: 'pending' | 'already_member' | 'already_pending' | 'not_found';
+          request_id?: string;
+          organization_id?: string;
+          organization_name?: string;
+        } | null;
 
-          if (existingMembership) {
-            toast.error(`You're already a member of ${existingOrg.name}`);
-            await fetchOrganizations();
-            setOrganization({
-              ...existingOrg,
-              purchased_products: Array.isArray(existingOrg.purchased_products)
-                ? existingOrg.purchased_products as string[]
-                : []
-            } as Organization);
-            return;
-          }
-
-          // Join existing organization as admin
-          org = {
-            ...existingOrg,
-            purchased_products: Array.isArray(existingOrg.purchased_products)
-              ? existingOrg.purchased_products as string[]
-              : []
-          } as Organization;
-          isNewOrg = false;
-
-          const { error: membershipError } = await supabase
-            .from('memberships')
-            .insert([{
-              user_id: user.id,
-              organization_id: org.id,
-              role: 'admin' // Subsequent users are admins
-            }]);
-
-          if (membershipError) throw membershipError;
-
-          toast.success(`Joined ${org.name} as admin!`);
+        if (result?.status === 'already_member') {
+          toast.info(`You're already a member of ${result.organization_name}`);
           await fetchOrganizations();
-          setOrganization(org);
           return;
         }
+
+        if (result?.status === 'pending' || result?.status === 'already_pending') {
+          // Fire-and-forget owner notification email. Don't block UX on it.
+          if (result.status === 'pending' && result.request_id) {
+            supabase.functions
+              .invoke('notify-org-join-request', { body: { request_id: result.request_id } })
+              .catch((e) => console.warn('notify-org-join-request failed', e));
+          }
+          toast.success(
+            `Request sent to ${result.organization_name}. You'll get access once the owner approves.`
+          );
+          await fetchOrganizations();
+          return;
+        }
+
+        // status === 'not_found' → fall through and create a new org with this code.
       }
 
       // Create new organization
