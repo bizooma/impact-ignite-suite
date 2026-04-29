@@ -2326,6 +2326,56 @@ export type Database = {
           },
         ]
       }
+      org_join_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          id: string
+          organization_id: string
+          requested_email: string
+          requested_role: Database["public"]["Enums"]["app_role"]
+          status: Database["public"]["Enums"]["join_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          organization_id: string
+          requested_email: string
+          requested_role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["join_request_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          organization_id?: string
+          requested_email?: string
+          requested_role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["join_request_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_join_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_success_stories: {
         Row: {
           author_name: string | null
@@ -3263,6 +3313,18 @@ export type Database = {
       }
     }
     Functions: {
+      count_pending_join_requests: {
+        Args: { p_org_id: string }
+        Returns: number
+      }
+      decide_org_join_request: {
+        Args: {
+          p_decision: string
+          p_request_id: string
+          p_role?: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: Json
+      }
       generate_mobile_api_key: { Args: { _org_id: string }; Returns: string }
       get_org_tier: { Args: { _org_id: string }; Returns: string }
       grant_platform_admin: { Args: { _email: string }; Returns: boolean }
@@ -3298,6 +3360,7 @@ export type Database = {
         Args: { list_id: string }
         Returns: undefined
       }
+      request_org_join: { Args: { p_mobile_app_code: string }; Returns: Json }
       tier_limit: {
         Args: { _resource: string; _tier: string }
         Returns: number
@@ -3360,6 +3423,7 @@ export type Database = {
         | "twilio"
         | "mailchimp"
         | "stripe"
+      join_request_status: "pending" | "approved" | "rejected"
       knowledge_source_status: "pending" | "processing" | "completed" | "error"
       knowledge_source_type: "pdf" | "docx" | "url" | "text"
       post_status: "draft" | "scheduled" | "published" | "failed"
@@ -3563,6 +3627,7 @@ export const Constants = {
         "mailchimp",
         "stripe",
       ],
+      join_request_status: ["pending", "approved", "rejected"],
       knowledge_source_status: ["pending", "processing", "completed", "error"],
       knowledge_source_type: ["pdf", "docx", "url", "text"],
       post_status: ["draft", "scheduled", "published", "failed"],
