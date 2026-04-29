@@ -128,3 +128,5 @@ verify_jwt = false
 
 [functions.accessibility-widget-config]
 verify_jwt = false
+[functions.notify-org-join-request]
+verify_jwt = true
