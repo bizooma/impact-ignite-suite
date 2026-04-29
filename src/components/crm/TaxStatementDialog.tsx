@@ -45,7 +45,15 @@ export function TaxStatementDialog({ open, onClose, contact, organizationId }: P
   const printStatement = () => {
     const w = window.open('', '_blank');
     if (!w) { toast.error('Popup blocked'); return; }
-    w.document.write(`<!DOCTYPE html><html><head><title>Giving Statement ${year} - ${donorName}</title>
+    // Escape HTML to prevent XSS from user-sourced fields (org name, donor name, email, payment method)
+    const esc = (v: unknown) => String(v ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+    const fmtAmount = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    w.document.write(`<!DOCTYPE html><html><head><title>Giving Statement ${esc(year)} - ${esc(donorName)}</title>
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 40px; max-width: 720px; margin: 0 auto; color: #111; }
         h1 { font-size: 22px; margin-bottom: 4px; }
@@ -57,25 +65,25 @@ export function TaxStatementDialog({ open, onClose, contact, organizationId }: P
         .footer { margin-top: 32px; font-size: 12px; color: #555; line-height: 1.5; }
         @media print { body { padding: 20px; } }
       </style></head><body>
-      <h1>${orgName}</h1>
-      <h2>Year-End Giving Statement — ${year}</h2>
-      <p style="margin-top:24px"><strong>Donor:</strong> ${donorName}<br/>
-      ${contact.email ? `<strong>Email:</strong> ${contact.email}<br/>` : ''}
-      <strong>Statement Date:</strong> ${format(new Date(), 'MMMM d, yyyy')}</p>
+      <h1>${esc(orgName)}</h1>
+      <h2>Year-End Giving Statement — ${esc(year)}</h2>
+      <p style="margin-top:24px"><strong>Donor:</strong> ${esc(donorName)}<br/>
+      ${contact.email ? `<strong>Email:</strong> ${esc(contact.email)}<br/>` : ''}
+      <strong>Statement Date:</strong> ${esc(format(new Date(), 'MMMM d, yyyy'))}</p>
       <table>
         <thead><tr><th>Date</th><th>Method</th><th style="text-align:right">Amount</th></tr></thead>
         <tbody>
           ${yearDonations.map(d => `<tr>
-            <td>${format(new Date(d.donation_date), 'MMM d, yyyy')}</td>
-            <td style="text-transform:capitalize">${(d.payment_method || '—').replace(/_/g, ' ')}</td>
-            <td style="text-align:right">$${Number(d.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td>${esc(format(new Date(d.donation_date), 'MMM d, yyyy'))}</td>
+            <td style="text-transform:capitalize">${esc((d.payment_method || '—').replace(/_/g, ' '))}</td>
+            <td style="text-align:right">$${esc(fmtAmount(Number(d.amount)))}</td>
           </tr>`).join('')}
-          <tr class="total"><td colspan="2">Total Contributions ${year}</td>
-            <td style="text-align:right">$${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
+          <tr class="total"><td colspan="2">Total Contributions ${esc(year)}</td>
+            <td style="text-align:right">$${esc(fmtAmount(total))}</td></tr>
         </tbody>
       </table>
       <div class="footer">
-        <p>${orgName} is a tax-exempt organization. No goods or services were provided in exchange for these contributions, except as otherwise noted.</p>
+        <p>${esc(orgName)} is a tax-exempt organization. No goods or services were provided in exchange for these contributions, except as otherwise noted.</p>
         <p>Please retain this statement for your tax records. Consult your tax advisor regarding deductibility.</p>
       </div>
       <script>window.onload = () => window.print();</script>
