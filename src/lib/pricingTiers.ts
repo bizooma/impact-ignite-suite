@@ -47,6 +47,7 @@ export const TIER_CATALOG: Record<Exclude<SubscriptionTier, 'free'>, TierPricing
     betaPriceId: 'price_1TNzIREV6sbsDlR8ONhKHigi',
     popular: true,
     highlights: [
+      '20 Team Members',
       'AI Chatbots (1,000 conversations/mo)',
       'Bring your own OpenAI key',
       'CRM (up to 1,000 contacts)',
