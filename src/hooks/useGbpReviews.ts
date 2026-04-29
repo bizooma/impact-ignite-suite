@@ -68,7 +68,13 @@ export const useGbpReviews = (organizationId?: string) => {
         query = query.eq('gbp_profile_id', filters.profileId);
       }
       if (filters?.search) {
-        query = query.or(`reviewer_name.ilike.%${filters.search}%,review_text.ilike.%${filters.search}%`);
+        // Sanitize: escape PostgREST `or()` reserved chars to prevent filter injection.
+        // Strip commas, parens, and backslashes; collapse to a safe ilike pattern.
+        const safeSearch = filters.search.replace(/[,()\\*]/g, '').trim();
+        if (safeSearch) {
+          const pattern = `%${safeSearch}%`;
+          query = query.or(`reviewer_name.ilike.${pattern},review_text.ilike.${pattern}`);
+        }
       }
 
       const { data, error } = await query;
