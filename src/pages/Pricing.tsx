@@ -50,6 +50,7 @@ const tiers = {
     popular: true,
     features: [
       "Everything in Free & Starter, plus:",
+      "20 Team Members",
       "AI Chatbots (1,000 conversations/month)",
       "Bring your own OpenAI key (unlimited messages)",
       "CRM (up to 1,000 contacts)",
