@@ -30,6 +30,7 @@ export const TIER_CATALOG: Record<Exclude<SubscriptionTier, 'free'>, TierPricing
     standardPriceId: 'price_1TNyMZEV6sbsDlR8bYTs6kLz',
     betaPriceId: 'price_1TNzI6EV6sbsDlR8ZwzEiTHV',
     highlights: [
+      '5 Team Members',
       'AI Chatbots (50 conversations/mo)',
       'CRM (up to 100 contacts)',
       '2 Social Media Accounts',
