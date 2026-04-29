@@ -7,12 +7,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Tier caps (mirrors src/lib/aiTierLimits.ts — keep in sync)
+// Tier caps — canonical source: src/lib/aiTierLimits.ts (TIER_LIMITS).
+// Keep these values in sync with that file. BYO-key orgs are uncapped (handled elsewhere).
 const TIER_CAPS: Record<string, number> = {
-  free: 50,
-  starter: 1000,
-  professional: 5000,
-  enterprise: 25000,
+  free: 0,
+  starter: 50,
+  professional: 1_000,
+  enterprise: 5_000,
 };
 
 function capForTier(tier: string | null | undefined): number {

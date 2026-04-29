@@ -1,79 +1,45 @@
-## Goal
-Surface relevant national/international awareness days (e.g., Giving Tuesday, Earth Day, Mental Health Awareness Month) directly on the **Social Media Calendar** so org admins get post/campaign ideas at a glance, and let them toggle the overlay on/off (and filter by category).
+## Bug confirmed: AI tier caps differ between frontend and backend
 
-## Reuse what already exists
-We already have a curated dataset in `src/lib/campaignTemplates/awarenessCalendar.ts` (≈40 events tagged by category: health, social, environment, youth, arts, animals, giving, global) — already used by the **Campaign Inspiration grid**. We'll reuse it as the single source of truth so campaigns and the calendar stay consistent.
+The frontend (`src/lib/aiTierLimits.ts`) and backend (`supabase/functions/chat-handler/index.ts`) declare different monthly chat-message caps. The backend is the actual enforcement point, so users see one number in the UI but get a different real limit. You chose **frontend values** as the source of truth.
 
-## UX
+### Target caps (single source of truth)
 
-### On `SocialCalendar.tsx`
-1. **Awareness chips inside each day cell** (above the scheduled-post list):
-   - Small colored pill using `event.color` showing the event name (truncated, with tooltip for full name).
-   - Click a chip → opens a lightweight popover: name, description, category, "Create campaign" button (navigates to `/dashboard/campaigns?template=<key>` — same flow as Inspiration grid) and "Schedule a post for this day" button (opens `PostComposer` pre-filled with the date).
-   - For **month-scope events** (e.g., "Mental Health Awareness Month"): show a subtle banner across the top of the calendar grid for that month instead of repeating the chip 30 times.
+| Tier | Monthly chat-message cap |
+|---|---|
+| free | 0 (blocked — must upgrade or BYO key) |
+| starter | 50 |
+| professional | 1,000 |
+| enterprise | 5,000 |
 
-2. **New toolbar row above the calendar** (next to month nav):
-   - **Toggle switch**: "Show awareness days" (default ON).
-   - **Category multi-select** (dropdown of checkboxes): health, social, environment, youth, giving, global, etc. Default: all selected.
-   - Both persist per-org (see below).
+### Changes
 
-### Visual treatment
-- Awareness chips use a distinct dotted/dashed left border + the event's accent color so they're clearly differentiated from scheduled posts.
-- Month-long observance banner is a thin colored strip at top of the calendar card with up to 3 month events listed inline ("April: Earth Month · Volunteer Month · Autism Acceptance Month").
+1. **`supabase/functions/chat-handler/index.ts`** — update `TIER_CAPS` to match the frontend:
+   ```ts
+   const TIER_CAPS: Record<string, number> = {
+     free: 0,
+     starter: 50,
+     professional: 1_000,
+     enterprise: 5_000,
+   };
+   ```
+   Update the `// keep in sync` comment to point at `src/lib/aiTierLimits.ts` as the canonical source.
 
-## Persistence (per-org settings)
+2. **Deploy `chat-handler`** so the new caps take effect immediately.
 
-Add a tiny new table to remember each org's preferences:
+3. **No other code changes needed.** Verified call sites:
+   - `src/components/admin/AIUsageDashboard.tsx`, `src/pages/Pricing.tsx`, `src/pages/PricingBeta.tsx` already read from `TIER_LIMITS` in `aiTierLimits.ts` — they'll be correct automatically.
+   - `org_ai_usage_overrides.monthly_message_cap` per-org overrides continue to take precedence in both places.
+   - Quantity caps (chatbots, qr_codes, etc.) live in the DB `tier_limit()` function and are unrelated to this bug — leaving them alone.
 
-```sql
-create table public.social_calendar_settings (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null unique,
-  show_awareness_days boolean not null default true,
-  enabled_categories text[] not null default array['health','social','environment','youth','arts','animals','giving','global'],
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-alter table public.social_calendar_settings enable row level security;
+### Behavior impact (heads-up)
 
-create policy "Org members can view settings"
-  on public.social_calendar_settings for select
-  using (is_org_member(auth.uid(), organization_id));
+- **Free tier** chat goes from "actually 50/mo" to "0/mo, blocked" on the backend. Free users will be hard-blocked from chatbot messages until they upgrade or add a BYO OpenAI key. The UI was already showing this state, so it just becomes truthful.
+- **Starter** real cap drops 1,000 → 50. Any starter org that has already sent more than 50 messages this calendar month will be blocked for the rest of the month. If you'd rather grandfather them, I can add a one-time `org_ai_usage_overrides` row for affected orgs after the change — say the word.
+- **Professional** drops 5,000 → 1,000. Same risk for heavy users this month.
+- **Enterprise** drops 25,000 → 5,000. Same risk.
 
-create policy "Org admins can manage settings"
-  on public.social_calendar_settings for all
-  using (has_org_role(auth.uid(), organization_id, 'admin') or has_org_role(auth.uid(), organization_id, 'owner'))
-  with check (has_org_role(auth.uid(), organization_id, 'admin') or has_org_role(auth.uid(), organization_id, 'owner'));
-```
+If any of those drops feel too aggressive, reply with adjusted numbers before approving and I'll use those instead.
 
-Members see whatever the admin set; admins can change it.
+### Follow-up suggestion (not in this change)
 
-## Code changes
-
-1. **New hook** `src/hooks/useSocialCalendarSettings.ts`
-   - Fetches/upserts the row for the current org. Returns `{ showAwarenessDays, enabledCategories, toggle, setCategories }`.
-
-2. **New helper** in `src/lib/calendarUtils.ts`
-   - `getAwarenessEventsForMonth(month: Date, enabledCategories: string[])` → returns `{ dayEvents: Map<dateKey, AwarenessEvent[]>, monthEvents: AwarenessEvent[] }` by resolving each event for the visible year (handles `resolve()` for movable observances like Giving Tuesday/MLK Day).
-
-3. **Update** `src/components/social/SocialCalendar.tsx`
-   - Accept `organizationId` prop (passed from `SocialMediaDashboard`).
-   - Wire up the settings hook + new toolbar (Switch + categories Popover).
-   - Render month-scope banner and per-day awareness chips.
-   - New small subcomponent `AwarenessChip` with click → Popover (Create campaign / Schedule post).
-
-4. **Update** `src/components/social/SocialMediaDashboard.tsx`
-   - Pass `organizationId` into `<SocialCalendar />` (currently only posts/filters are passed).
-
-5. **No changes needed** to `awarenessCalendar.ts` — already complete and correct.
-
-## Out of scope (can do later if you want)
-- Letting orgs add **custom org-specific dates** (e.g., their gala, founding date). Easy follow-up: add a `social_calendar_custom_events` table with the same shape.
-- Auto-generating draft posts for upcoming awareness days via AI.
-
-## Files touched
-- **New migration**: `social_calendar_settings` table + RLS
-- **New**: `src/hooks/useSocialCalendarSettings.ts`
-- **Modified**: `src/lib/calendarUtils.ts` (add helper)
-- **Modified**: `src/components/social/SocialCalendar.tsx` (toolbar + chips + banner + popover)
-- **Modified**: `src/components/social/SocialMediaDashboard.tsx` (pass `organizationId` to calendar)
+To prevent this drift from recurring, the backend should import caps from a shared location instead of redeclaring them. Options for a future pass: (a) read caps from a small `tier_caps` table, or (b) extend the existing DB `tier_limit()` function with a `'monthly_messages'` resource and have both frontend and edge function read from it. Happy to do that as a follow-up — not included here to keep this fix minimal.
