@@ -21,6 +21,7 @@ const BETA_TIERS = {
     popular: false,
     features: [
       "Everything in Free, plus:",
+      "5 Team Members",
       "AI Chatbots (50 conversations/month)",
       "CRM (up to 100 contacts)",
       "2 Social Media Accounts",
