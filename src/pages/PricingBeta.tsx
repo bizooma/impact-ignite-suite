@@ -21,6 +21,7 @@ const BETA_TIERS = {
     popular: false,
     features: [
       "Everything in Free, plus:",
+      "5 Team Members",
       "AI Chatbots (50 conversations/month)",
       "CRM (up to 100 contacts)",
       "2 Social Media Accounts",
@@ -37,6 +38,7 @@ const BETA_TIERS = {
     popular: true,
     features: [
       "Everything in Free & Starter, plus:",
+      "20 Team Members",
       "AI Chatbots (1,000 conversations/month)",
       "Bring your own OpenAI key (unlimited)",
       "CRM (up to 1,000 contacts)",
@@ -55,6 +57,7 @@ const BETA_TIERS = {
     popular: false,
     features: [
       "Everything in Free, Starter & Professional, plus:",
+      "Unlimited Team Members",
       "AI Chatbots (5,000 conversations/month)",
       "Unlimited CRM Contacts",
       "Unlimited QR Codes",

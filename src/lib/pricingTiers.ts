@@ -30,6 +30,7 @@ export const TIER_CATALOG: Record<Exclude<SubscriptionTier, 'free'>, TierPricing
     standardPriceId: 'price_1TNyMZEV6sbsDlR8bYTs6kLz',
     betaPriceId: 'price_1TNzI6EV6sbsDlR8ZwzEiTHV',
     highlights: [
+      '5 Team Members',
       'AI Chatbots (50 conversations/mo)',
       'CRM (up to 100 contacts)',
       '2 Social Media Accounts',
@@ -46,6 +47,7 @@ export const TIER_CATALOG: Record<Exclude<SubscriptionTier, 'free'>, TierPricing
     betaPriceId: 'price_1TNzIREV6sbsDlR8ONhKHigi',
     popular: true,
     highlights: [
+      '20 Team Members',
       'AI Chatbots (1,000 conversations/mo)',
       'Bring your own OpenAI key',
       'CRM (up to 1,000 contacts)',
@@ -62,6 +64,7 @@ export const TIER_CATALOG: Record<Exclude<SubscriptionTier, 'free'>, TierPricing
     standardPriceId: 'price_1TNyNrEV6sbsDlR8lgWPM1AV',
     betaPriceId: 'price_1TNzJ0EV6sbsDlR8bT7hBiwc',
     highlights: [
+      'Unlimited Team Members',
       'AI Chatbots (5,000 conversations/mo)',
       'Unlimited CRM Contacts',
       'Unlimited QR & Social Accounts',

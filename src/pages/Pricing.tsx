@@ -19,6 +19,7 @@ const tiers = {
     popular: false,
     isFree: true,
     features: [
+      "2 Team Members",
       "5 QR Codes",
       "2 SEO Audits/month",
       "1 Accessibility Widget",
@@ -33,6 +34,7 @@ const tiers = {
     popular: false,
     features: [
       "Everything in Free, plus:",
+      "5 Team Members",
       "AI Chatbots (50 conversations/month)",
       "CRM (up to 100 contacts)",
       "2 Social Media Accounts",
@@ -48,6 +50,7 @@ const tiers = {
     popular: true,
     features: [
       "Everything in Free & Starter, plus:",
+      "20 Team Members",
       "AI Chatbots (1,000 conversations/month)",
       "Bring your own OpenAI key (unlimited messages)",
       "CRM (up to 1,000 contacts)",
@@ -65,6 +68,7 @@ const tiers = {
     popular: false,
     features: [
       "Everything in Free, Starter & Professional, plus:",
+      "Unlimited Team Members",
       "AI Chatbots (5,000 conversations/month)",
       "Unlimited CRM Contacts",
       "Unlimited QR Codes",
