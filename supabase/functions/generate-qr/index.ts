@@ -25,6 +25,22 @@ serve(async (req) => {
 
     console.log('Generating QR code:', { name, destinationUrl, type, organizationId, shape: brandConfig.shape });
 
+    // Validate destination URL scheme — only http(s) allowed
+    try {
+      const parsed = new URL(destinationUrl);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return new Response(
+          JSON.stringify({ error: 'Destination URL must start with http:// or https://' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Destination URL is not a valid URL' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
