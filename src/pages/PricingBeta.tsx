@@ -57,6 +57,7 @@ const BETA_TIERS = {
     popular: false,
     features: [
       "Everything in Free, Starter & Professional, plus:",
+      "Unlimited Team Members",
       "AI Chatbots (5,000 conversations/month)",
       "Unlimited CRM Contacts",
       "Unlimited QR Codes",
