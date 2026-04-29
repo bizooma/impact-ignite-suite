@@ -74,22 +74,25 @@ serve(async (req) => {
       });
     }
 
-    // Check current member count (maximum 5 total including owner)
-    const { count: memberCount } = await supabaseClient
-      .from("memberships")
-      .select("*", { count: "exact", head: true })
-      .eq("organization_id", organizationId);
+    // Check tier-aware member limit via RPC (NULL cap = unlimited; beta orgs bypass)
+    const { data: limitData, error: limitError } = await supabaseClient.rpc('get_org_member_limit', {
+      _org_id: organizationId,
+    });
 
-    // Check pending invitations
-    const { count: pendingInviteCount } = await supabaseClient
-      .from("organization_invitations")
-      .select("*", { count: "exact", head: true })
-      .eq("organization_id", organizationId)
-      .eq("status", "pending");
+    if (limitError) {
+      console.error('get_org_member_limit failed:', limitError);
+      return new Response(JSON.stringify({ error: 'Failed to check member limit' }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    const totalSlots = (memberCount || 0) + (pendingInviteCount || 0);
-    if (totalSlots >= 5) {
-      return new Response(JSON.stringify({ error: "Organization has reached the maximum of 5 team members" }), {
+    const limit = limitData as { at_limit: boolean; total_count: number; cap: number | null; tier: string };
+    if (limit.at_limit) {
+      const capMsg = limit.cap !== null
+        ? `Your ${limit.tier} plan allows up to ${limit.cap} team members. Upgrade to add more.`
+        : 'Organization has reached its member limit.';
+      return new Response(JSON.stringify({ error: capMsg }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

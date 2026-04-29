@@ -3326,6 +3326,7 @@ export type Database = {
         Returns: Json
       }
       generate_mobile_api_key: { Args: { _org_id: string }; Returns: string }
+      get_org_member_limit: { Args: { _org_id: string }; Returns: Json }
       get_org_tier: { Args: { _org_id: string }; Returns: string }
       grant_platform_admin: { Args: { _email: string }; Returns: boolean }
       has_org_role: {
