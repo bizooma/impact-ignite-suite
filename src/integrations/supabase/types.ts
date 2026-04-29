@@ -1876,6 +1876,7 @@ export type Database = {
           provider: Database["public"]["Enums"]["integration_provider"]
           status: string | null
           updated_at: string
+          vault_secret_id: string | null
         }
         Insert: {
           config?: Json | null
@@ -1888,6 +1889,7 @@ export type Database = {
           provider: Database["public"]["Enums"]["integration_provider"]
           status?: string | null
           updated_at?: string
+          vault_secret_id?: string | null
         }
         Update: {
           config?: Json | null
@@ -1900,6 +1902,7 @@ export type Database = {
           provider?: Database["public"]["Enums"]["integration_provider"]
           status?: string | null
           updated_at?: string
+          vault_secret_id?: string | null
         }
         Relationships: [
           {
@@ -3325,7 +3328,15 @@ export type Database = {
         }
         Returns: Json
       }
+      delete_integration_vault_secret: {
+        Args: { _org_id: string; _provider: string }
+        Returns: boolean
+      }
       generate_mobile_api_key: { Args: { _org_id: string }; Returns: string }
+      get_integration_vault_secret: {
+        Args: { _org_id: string; _provider: string }
+        Returns: string
+      }
       get_org_member_limit: { Args: { _org_id: string }; Returns: Json }
       get_org_tier: { Args: { _org_id: string }; Returns: string }
       grant_platform_admin: { Args: { _email: string }; Returns: boolean }
@@ -3362,6 +3373,10 @@ export type Database = {
         Returns: undefined
       }
       request_org_join: { Args: { p_mobile_app_code: string }; Returns: Json }
+      set_integration_vault_secret: {
+        Args: { _org_id: string; _provider: string; _secret: string }
+        Returns: string
+      }
       tier_limit: {
         Args: { _resource: string; _tier: string }
         Returns: number
