@@ -99,6 +99,28 @@ export const useQrCodes = (organizationId?: string) => {
 
   const updateQrCode = async (qrCodeId: string, updates: Partial<QrCode>) => {
     try {
+      // Validate destination URL if it's being updated
+      if (updates.destination_url) {
+        try {
+          const parsed = new URL(updates.destination_url);
+          if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+            toast({
+              title: "Invalid URL",
+              description: "Destination URL must start with http:// or https://",
+              variant: "destructive",
+            });
+            return null;
+          }
+        } catch {
+          toast({
+            title: "Invalid URL",
+            description: "Please enter a valid destination URL",
+            variant: "destructive",
+          });
+          return null;
+        }
+      }
+
       const { data, error } = await supabase
         .from('qr_codes')
         .update(updates)
