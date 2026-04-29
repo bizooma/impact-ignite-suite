@@ -1,11 +1,22 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useMobileAppData } from '@/hooks/useMobileAppData';
 import { Search, Database, RefreshCw } from 'lucide-react';
 import { MobileAppDataTable } from './MobileAppDataTable';
 import { toast } from 'sonner';
+
+// Must stay in sync with ALLOWED_TABLES in supabase/functions/mobile-app-proxy/index.ts.
+// Adding a table here without updating the edge function will result in a 400 from the proxy.
+const ALLOWED_TABLES = ['users', 'user_roles', 'conversations', 'messages'] as const;
+
 
 interface MobileAppDataManagerProps {
   organizationId: string;
@@ -84,14 +95,20 @@ export function MobileAppDataManager({ organizationId }: MobileAppDataManagerPro
         <CardContent>
           <div className="flex gap-2">
             <div className="flex-1">
-              <Input
-                placeholder="Enter table name (e.g., users, posts, comments)"
-                value={tableName}
-                onChange={(e) => setTableName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLoadTable()}
-              />
+              <Select value={tableName} onValueChange={setTableName}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a table to load" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALLOWED_TABLES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Button onClick={handleLoadTable} disabled={loading}>
+            <Button onClick={handleLoadTable} disabled={loading || !tableName}>
               {loading ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />

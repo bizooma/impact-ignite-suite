@@ -23,6 +23,32 @@ interface ProxyRequest {
   organizationId: string;
 }
 
+// SECURITY: explicit allowlist of mobile-DB tables this proxy is permitted to touch.
+// Adding a new table requires a deliberate code change here AND a matching dashboard UI.
+const ALLOWED_TABLES = new Set<string>([
+  'users',
+  'user_roles',
+  'conversations',
+  'messages',
+]);
+
+// SECURITY: only safe PostgREST query-builder filter methods may be invoked dynamically
+// from a client-supplied `operator`. Anything outside this set (e.g. `or`, `rpc`,
+// `select`, `then`) would let a caller hijack the query builder.
+const ALLOWED_FILTER_OPERATORS = new Set<string>([
+  'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
+  'in', 'like', 'ilike', 'is', 'contains', 'containedBy',
+]);
+
+// SECURITY: write operations against these tables MUST include a filter — otherwise
+// the operation would silently apply to every row in the table.
+function requireFilters(operation: string, filters: Record<string, any> | undefined) {
+  if (!filters || Object.keys(filters).length === 0) {
+    throw new Error(`${operation} requires at least one filter to prevent affecting all rows`);
+  }
+}
+
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -136,6 +162,13 @@ Deno.serve(async (req) => {
     let query: any;
     let result: any;
 
+    // SECURITY: Validate the table name against the allowlist for every operation
+    // (including create_user_with_hash, which writes into `users`).
+    if (typeof table !== 'string' || !ALLOWED_TABLES.has(table)) {
+      console.warn('Blocked disallowed table access:', { userId: user.id, table, operation });
+      throw new Error(`Table "${table}" is not accessible via this proxy`);
+    }
+
     switch (operation) {
       case 'select': {
         query = mobileClient.from(table).select(columns || '*');
@@ -146,6 +179,9 @@ Deno.serve(async (req) => {
             if (typeof value === 'object' && value !== null) {
               // Handle complex filters like { operator: 'gt', value: 10 }
               const { operator, value: filterValue } = value as any;
+              if (typeof operator !== 'string' || !ALLOWED_FILTER_OPERATORS.has(operator)) {
+                throw new Error(`Filter operator "${operator}" is not permitted`);
+              }
               query = query[operator](key, filterValue);
             } else {
               query = query.eq(key, value);
@@ -176,6 +212,9 @@ Deno.serve(async (req) => {
       }
 
       case 'update': {
+        // SECURITY: never allow an unfiltered update — would overwrite every row.
+        requireFilters('update', filters);
+
         // Filter update fields for known-safe columns in mobile DB
         let updatePayload = data;
         if (table === 'users' && data && typeof data === 'object') {
@@ -186,26 +225,25 @@ Deno.serve(async (req) => {
         }
 
         query = mobileClient.from(table).update(updatePayload);
-        
-        if (filters) {
-          Object.entries(filters).forEach(([key, value]) => {
-            query = query.eq(key, value);
-          });
-        }
-        
+
+        Object.entries(filters!).forEach(([key, value]) => {
+          query = query.eq(key, value);
+        });
+
         result = await query.select();
         break;
       }
 
       case 'delete': {
+        // SECURITY: never allow an unfiltered delete — would wipe the table.
+        requireFilters('delete', filters);
+
         query = mobileClient.from(table).delete();
-        
-        if (filters) {
-          Object.entries(filters).forEach(([key, value]) => {
-            query = query.eq(key, value);
-          });
-        }
-        
+
+        Object.entries(filters!).forEach(([key, value]) => {
+          query = query.eq(key, value);
+        });
+
         result = await query.select();
         break;
       }
