@@ -56,11 +56,25 @@ serve(async (req) => {
       // Continue with redirect even if scan recording fails
     }
 
+    // Validate destination URL scheme before redirecting (defense-in-depth)
+    let safeDestination: string;
+    try {
+      const parsed = new URL(qrCode.destination_url);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        console.error('Blocked redirect to non-http(s) URL:', qrCode.destination_url);
+        return new Response('Invalid destination URL', { status: 400 });
+      }
+      safeDestination = parsed.toString();
+    } catch (e) {
+      console.error('Blocked redirect to malformed URL:', qrCode.destination_url);
+      return new Response('Invalid destination URL', { status: 400 });
+    }
+
     // Redirect to destination URL
     return new Response(null, {
       status: 302,
       headers: {
-        'Location': qrCode.destination_url
+        'Location': safeDestination
       }
     });
 
