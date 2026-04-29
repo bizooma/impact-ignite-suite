@@ -64,6 +64,7 @@ export const TIER_CATALOG: Record<Exclude<SubscriptionTier, 'free'>, TierPricing
     standardPriceId: 'price_1TNyNrEV6sbsDlR8lgWPM1AV',
     betaPriceId: 'price_1TNzJ0EV6sbsDlR8bT7hBiwc',
     highlights: [
+      'Unlimited Team Members',
       'AI Chatbots (5,000 conversations/mo)',
       'Unlimited CRM Contacts',
       'Unlimited QR & Social Accounts',
