@@ -19,6 +19,7 @@ const tiers = {
     popular: false,
     isFree: true,
     features: [
+      "2 Team Members",
       "5 QR Codes",
       "2 SEO Audits/month",
       "1 Accessibility Widget",
