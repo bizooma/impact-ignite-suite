@@ -124,23 +124,20 @@ export function useInvitations(organizationId: string) {
     },
   });
 
-  // Check if organization is at member limit
-  const checkMemberLimit = async (): Promise<{ atLimit: boolean; currentCount: number }> => {
-    const { count: memberCount } = await supabase
-      .from('memberships')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId);
-
-    const { count: pendingInviteCount } = await supabase
-      .from('organization_invitations')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId)
-      .eq('status', 'pending');
-
-    const totalCount = (memberCount || 0) + (pendingInviteCount || 0);
+  // Check if organization is at member limit (tier-aware via get_org_member_limit RPC)
+  const checkMemberLimit = async (): Promise<{ atLimit: boolean; currentCount: number; cap: number | null; tier: string }> => {
+    const { data, error } = await supabase.rpc('get_org_member_limit', { _org_id: organizationId });
+    if (error) {
+      console.error('get_org_member_limit failed:', error);
+      // Fail open with a conservative cap to avoid blocking legitimate invites on transient errors
+      return { atLimit: false, currentCount: 0, cap: null, tier: 'unknown' };
+    }
+    const r = data as { at_limit: boolean; total_count: number; cap: number | null; tier: string };
     return {
-      atLimit: totalCount >= 5,
-      currentCount: totalCount,
+      atLimit: r.at_limit,
+      currentCount: r.total_count,
+      cap: r.cap,
+      tier: r.tier,
     };
   };
 
