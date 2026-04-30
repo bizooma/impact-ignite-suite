@@ -176,7 +176,7 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
               <Users className="h-4 w-4 text-muted-foreground" />
               <div className="ml-2">
                 <p className="text-sm font-medium text-muted-foreground">Total Conversations</p>
-                <p className="text-2xl font-bold">-</p>
+                <p className="text-2xl font-bold">{totalConversations ?? 0}</p>
               </div>
             </div>
           </CardContent>
@@ -235,7 +235,7 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        // Navigate to edit chatbot
+                        setEditChatbotId(chatbot.id);
                         setShowBuilder(true);
                       }}
                     >
