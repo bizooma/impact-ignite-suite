@@ -12,32 +12,44 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
 
     // Get the authorization header
-    const authHeader = req.headers.get('Authorization')!;
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Unauthorized');
+    }
     const token = authHeader.replace('Bearer ', '');
 
-    // Verify the user
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
-    
+    // STEP 1 — User-scoped client (RLS enforced). Used ONLY to verify identity + admin status.
+    // If any of this fails, we never construct the privileged client.
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    const { data: { user }, error: authError } = await userClient.auth.getUser(token);
     if (authError || !user) {
       throw new Error('Unauthorized');
     }
 
-    // Check if user is platform admin
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('is_platform_admin')
-      .eq('user_id', user.id)
-      .single();
+    // Use the security-definer RPC so the check is consistent with the rest of the app
+    // and not dependent on RLS visibility of the profiles row.
+    const { data: isAdmin, error: adminCheckError } = await userClient.rpc('is_platform_admin', {
+      _user_id: user.id,
+    });
 
-    if (profileError || !profile?.is_platform_admin) {
+    if (adminCheckError || isAdmin !== true) {
       throw new Error('Insufficient privileges');
     }
+
+    // STEP 2 — Only NOW create the service-role client for privileged operations
+    // (auth.admin.*, cross-org reads, audit log writes).
+    const supabaseClient = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
     const { action, targetUserId, data: actionData } = await req.json();
 
