@@ -186,7 +186,24 @@ serve(async (req) => {
       );
     }
 
-    // 4. Upsert one integration row per Page
+    // 4. Upsert one integration row per Page.
+    //
+    // Sensitive tokens (page_access_token, user_access_token) are stored in
+    // Supabase Vault under a single secret per (org, 'facebook'), keyed by
+    // page_id. The integrations.encrypted_tokens column only retains
+    // non-sensitive expiry metadata.
+    const existingVaultJson = await supabase.rpc(
+      "get_integration_vault_secret_internal",
+      { _org_id: orgId, _provider: "facebook" },
+    );
+    const vaultMap: Record<string, any> = (() => {
+      try {
+        return existingVaultJson?.data ? JSON.parse(existingVaultJson.data as string) : {};
+      } catch {
+        return {};
+      }
+    })();
+
     let upserted = 0;
     for (const page of pages) {
       // Only keep Pages where this user can actually create content
@@ -205,9 +222,14 @@ serve(async (req) => {
         connected_user_id: userId,
         connected_at: new Date().toISOString(),
       };
-      const tokens = {
+
+      vaultMap[page.id] = {
         page_access_token: page.access_token,
         user_access_token: userAccessToken,
+      };
+
+      const tokensMeta = {
+        // Only non-sensitive metadata lives in the JSONB column
         user_token_expires_at: userTokenExpiresAt,
       };
 
@@ -226,7 +248,7 @@ serve(async (req) => {
           .update({
             status: "active",
             config,
-            encrypted_tokens: tokens,
+            encrypted_tokens: tokensMeta,
             last_synced_at: new Date().toISOString(),
             name: `Facebook — ${page.name}`,
           })
@@ -242,11 +264,29 @@ serve(async (req) => {
             name: `Facebook — ${page.name}`,
             status: "active",
             config,
-            encrypted_tokens: tokens,
+            encrypted_tokens: tokensMeta,
             last_synced_at: new Date().toISOString(),
           });
         if (insErr) console.error("[facebook-oauth-callback] insert error", insErr);
         else upserted++;
+      }
+    }
+
+    // Persist the merged page-token map to the Vault. Must happen AFTER at
+    // least one integration row exists so set_integration_vault_secret can
+    // locate the (org, provider) pair.
+    if (upserted > 0) {
+      const { error: vaultErr } = await supabase.rpc(
+        "set_integration_vault_secret",
+        {
+          _org_id: orgId,
+          _provider: "facebook",
+          _secret: JSON.stringify(vaultMap),
+        },
+      );
+      if (vaultErr) {
+        console.error("[facebook-oauth-callback] vault write failed", vaultErr);
+        return errorRedirect("Failed to securely store Facebook tokens");
       }
     }
 
