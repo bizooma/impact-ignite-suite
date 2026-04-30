@@ -5,8 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
+import { z } from 'zod';
 import { useCrmVolunteerHours } from '@/hooks/useCrmVolunteerHours';
 import { useCrm } from '@/hooks/useCrm';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Props {
   open: boolean;
@@ -15,9 +17,18 @@ interface Props {
   contactId?: string;
 }
 
+// Hours must be positive. Cap at 24 since a single session > 24h almost
+// certainly means a typo and would skew volunteer reports.
+const hoursSchema = z
+  .number({ message: 'Hours must be a number' })
+  .finite('Hours must be a valid number')
+  .gt(0, 'Hours must be greater than zero')
+  .max(24, 'Hours per entry cannot exceed 24');
+
 export function VolunteerHoursFormDialog({ open, onClose, organizationId, contactId }: Props) {
   const { createHours } = useCrmVolunteerHours(organizationId);
   const { contacts } = useCrm(organizationId);
+  const { toast } = useToast();
   const [selectedContactId, setSelectedContactId] = useState(contactId || '');
   const [activity, setActivity] = useState('');
   const [hours, setHours] = useState('');
@@ -30,10 +41,22 @@ export function VolunteerHoursFormDialog({ open, onClose, organizationId, contac
     e.preventDefault();
     const cid = contactId || selectedContactId;
     if (!cid) return;
+
+    const parsed = parseFloat(hours);
+    const result = hoursSchema.safeParse(parsed);
+    if (!result.success) {
+      toast({
+        title: 'Invalid hours',
+        description: result.error.issues[0]?.message ?? 'Please enter a positive number of hours.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     await createHours.mutateAsync({
       contact_id: cid,
       activity,
-      hours: parseFloat(hours),
+      hours: result.data,
       volunteer_date: date,
       location,
       supervisor,
@@ -72,7 +95,7 @@ export function VolunteerHoursFormDialog({ open, onClose, organizationId, contac
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Hours</Label>
-              <Input type="number" step="0.25" min="0" value={hours} onChange={(e) => setHours(e.target.value)} required />
+              <Input type="number" step="0.25" min="0.25" max="24" value={hours} onChange={(e) => setHours(e.target.value)} required />
             </div>
             <div>
               <Label>Date</Label>
