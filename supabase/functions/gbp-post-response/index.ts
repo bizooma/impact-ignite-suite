@@ -5,20 +5,53 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Vault-backed secret helpers (see gbp-oauth-callback for the storage shape).
+async function readVaultSecrets(client: any, orgId: string) {
+  const { data, error } = await client.rpc('get_integration_vault_secret_internal', {
+    _org_id: orgId,
+    _provider: 'google_business',
+  });
+  if (error) throw error;
+  if (!data) return {} as any;
+  try {
+    return JSON.parse(data as string);
+  } catch {
+    return {} as any;
+  }
+}
+
+async function writeVaultSecrets(client: any, orgId: string, secrets: Record<string, unknown>) {
+  const { error } = await client.rpc('set_integration_vault_secret', {
+    _org_id: orgId,
+    _provider: 'google_business',
+    _secret: JSON.stringify(secrets),
+  });
+  if (error) throw error;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let parsedBody: { reviewId?: string } = {};
   try {
-    const { reviewId } = await req.json();
+    parsedBody = await req.json();
+  } catch {
+    parsedBody = {};
+  }
+  const { reviewId } = parsedBody;
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
 
-    // Get review with integration details
+  try {
+    if (!reviewId) {
+      throw new Error('reviewId is required');
+    }
+
     const { data: review, error: reviewError } = await supabaseClient
       .from('gbp_reviews')
       .select(`
@@ -36,7 +69,6 @@ Deno.serve(async (req) => {
       throw new Error('Review not found');
     }
 
-    // Get Google Business integration for this org
     const { data: integration, error: integrationError } = await supabaseClient
       .from('integrations')
       .select('*')
@@ -49,12 +81,16 @@ Deno.serve(async (req) => {
       throw new Error('No active Google Business integration found');
     }
 
-    const tokens = integration.encrypted_tokens as any;
-    let accessToken = tokens.access_token;
+    const meta = (integration.encrypted_tokens || {}) as any;
+    const secrets = await readVaultSecrets(supabaseClient, integration.organization_id);
+    let accessToken = secrets.access_token;
 
-    // Check if token needs refresh
-    if (new Date(tokens.expires_at) <= new Date()) {
-      accessToken = await refreshAccessToken(supabaseClient, integration);
+    if (!accessToken) {
+      throw new Error('Missing access token for Google Business integration');
+    }
+
+    if (!meta.expires_at || new Date(meta.expires_at) <= new Date()) {
+      accessToken = await refreshAccessToken(supabaseClient, integration, meta, secrets);
     }
 
     const accountId = review.gbp_profiles.profile_data?.accountId;
@@ -65,9 +101,8 @@ Deno.serve(async (req) => {
       throw new Error('Missing required Google Business Profile data');
     }
 
-    // Post reply to Google
     const replyUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews/${googleReviewId}/reply`;
-    
+
     const replyResponse = await fetch(replyUrl, {
       method: 'PUT',
       headers: {
@@ -87,7 +122,6 @@ Deno.serve(async (req) => {
 
     const replyData = await replyResponse.json();
 
-    // Update review status
     await supabaseClient
       .from('gbp_reviews')
       .update({
@@ -107,14 +141,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Post response error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    
-    // Update review to show error
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-    
-    const { reviewId } = await req.json().catch(() => ({}));
+
     if (reviewId) {
       await supabaseClient
         .from('gbp_reviews')
@@ -134,18 +161,21 @@ Deno.serve(async (req) => {
   }
 });
 
-async function refreshAccessToken(supabaseClient: any, integration: any): Promise<string> {
-  const tokens = integration.encrypted_tokens as any;
-  
+async function refreshAccessToken(
+  supabaseClient: any,
+  integration: any,
+  meta: any,
+  secrets: any
+): Promise<string> {
   const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
-      client_id: tokens.client_id,
-      client_secret: tokens.client_secret,
-      refresh_token: tokens.refresh_token,
+      client_id: meta.client_id,
+      client_secret: secrets.client_secret,
+      refresh_token: secrets.refresh_token,
       grant_type: 'refresh_token',
     }),
   });
@@ -156,12 +186,16 @@ async function refreshAccessToken(supabaseClient: any, integration: any): Promis
 
   const refreshData = await refreshResponse.json();
 
+  await writeVaultSecrets(supabaseClient, integration.organization_id, {
+    ...secrets,
+    access_token: refreshData.access_token,
+  });
+
   await supabaseClient
     .from('integrations')
     .update({
       encrypted_tokens: {
-        ...tokens,
-        access_token: refreshData.access_token,
+        ...meta,
         expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
       },
     })
