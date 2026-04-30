@@ -398,7 +398,8 @@ serve(async (req) => {
     } else {
       // LinkedIn
       const ownerUrn: string = cfg?.page_urn;
-      const accessToken: string = tokens?.access_token;
+      const accessToken: string | undefined = vaultSecrets?.access_token
+        ?? vaultSecrets?.[cfg?.page_id]?.access_token;
       if (!ownerUrn || !accessToken) {
         const reason = "LinkedIn integration is missing page_urn or access token. Please reconnect.";
         await supabase.from("social_posts").update({
