@@ -3337,6 +3337,10 @@ export type Database = {
         Args: { _org_id: string; _provider: string }
         Returns: string
       }
+      get_integration_vault_secret_internal: {
+        Args: { _org_id: string; _provider: string }
+        Returns: string
+      }
       get_org_member_limit: { Args: { _org_id: string }; Returns: Json }
       get_org_tier: { Args: { _org_id: string }; Returns: string }
       grant_platform_admin: { Args: { _email: string }; Returns: boolean }
