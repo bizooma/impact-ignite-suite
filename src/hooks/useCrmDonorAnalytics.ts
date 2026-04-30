@@ -15,7 +15,7 @@ export interface DonorSegment {
   label: string;
   description: string;
   contactIds: string[];
-  totalValue?: number;
+  totalValue: number;
 }
 
 export interface DonorAnalytics {
