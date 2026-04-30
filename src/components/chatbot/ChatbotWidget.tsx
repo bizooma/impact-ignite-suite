@@ -40,6 +40,9 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
   const config = chatbot.web_widget_config as ChatbotWidgetConfig || {};
   const { messages, sessionId, loading, sendMessage } = useChatbot(chatbot.id);
 
+  const welcomeMessage = chatbot.brand_settings?.welcome_message?.trim();
+  const showWelcome = !!welcomeMessage && messages.length === 0 && !loading;
+
   const brandColors = {
     primary: chatbot.brand_settings?.primary_color || '#0066cc',
     accent: chatbot.brand_settings?.accent_color || '#00AA44',
