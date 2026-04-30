@@ -89,7 +89,7 @@ export function useCrmDonorAnalytics(organizationId: string): DonorAnalytics {
       // Major
       if (lifetime >= MAJOR_GIFT_THRESHOLD) {
         segments.major.contactIds.push(contactId);
-        segments.major.totalValue! += lifetime;
+        segments.major.totalValue += lifetime;
       }
       // Sustaining
       if (hasRecurring) segments.sustaining.contactIds.push(contactId);
