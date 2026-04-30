@@ -74,10 +74,34 @@ export const useTasks = (organizationId: string) => {
     }
   };
 
+  // Fields a caller is allowed to mutate via updateTask. Anything outside this
+  // set (e.g. id, organization_id, created_by, created_at) is silently dropped
+  // so it can never be smuggled into an UPDATE — RLS would block it anyway,
+  // but this keeps client-side behavior predictable.
+  const UPDATABLE_TASK_FIELDS = [
+    'title',
+    'description',
+    'status',
+    'priority',
+    'due_date',
+    'assignee_id',
+    'sort_order',
+    'metadata',
+    'parent_task_id',
+    'tags',
+  ] as const;
+
   const updateTask = async (id: string, updates: Partial<Task>) => {
     try {
+      // Allowlist incoming fields
+      const payload: Record<string, any> = {};
+      for (const key of UPDATABLE_TASK_FIELDS) {
+        if (key in updates && (updates as any)[key] !== undefined) {
+          payload[key] = (updates as any)[key];
+        }
+      }
+
       // Only touch completed_at when status is explicitly being changed
-      const payload: Record<string, any> = { ...updates };
       if (updates.status !== undefined) {
         payload.completed_at = updates.status === 'completed' ? new Date().toISOString() : null;
       }
