@@ -152,6 +152,16 @@ export const useIntegrations = (organizationId: string) => {
 
   const deleteIntegration = async (id: string) => {
     try {
+      const existing = integrations.find(i => i.id === id);
+
+      // Best-effort cleanup of any vault-stored secrets for this provider/org.
+      if (existing?.provider && SECRET_FIELDS[existing.provider]) {
+        await supabase.rpc('delete_integration_vault_secret', {
+          _org_id: existing.organization_id,
+          _provider: existing.provider,
+        });
+      }
+
       const { error } = await supabase
         .from('integrations')
         .delete()
