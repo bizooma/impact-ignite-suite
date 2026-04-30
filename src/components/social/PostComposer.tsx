@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { useOrganization } from '@/hooks/useOrganization';
-import { CalendarIcon, Facebook, Twitter, Linkedin, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { CalendarIcon, Facebook, Linkedin, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +36,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   initialDate,
 }) => {
   const [content, setContent] = useState(initialContent ?? '');
-  const [platform, setPlatform] = useState<'facebook' | 'linkedin' | 'twitter'>('facebook');
+  const [platform, setPlatform] = useState<'facebook' | 'linkedin'>('facebook');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(initialDate);
   const [scheduledTime, setScheduledTime] = useState(initialDate ? '09:00' : '');
 
@@ -156,14 +156,12 @@ export const PostComposer: React.FC<PostComposerProps> = ({
     switch (platformName) {
       case 'facebook': return <Facebook className="h-4 w-4" />;
       case 'linkedin': return <Linkedin className="h-4 w-4" />;
-      case 'twitter': return <Twitter className="h-4 w-4" />;
       default: return null;
     }
   };
 
   const getCharacterLimit = (platformName: string) => {
     switch (platformName) {
-      case 'twitter': return 280;
       case 'linkedin': return 3000;
       case 'facebook': return 63206;
       default: return 1000;
@@ -212,13 +210,6 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                       <div className="flex items-center gap-2">
                         <Linkedin className="h-4 w-4" />
                         LinkedIn
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="twitter" disabled>
-                      <div className="flex items-center gap-2">
-                        <Twitter className="h-4 w-4" />
-                        Twitter / X
-                        <span className="ml-2 text-xs rounded bg-muted px-1.5 py-0.5">Coming Soon</span>
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -507,14 +498,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                 </div>
               )}
 
-              {platform === 'twitter' && (
-                <div className="p-8 rounded-lg border bg-background text-center">
-                  <Twitter className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-                  <p className="text-sm text-muted-foreground">
-                    Twitter / X publishing coming soon
-                  </p>
-                </div>
-              )}
+
             </div>
           </div>
         </div>

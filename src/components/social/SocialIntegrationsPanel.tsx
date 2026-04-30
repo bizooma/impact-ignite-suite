@@ -322,18 +322,6 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
             </TooltipProvider>
           </div>
 
-          {/* Coming soon platforms */}
-          <div className="pt-4 border-t space-y-2">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Coming soon</p>
-            <div className="flex flex-wrap gap-2">
-              {['Instagram', 'Twitter / X'].map((name) => (
-                <Badge key={name} variant="outline" className="bg-muted text-muted-foreground">
-                  <XCircle className="h-3 w-3 mr-1" />
-                  {name}
-                </Badge>
-              ))}
-            </div>
-          </div>
         </CardContent>
       </Card>
 

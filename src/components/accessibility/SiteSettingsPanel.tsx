@@ -45,7 +45,6 @@ const GROUPS: Array<{ title: string; items: Array<{ key: ToggleKey; label: strin
       { key: 'big_cursor', label: 'Big cursor', desc: 'Large black or white cursor.' },
       { key: 'stop_animations', label: 'Stop animations', desc: 'Pauses GIFs, video, CSS animations.' },
       { key: 'reduced_motion', label: 'Reduced motion', desc: 'Suppresses transitions.' },
-      { key: 'page_structure', label: 'Page structure helper', desc: 'Lists headings and landmarks (coming soon).' },
     ],
   },
 ];

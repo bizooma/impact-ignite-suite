@@ -102,13 +102,24 @@ serve(async (req) => {
           return Math.round(((curr - prev) / prev) * 100);
         };
 
+        // Pending platform-admin items: open join requests + open product feedback
+        const { count: pendingJoinRequests } = await supabaseClient
+          .from('org_join_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+        const { count: openFeedback } = await supabaseClient
+          .from('product_feedback')
+          .select('*', { count: 'exact', head: true })
+          .in('status', ['new', 'open', 'in_review']);
+
         result = {
           totalUsers,
           userGrowthPct: pctChange(usersLast30, usersPrev30),
           totalOrganizations: totalOrgs ?? 0,
           orgGrowthPct: pctChange(orgsLast30 ?? 0, orgsPrev30 ?? 0),
           activeSessions,
-          systemHealth: 100,
+          pendingJoinRequests: pendingJoinRequests ?? 0,
+          openFeedback: openFeedback ?? 0,
         };
         console.log('platform_stats result:', JSON.stringify(result));
         break;

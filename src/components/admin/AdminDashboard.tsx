@@ -9,7 +9,7 @@ import { MobileAppSeeding } from './MobileAppSeeding';
 import { FlipbookManager } from './FlipbookManager';
 import { BetaSignupsManager } from './BetaSignupsManager';
 import { ProductFeedbackManager } from './ProductFeedbackManager';
-import { Shield, Users, Building2, BarChart3, FileText, Smartphone, BookOpen, Mail, Lightbulb } from 'lucide-react';
+import { Shield, Users, Building2, BarChart3, FileText, Smartphone, BookOpen, Mail, Lightbulb, Inbox } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface PlatformStats {
@@ -18,7 +18,8 @@ interface PlatformStats {
   totalOrganizations: number;
   orgGrowthPct: number;
   activeSessions: number;
-  systemHealth: number;
+  pendingJoinRequests: number;
+  openFeedback: number;
 }
 
 const formatPct = (n: number) => `${n >= 0 ? '+' : ''}${n}%`;
@@ -100,13 +101,17 @@ export function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">System Health</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Pending Items</CardTitle>
+            <Inbox className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{loading ? '—' : `${stats?.systemHealth ?? 100}%`}</div>
+            <div className="text-2xl font-bold">
+              {display((stats?.pendingJoinRequests ?? 0) + (stats?.openFeedback ?? 0))}
+            </div>
             <p className="text-xs text-muted-foreground">
-              All systems operational
+              {loading
+                ? 'Loading…'
+                : `${stats?.pendingJoinRequests ?? 0} join request${(stats?.pendingJoinRequests ?? 0) === 1 ? '' : 's'} · ${stats?.openFeedback ?? 0} open feedback`}
             </p>
           </CardContent>
         </Card>
