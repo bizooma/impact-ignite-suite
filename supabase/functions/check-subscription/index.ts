@@ -36,6 +36,13 @@ const TIER_BUNDLES: Record<string, string[]> = {
   ],
 };
 
+// Every product that appears in ANY tier bundle. Anything in an org's
+// `purchased_products` that is NOT in this set is treated as a manual
+// platform-admin grant and preserved across subscription syncs.
+const MANAGED_PRODUCTS: Set<string> = new Set(
+  Object.values(TIER_BUNDLES).flat()
+);
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
