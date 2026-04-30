@@ -125,7 +125,7 @@ serve(async (req) => {
 
     // ---- Cap check (only if NOT using BYO key) ----
     let capInfo: { used: number; cap: number; tier: string } | null = null;
-    if (!usingByoKey) {
+    if (!usingByoKey && !isPlatformOrg) {
       // Per-org override
       const { data: override } = await supabase
         .from('org_ai_usage_overrides')
