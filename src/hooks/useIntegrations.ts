@@ -129,6 +129,10 @@ export const useIntegrations = (organizationId: string) => {
 
       if (error) throw error;
 
+      if (pendingSecrets) {
+        await persistSecretsToVault(pendingSecrets.orgId, pendingSecrets.provider, pendingSecrets.secrets);
+      }
+
       setIntegrations(prev => prev.map(i => i.id === id ? data : i));
       toast({
         title: 'Success',
