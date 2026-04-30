@@ -13,6 +13,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Pencil, Trash2, Users, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { z } from 'zod';
+
+// Capacity is optional, but when provided must be a positive whole number.
+// Cap at 1,000,000 to catch typos before they reach the database.
+const capacitySchema = z
+  .number({ message: 'Capacity must be a number' })
+  .int('Capacity must be a whole number')
+  .gt(0, 'Capacity must be greater than zero')
+  .max(1_000_000, 'Capacity is unrealistically large');
 
 interface Props { organizationId: string }
 
@@ -54,6 +63,14 @@ export function EventsManager({ organizationId }: Props) {
 
   const save = useMutation({
     mutationFn: async (e: Partial<EventRow>) => {
+      let capacity: number | null = null;
+      if (e.capacity !== null && e.capacity !== undefined && (e.capacity as any) !== '') {
+        const result = capacitySchema.safeParse(Number(e.capacity));
+        if (!result.success) {
+          throw new Error(result.error.issues[0]?.message ?? 'Invalid capacity');
+        }
+        capacity = result.data;
+      }
       const payload: any = {
         organization_id: organizationId,
         title: e.title,
@@ -62,7 +79,7 @@ export function EventsManager({ organizationId }: Props) {
         starts_at: e.starts_at,
         ends_at: e.ends_at || null,
         image_url: e.image_url || null,
-        capacity: e.capacity ? Number(e.capacity) : null,
+        capacity,
         is_published: !!e.is_published,
       };
       if (e.id) {
@@ -173,7 +190,7 @@ export function EventsManager({ organizationId }: Props) {
                 </div>
                 <div>
                   <Label>Capacity</Label>
-                  <Input type="number" value={editing.capacity ?? ''} onChange={(e) => setEditing({ ...editing, capacity: e.target.value ? Number(e.target.value) : null })} />
+                  <Input type="number" min="1" step="1" max="1000000" value={editing.capacity ?? ''} onChange={(e) => setEditing({ ...editing, capacity: e.target.value ? Number(e.target.value) : null })} />
                 </div>
               </div>
               <div>
