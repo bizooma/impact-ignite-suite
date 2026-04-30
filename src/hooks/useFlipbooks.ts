@@ -26,7 +26,16 @@ export interface FlipbookEmbed {
   flipbooks?: Flipbook;
 }
 
-export const useFlipbooks = () => {
+/**
+ * Platform-admin hook: returns ALL flipbooks (Documents/Proposals) across the
+ * global Bizooma-owned library. Intended ONLY for use in Bizooma staff admin
+ * UIs (e.g. FlipbookManager). Tenant-facing pages must use `useFlipbookEmbeds`
+ * instead, which is scoped per organization.
+ *
+ * Access is enforced by RLS + the `manage-flipbook` edge function (Bizooma
+ * membership required for writes).
+ */
+export const usePlatformFlipbooks = () => {
   const queryClient = useQueryClient();
 
   const { data: flipbooks, isLoading } = useQuery({

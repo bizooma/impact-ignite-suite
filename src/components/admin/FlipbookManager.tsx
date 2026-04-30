@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useFlipbooks, useFlipbookEmbeds } from '@/hooks/useFlipbooks';
+import { usePlatformFlipbooks, useFlipbookEmbeds } from '@/hooks/useFlipbooks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ import type { PDFPageProxy } from 'pdfjs-dist';
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 export const FlipbookManager = () => {
-  const { flipbooks, isLoading, uploadPDF, createFlipbook, deleteFlipbook, updateFlipbook } = useFlipbooks();
+  const { flipbooks, isLoading, uploadPDF, createFlipbook, deleteFlipbook, updateFlipbook } = usePlatformFlipbooks();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
