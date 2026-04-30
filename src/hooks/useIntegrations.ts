@@ -155,7 +155,36 @@ export const useIntegrations = (organizationId: string) => {
       const existing = integrations.find(i => i.id === id);
 
       // Best-effort cleanup of any vault-stored secrets for this provider/org.
-      if (existing?.provider && SECRET_FIELDS[existing.provider]) {
+      // For Facebook the vault holds a per-page-id map shared across all
+      // Page integrations of the org, so we strip just this Page and only
+      // delete the whole secret when no other rows remain.
+      if (existing?.provider === 'facebook') {
+        const pageId = (existing.config as any)?.page_id as string | undefined;
+        const otherFbRows = integrations.filter(
+          i => i.id !== id && i.provider === 'facebook'
+        );
+        if (otherFbRows.length === 0) {
+          await supabase.rpc('delete_integration_vault_secret', {
+            _org_id: existing.organization_id,
+            _provider: 'facebook',
+          });
+        } else if (pageId) {
+          const { data: vaultJson } = await supabase.rpc(
+            'get_integration_vault_secret',
+            { _org_id: existing.organization_id, _provider: 'facebook' }
+          );
+          let map: Record<string, unknown> = {};
+          try { map = vaultJson ? JSON.parse(vaultJson as string) : {}; } catch {}
+          if (map[pageId]) {
+            delete map[pageId];
+            await supabase.rpc('set_integration_vault_secret', {
+              _org_id: existing.organization_id,
+              _provider: 'facebook',
+              _secret: JSON.stringify(map),
+            });
+          }
+        }
+      } else if (existing?.provider && SECRET_FIELDS[existing.provider]) {
         await supabase.rpc('delete_integration_vault_secret', {
           _org_id: existing.organization_id,
           _provider: existing.provider,
