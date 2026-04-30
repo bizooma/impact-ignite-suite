@@ -190,7 +190,7 @@ export function EventsManager({ organizationId }: Props) {
                 </div>
                 <div>
                   <Label>Capacity</Label>
-                  <Input type="number" value={editing.capacity ?? ''} onChange={(e) => setEditing({ ...editing, capacity: e.target.value ? Number(e.target.value) : null })} />
+                  <Input type="number" min="1" step="1" max="1000000" value={editing.capacity ?? ''} onChange={(e) => setEditing({ ...editing, capacity: e.target.value ? Number(e.target.value) : null })} />
                 </div>
               </div>
               <div>
