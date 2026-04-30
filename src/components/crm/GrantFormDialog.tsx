@@ -25,15 +25,19 @@ const grantAmountSchema = z
   .gte(0, 'Amount cannot be negative')
   .max(1_000_000_000, 'Amount is unrealistically large');
 
-type AmountResult = { ok: true; value: number | null } | { ok: false; message: string };
+type AmountResult =
+  | { ok: true; value: number | null }
+  | { ok: false; ok2?: never; message: string };
 const parseOptionalAmount = (raw: unknown): AmountResult => {
-  if (raw === null || raw === undefined || raw === '') return { ok: true, value: null };
+  if (raw === null || raw === undefined || raw === '') {
+    return { ok: true, value: null } as AmountResult;
+  }
   const n = typeof raw === 'number' ? raw : Number(raw);
   const result = grantAmountSchema.safeParse(n);
   if (!result.success) {
-    return { ok: false, message: result.error.issues[0]?.message ?? 'Invalid amount' };
+    return { ok: false, message: result.error.issues[0]?.message ?? 'Invalid amount' } as AmountResult;
   }
-  return { ok: true, value: result.data };
+  return { ok: true, value: result.data } as AmountResult;
 };
 
 export function GrantFormDialog({ open, onClose, organizationId, grant, defaultStage }: Props) {
