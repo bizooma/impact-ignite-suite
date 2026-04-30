@@ -37,15 +37,21 @@ export default function Auth() {
   const inviteToken = searchParams.get('invite');
   const [inviteEmail, setInviteEmail] = useState<string | null>(null);
   const [processingInvite, setProcessingInvite] = useState(false);
+  // Synchronous guard: tracks tokens we've already attempted to process so a
+  // re-render (auth flicker, state update) can never trigger a duplicate call.
+  const processedTokensRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    const handleInvitation = async () => {
-      if (!inviteToken || processingInvite) return;
+    if (!inviteToken) return;
+    if (processedTokensRef.current.has(inviteToken)) return;
+    // Mark BEFORE any await — synchronous, so a concurrent re-render of this
+    // effect sees it immediately (unlike setState).
+    processedTokensRef.current.add(inviteToken);
 
+    const handleInvitation = async () => {
       setProcessingInvite(true);
 
       try {
-        // Try to accept the invitation
         const { data, error } = await supabase.functions.invoke('accept-invitation', {
           body: { token: inviteToken },
         });
@@ -55,7 +61,6 @@ export default function Auth() {
         if (data.error) {
           toast.error(data.error);
           setSearchParams({});
-          setProcessingInvite(false);
           return;
         }
 
@@ -64,7 +69,6 @@ export default function Auth() {
           setInviteEmail(data.email);
           setIsSignUp(true);
           toast.info(`Please sign up or sign in with ${data.email} to accept the invitation`);
-          setProcessingInvite(false);
         } else if (data.success) {
           // Invitation accepted successfully
           toast.success('Successfully joined the organization!');
@@ -75,12 +79,17 @@ export default function Auth() {
         console.error('Error processing invitation:', error);
         toast.error('Failed to process invitation');
         setSearchParams({});
+        // Allow a manual retry (e.g. transient network error) by un-marking.
+        processedTokensRef.current.delete(inviteToken);
+      } finally {
         setProcessingInvite(false);
       }
     };
 
     handleInvitation();
-  }, [inviteToken, user, processingInvite]);
+    // Only re-run when the token itself changes. `user` and `processingInvite`
+    // were causing redundant invocations on auth flicker / state updates.
+  }, [inviteToken, setSearchParams]);
 
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
