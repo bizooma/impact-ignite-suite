@@ -137,29 +137,66 @@ export const useGbpReviews = (organizationId?: string) => {
       if (!review) throw new Error('Review not found');
 
       const finalResponse = editedResponse || review.ai_generated_response;
-      
-      const { error } = await supabase
+
+      // Stage as 'pending' so we don't claim "approved" until Google accepts it.
+      const { error: stageError } = await supabase
         .from('gbp_reviews')
         .update({
-          reply_status: 'approved',
+          reply_status: 'pending',
           edited_response: editedResponse || null,
           final_response: finalResponse,
           updated_at: new Date().toISOString(),
         })
         .eq('id', reviewId);
 
-      if (error) throw error;
+      if (stageError) throw stageError;
 
-      // Trigger posting to Google
-      await supabase.functions.invoke('gbp-post-response', {
-        body: { reviewId },
-      });
+      // Attempt to post to Google
+      const { data, error: invokeError } = await supabase.functions.invoke(
+        'gbp-post-response',
+        { body: { reviewId } }
+      );
+
+      const postFailed =
+        !!invokeError ||
+        (data && typeof data === 'object' && (data.error || data.fallback));
+
+      if (postFailed) {
+        // Roll back so UI doesn't falsely show "approved"
+        await supabase
+          .from('gbp_reviews')
+          .update({
+            reply_status: 'failed',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', reviewId);
+
+        const reason =
+          invokeError?.message ||
+          (data && (data.error as string)) ||
+          'Unknown error';
+        console.error('Failed to post response to Google:', reason);
+        toast.error(`Could not post response to Google: ${reason}`);
+        fetchReviews();
+        return;
+      }
+
+      // Google accepted — finalize as approved
+      const { error: finalizeError } = await supabase
+        .from('gbp_reviews')
+        .update({
+          reply_status: 'approved',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', reviewId);
+
+      if (finalizeError) throw finalizeError;
 
       toast.success('Response approved and posted to Google');
       fetchReviews();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error approving review:', error);
-      toast.error('Failed to approve review');
+      toast.error(`Failed to approve review: ${error?.message || 'Unknown error'}`);
     }
   };
 
