@@ -5,8 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
+import { z } from 'zod';
 import { useCrmDonations } from '@/hooks/useCrmDonations';
 import { useCrm } from '@/hooks/useCrm';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Props {
   open: boolean;
@@ -15,9 +17,18 @@ interface Props {
   contactId?: string; // pre-fill if recording from contact profile
 }
 
+// Donations must be a positive monetary value. Cap at 10M to catch typos /
+// abuse before they reach analytics + donor segments.
+const donationAmountSchema = z
+  .number({ invalid_type_error: 'Amount must be a number' })
+  .finite('Amount must be a valid number')
+  .gt(0, 'Amount must be greater than zero')
+  .max(10_000_000, 'Amount is unrealistically large');
+
 export function DonationFormDialog({ open, onClose, organizationId, contactId }: Props) {
   const { createDonation } = useCrmDonations(organizationId);
   const { contacts } = useCrm(organizationId);
+  const { toast } = useToast();
   const [selectedContactId, setSelectedContactId] = useState(contactId || '');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -29,9 +40,21 @@ export function DonationFormDialog({ open, onClose, organizationId, contactId }:
     e.preventDefault();
     const cid = contactId || selectedContactId;
     if (!cid) return;
+
+    const parsedAmount = parseFloat(amount);
+    const result = donationAmountSchema.safeParse(parsedAmount);
+    if (!result.success) {
+      toast({
+        title: 'Invalid amount',
+        description: result.error.issues[0]?.message ?? 'Please enter a positive donation amount.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     await createDonation.mutateAsync({
       contact_id: cid,
-      amount: parseFloat(amount),
+      amount: result.data,
       donation_date: date,
       payment_method: paymentMethod,
       is_recurring: isRecurring,
