@@ -39,7 +39,7 @@ const moduleCards = [
     route: 'chatbots',
     status: 'active',
     color: 'primary',
-    ready: false
+    ready: true
   },
   {
     title: 'QR Codes',
@@ -57,7 +57,7 @@ const moduleCards = [
     route: 'social',
     status: 'active',
     color: 'warning',
-    ready: false
+    ready: true
   },
   {
     title: 'SEO Audits',
@@ -75,7 +75,7 @@ const moduleCards = [
     route: 'gbp',
     status: 'active',
     color: 'success',
-    ready: false
+    ready: true
   },
   {
     title: 'Campaigns',
@@ -84,7 +84,7 @@ const moduleCards = [
     route: 'campaigns',
     status: 'active',
     color: 'warning',
-    ready: false
+    ready: true
   },
   {
     title: 'Tasks',
@@ -120,7 +120,7 @@ const moduleCards = [
     route: 'accessibility',
     status: 'active',
     color: 'primary',
-    ready: false
+    ready: true
   }
 ];
 
