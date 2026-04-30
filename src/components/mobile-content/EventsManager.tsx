@@ -63,6 +63,14 @@ export function EventsManager({ organizationId }: Props) {
 
   const save = useMutation({
     mutationFn: async (e: Partial<EventRow>) => {
+      let capacity: number | null = null;
+      if (e.capacity !== null && e.capacity !== undefined && (e.capacity as any) !== '') {
+        const result = capacitySchema.safeParse(Number(e.capacity));
+        if (!result.success) {
+          throw new Error(result.error.issues[0]?.message ?? 'Invalid capacity');
+        }
+        capacity = result.data;
+      }
       const payload: any = {
         organization_id: organizationId,
         title: e.title,
@@ -71,7 +79,7 @@ export function EventsManager({ organizationId }: Props) {
         starts_at: e.starts_at,
         ends_at: e.ends_at || null,
         image_url: e.image_url || null,
-        capacity: e.capacity ? Number(e.capacity) : null,
+        capacity,
         is_published: !!e.is_published,
       };
       if (e.id) {
