@@ -337,9 +337,14 @@ const Landing = () => {
                     <p className="text-muted-foreground mb-3">
                       Causeio was created by <span className="font-semibold text-foreground">Bizooma, LLC</span>, a creative agency that has spent years building marketing platforms for law firms. Along the way, we noticed something powerful: so many of the firms we work with launch their own foundations and nonprofits — pouring their success back into the causes they care about.
                     </p>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground mb-4">
                       That insight became Causeio. The same engine that drives our law firm marketing platform now powers a tool built specifically for nonprofits — so mission-driven teams get the technology, automation, and reach typically reserved for high-budget firms.
                     </p>
+                    <div className="border-l-4 border-primary pl-4 py-1 my-4 bg-primary/5 rounded-r-md">
+                      <p className="text-foreground leading-relaxed">
+                        <span className="font-semibold">Where Purpose Meets Performance.</span> That tagline isn't just words on our logo — it's the bridge between the two worlds we live in. <span className="font-semibold">Purpose</span> is the mission driving every nonprofit we serve: the donors moved, the volunteers mobilized, the lives changed. <span className="font-semibold">Performance</span> is the marketing horsepower we built for high-budget law firms — automation, AI, analytics, and reach. Causeio fuses them, so mission-driven teams never have to choose between doing good and doing it well.
+                      </p>
+                    </div>
                     <p className="text-sm font-medium text-foreground pt-2">
                       Offices: Jacksonville, FL & Amarillo, TX
                     </p>
