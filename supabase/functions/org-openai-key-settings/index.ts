@@ -80,12 +80,21 @@ serve(async (req) => {
     if (action === "status") {
       const { data: row } = await supabase
         .from("integrations")
-        .select("id, status, updated_at, encrypted_tokens")
+        .select("id, status, updated_at, vault_secret_id")
         .eq("organization_id", organizationId)
         .eq("provider", "openai")
         .maybeSingle();
 
-      const apiKey = (row?.encrypted_tokens as any)?.api_key as string | undefined;
+      // Pull the actual key from Vault (only to render a masked preview)
+      let apiKey: string | null = null;
+      if (row?.vault_secret_id) {
+        const { data: secret } = await supabase.rpc(
+          "get_integration_vault_secret_internal",
+          { _org_id: organizationId, _provider: "openai" },
+        );
+        apiKey = (secret as string | null) ?? null;
+      }
+
       return new Response(
         JSON.stringify({
           configured: !!apiKey,
@@ -141,6 +150,26 @@ serve(async (req) => {
         );
       }
 
+      // Use a per-user client so the Vault RPC's auth check sees the calling user.
+      const userClient = createClient(supabaseUrl, supabaseAnon, {
+        global: { headers: { Authorization: authHeader } },
+      });
+
+      // Store the secret in Vault and capture the resulting vault id.
+      const { data: vaultIdData, error: vaultErr } = await userClient.rpc(
+        "set_integration_vault_secret",
+        { _org_id: organizationId, _provider: "openai", _secret: key },
+      );
+      if (vaultErr) {
+        console.error("vault store failed:", vaultErr);
+        return new Response(
+          JSON.stringify({ error: "Failed to store key securely" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const vaultId = vaultIdData as string;
+
+      // Upsert the integration row with the vault pointer (no plaintext key).
       const { data: existing } = await supabase
         .from("integrations")
         .select("id")
@@ -152,7 +181,8 @@ serve(async (req) => {
         await supabase
           .from("integrations")
           .update({
-            encrypted_tokens: { api_key: key },
+            vault_secret_id: vaultId,
+            encrypted_tokens: {}, // legacy column kept empty; secret lives in Vault
             status: "active",
             updated_at: new Date().toISOString(),
           })
@@ -162,7 +192,8 @@ serve(async (req) => {
           organization_id: organizationId,
           provider: "openai",
           name: "OpenAI (BYO Key)",
-          encrypted_tokens: { api_key: key },
+          vault_secret_id: vaultId,
+          encrypted_tokens: {},
           status: "active",
         });
       }
@@ -174,6 +205,15 @@ serve(async (req) => {
     }
 
     if (action === "delete") {
+      // Use a per-user client so the Vault RPC's auth check sees the calling user.
+      const userClient = createClient(supabaseUrl, supabaseAnon, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      // Best-effort: drop the Vault entry first, then the row.
+      await userClient.rpc("delete_integration_vault_secret", {
+        _org_id: organizationId,
+        _provider: "openai",
+      });
       await supabase
         .from("integrations")
         .delete()

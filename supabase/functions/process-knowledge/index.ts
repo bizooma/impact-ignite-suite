@@ -43,12 +43,18 @@ serve(async (req) => {
     if (orgId) {
       const { data: openaiIntegration } = await supabase
         .from('integrations')
-        .select('encrypted_tokens')
+        .select('vault_secret_id')
         .eq('organization_id', orgId)
         .eq('provider', 'openai')
         .eq('status', 'active')
         .maybeSingle();
-      byoKey = (openaiIntegration?.encrypted_tokens as any)?.api_key;
+      if (openaiIntegration?.vault_secret_id) {
+        const { data: secret } = await supabase.rpc(
+          'get_integration_vault_secret_internal',
+          { _org_id: orgId, _provider: 'openai' },
+        );
+        byoKey = (secret as string | null) ?? undefined;
+      }
     }
     const usingByoKey = !!byoKey;
     const apiKey = byoKey ?? Deno.env.get('OPENAI_API_KEY');
