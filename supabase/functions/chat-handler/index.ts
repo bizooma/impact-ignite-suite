@@ -353,7 +353,9 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       message: assistantMessage,
       sessionId: session.id,
-      usage: capInfo ? { used: capInfo.used + 1, cap: capInfo.cap, tier: capInfo.tier, byo: false } : { byo: true },
+      usage: capInfo
+        ? { used: capInfo.used + 1, cap: capInfo.cap, tier: capInfo.tier, byo: false }
+        : { byo: usingByoKey, platformOrg: isPlatformOrg },
       warning,
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
