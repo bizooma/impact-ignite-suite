@@ -498,14 +498,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                 </div>
               )}
 
-              {platform === 'twitter' && (
-                <div className="p-8 rounded-lg border bg-background text-center">
-                  <Twitter className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-                  <p className="text-sm text-muted-foreground">
-                    Twitter / X publishing coming soon
-                  </p>
-                </div>
-              )}
+
             </div>
           </div>
         </div>
