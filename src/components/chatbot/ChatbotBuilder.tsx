@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,9 +19,10 @@ import type { Chatbot } from '@/types/database';
 
 interface ChatbotBuilderProps {
   organizationId: string;
+  initialChatbotId?: string;
 }
 
-export function ChatbotBuilder({ organizationId }: ChatbotBuilderProps) {
+export function ChatbotBuilder({ organizationId, initialChatbotId }: ChatbotBuilderProps) {
   const { chatbots, loading, createChatbot, updateChatbot } = useChatbots(organizationId);
   const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -34,6 +35,14 @@ export function ChatbotBuilder({ organizationId }: ChatbotBuilderProps) {
     primary_color: '#0066CC',
     accent_color: '#00AA44',
   });
+
+  // Auto-select chatbot when initialChatbotId is provided and chatbots have loaded
+  useEffect(() => {
+    if (initialChatbotId && !selectedChatbot) {
+      const found = chatbots.find((c) => c.id === initialChatbotId);
+      if (found) setSelectedChatbot(found);
+    }
+  }, [initialChatbotId, chatbots, selectedChatbot]);
 
   const handleCreateChatbot = async () => {
     setIsCreating(true);
