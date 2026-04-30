@@ -62,17 +62,48 @@ serve(async (req) => {
     let processedContent = content;
 
     if (type === 'url') {
-      try {
-        const response = await fetch(content);
-        const html = await response.text();
-        processedContent = html
-          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-          .replace(/<[^>]*>/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-      } catch (error) {
-        throw new Error(`Failed to fetch content from URL: ${error instanceof Error ? error.message : 'unknown'}`);
+      const firecrawlKey = Deno.env.get('FIRECRAWL_API_KEY');
+      let scraped: string | null = null;
+
+      if (firecrawlKey) {
+        try {
+          const fcRes = await fetch('https://api.firecrawl.dev/v1/scrape', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${firecrawlKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: content, formats: ['markdown'] }),
+          });
+          if (fcRes.ok) {
+            const fcData = await fcRes.json();
+            const md = fcData?.data?.markdown || fcData?.markdown || '';
+            if (typeof md === 'string' && md.trim().length > 0) {
+              scraped = md.trim();
+            }
+          } else {
+            console.warn('Firecrawl scrape failed, falling back to regex strip:', await fcRes.text());
+          }
+        } catch (err) {
+          console.warn('Firecrawl error, falling back to regex strip:', err);
+        }
+      }
+
+      if (scraped) {
+        processedContent = scraped;
+      } else {
+        try {
+          const response = await fetch(content);
+          const html = await response.text();
+          processedContent = html
+            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        } catch (error) {
+          throw new Error(`Failed to fetch content from URL: ${error instanceof Error ? error.message : 'unknown'}`);
+        }
       }
     } else if (type === 'pdf' || type === 'docx') {
       if (!filePath) throw new Error(`filePath is required for ${type} sources`);
