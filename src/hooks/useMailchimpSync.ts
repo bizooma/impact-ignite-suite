@@ -145,11 +145,13 @@ export const useMailchimpSync = (organizationId: string) => {
   const updateMapping = async (id: string, updates: Partial<MailchimpMapping>) => {
     try {
       const cleanUpdates: any = {};
+      // Use `!== undefined` everywhere so callers can intentionally clear a field
+      // (e.g. set sync_options to null or sync_frequency to '') without it being dropped.
       if (updates.sync_enabled !== undefined) cleanUpdates.sync_enabled = updates.sync_enabled;
-      if (updates.sync_frequency) cleanUpdates.sync_frequency = updates.sync_frequency;
-      if (updates.field_mappings) cleanUpdates.field_mappings = updates.field_mappings;
-      if (updates.sync_options) cleanUpdates.sync_options = updates.sync_options;
-      if (updates.mailchimp_audience_id) cleanUpdates.mailchimp_audience_id = updates.mailchimp_audience_id;
+      if (updates.sync_frequency !== undefined) cleanUpdates.sync_frequency = updates.sync_frequency;
+      if (updates.field_mappings !== undefined) cleanUpdates.field_mappings = updates.field_mappings;
+      if (updates.sync_options !== undefined) cleanUpdates.sync_options = updates.sync_options;
+      if (updates.mailchimp_audience_id !== undefined) cleanUpdates.mailchimp_audience_id = updates.mailchimp_audience_id;
 
       const { data, error } = await supabase
         .from('crm_mailchimp_mappings')
