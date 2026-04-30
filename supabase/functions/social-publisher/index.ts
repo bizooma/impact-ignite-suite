@@ -350,16 +350,32 @@ serve(async (req) => {
     }
 
     const cfg = integration.config as any;
-    const tokens = integration.encrypted_tokens as any;
     const mediaUrls: string[] = Array.isArray(post.media_urls) ? post.media_urls : [];
     const message: string = post.content ?? "";
+
+    // Load provider secrets from the Vault. For Facebook this is a JSON map
+    // keyed by page_id ({ "<page_id>": { page_access_token, ... } }).
+    // For LinkedIn it's a single { access_token, ... } object.
+    let vaultSecrets: any = {};
+    {
+      const { data: vaultJson, error: vaultErr } = await supabase.rpc(
+        "get_integration_vault_secret_internal",
+        { _org_id: post.organization_id, _provider: post.platform },
+      );
+      if (vaultErr) {
+        console.error("[social-publisher] vault read failed", vaultErr);
+      }
+      if (vaultJson) {
+        try { vaultSecrets = JSON.parse(vaultJson as string); } catch { vaultSecrets = {}; }
+      }
+    }
 
     let publishedExternalId: string;
     let publishedPageId: string;
 
     if (post.platform === "facebook") {
       const pageId: string = cfg?.page_id;
-      const pageAccessToken: string = tokens?.page_access_token;
+      const pageAccessToken: string | undefined = vaultSecrets?.[pageId]?.page_access_token;
       if (!pageId || !pageAccessToken) {
         const reason = "Facebook integration is missing page_id or access token. Please reconnect.";
         await supabase.from("social_posts").update({
@@ -382,7 +398,8 @@ serve(async (req) => {
     } else {
       // LinkedIn
       const ownerUrn: string = cfg?.page_urn;
-      const accessToken: string = tokens?.access_token;
+      const accessToken: string | undefined = vaultSecrets?.access_token
+        ?? vaultSecrets?.[cfg?.page_id]?.access_token;
       if (!ownerUrn || !accessToken) {
         const reason = "LinkedIn integration is missing page_urn or access token. Please reconnect.";
         await supabase.from("social_posts").update({
