@@ -138,20 +138,19 @@ export const useGbpReviews = (organizationId?: string) => {
 
       const finalResponse = editedResponse || review.ai_generated_response;
 
-      // Stage as 'pending' so we don't claim "approved" until Google accepts it.
-      const { error: stageError } = await supabase
+      // Save the edited/final response text first (no status change yet)
+      const { error: saveError } = await supabase
         .from('gbp_reviews')
         .update({
-          reply_status: 'pending',
           edited_response: editedResponse || null,
           final_response: finalResponse,
           updated_at: new Date().toISOString(),
         })
         .eq('id', reviewId);
 
-      if (stageError) throw stageError;
+      if (saveError) throw saveError;
 
-      // Attempt to post to Google
+      // Post to Google BEFORE marking approved
       const { data, error: invokeError } = await supabase.functions.invoke(
         'gbp-post-response',
         { body: { reviewId } }
@@ -162,15 +161,6 @@ export const useGbpReviews = (organizationId?: string) => {
         (data && typeof data === 'object' && (data.error || data.fallback));
 
       if (postFailed) {
-        // Roll back so UI doesn't falsely show "approved"
-        await supabase
-          .from('gbp_reviews')
-          .update({
-            reply_status: 'failed',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', reviewId);
-
         const reason =
           invokeError?.message ||
           (data && (data.error as string)) ||
@@ -181,7 +171,7 @@ export const useGbpReviews = (organizationId?: string) => {
         return;
       }
 
-      // Google accepted — finalize as approved
+      // Google accepted — now mark approved locally
       const { error: finalizeError } = await supabase
         .from('gbp_reviews')
         .update({
