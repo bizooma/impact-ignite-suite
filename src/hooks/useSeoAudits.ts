@@ -95,7 +95,7 @@ export const useSeoAudits = (organizationId?: string) => {
       
       toast({
         title: "Success",
-        description: `SEO audit completed. Found ${auditData.issues.length} issues.`,
+        description: `SEO audit completed. Found ${auditData.issues?.length ?? 0} issues.`,
       });
 
       return audit;
