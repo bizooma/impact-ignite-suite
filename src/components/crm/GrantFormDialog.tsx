@@ -69,8 +69,8 @@ export function GrantFormDialog({ open, onClose, organizationId, grant, defaultS
 
     const payload = {
       ...form,
-      amount_requested: requested.value,
-      amount_awarded: awarded.value,
+      amount_requested: requested,
+      amount_awarded: awarded,
       contact_id: form.contact_id || null,
       deadline: form.deadline || null,
       submitted_date: form.submitted_date || null,
