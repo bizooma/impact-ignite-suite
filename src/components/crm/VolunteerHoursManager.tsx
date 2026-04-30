@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Clock, CheckCircle, AlertCircle, Check, X } from 'lucide-react';
 import { useCrmVolunteerHours } from '@/hooks/useCrmVolunteerHours';
 import { useCrm } from '@/hooks/useCrm';
+import { useOrgRole } from '@/hooks/useOrgRole';
 import { useState, useMemo } from 'react';
 import { VolunteerHoursFormDialog } from './VolunteerHoursFormDialog';
 import { format } from 'date-fns';
