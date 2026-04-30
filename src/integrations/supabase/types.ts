@@ -3462,6 +3462,10 @@ export type Database = {
           source_name: string
         }[]
       }
+      merge_tier_products: {
+        Args: { _existing: Json; _tier: string }
+        Returns: Json
+      }
       recalculate_crm_list_contact_count: {
         Args: { list_id: string }
         Returns: undefined
