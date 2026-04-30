@@ -13,6 +13,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Pencil, Trash2, Users, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { z } from 'zod';
+
+// Capacity is optional, but when provided must be a positive whole number.
+// Cap at 1,000,000 to catch typos before they reach the database.
+const capacitySchema = z
+  .number({ message: 'Capacity must be a number' })
+  .int('Capacity must be a whole number')
+  .gt(0, 'Capacity must be greater than zero')
+  .max(1_000_000, 'Capacity is unrealistically large');
 
 interface Props { organizationId: string }
 
