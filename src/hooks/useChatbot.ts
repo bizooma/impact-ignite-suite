@@ -123,9 +123,10 @@ export function useChatbot(chatbotId: string) {
         throw error || new Error('Chat failed');
       }
 
-      // Update session ID if new
+      // Update session ID if new — and persist so it survives navigation/reload.
       if (data.sessionId && !sessionId) {
         setSessionId(data.sessionId);
+        writePersistedSession(chatbotId, data.sessionId);
       }
 
       const assistantMessage: ChatMessage = {
