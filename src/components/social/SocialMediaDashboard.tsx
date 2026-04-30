@@ -102,7 +102,6 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
   const platforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook },
     { id: 'linkedin', name: 'LinkedIn', icon: Linkedin },
-    { id: 'twitter', name: 'Twitter / X (Coming Soon)', icon: Twitter },
   ];
 
   const statuses = [
