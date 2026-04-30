@@ -71,12 +71,10 @@ export const MailchimpMappingDialog = ({
   }, [open, mailchimpIntegration]);
 
   const handleTestConnection = async () => {
-    if (!mailchimpIntegration?.encrypted_tokens?.api_key) {
-      return;
-    }
-
+    if (!mailchimpIntegration) return;
     setTestingConnection(true);
-    await testConnection(mailchimpIntegration.encrypted_tokens.api_key);
+    // The edge function pulls the API key from Vault server-side.
+    await testConnection();
     setTestingConnection(false);
   };
 

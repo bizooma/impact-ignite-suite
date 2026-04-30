@@ -68,12 +68,13 @@ export const useMailchimpSync = (organizationId: string) => {
     }
   };
 
-  const testConnection = async (apiKey: string) => {
+  const testConnection = async () => {
     try {
       const { data, error } = await supabase.functions.invoke(
         'test-mailchimp-connection',
         {
-          body: { api_key: apiKey },
+          // The API key is fetched server-side from Vault — never sent from the client.
+          body: { organizationId },
         }
       );
 
