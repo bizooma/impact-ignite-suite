@@ -256,6 +256,12 @@ serve(async (req) => {
     }
     contextContent += additionalContext;
 
+    // Defensive cap: never let knowledge context blow past the model context window or cost budget.
+    const MAX_CONTEXT_CHARS = 12_000;
+    if (contextContent.length > MAX_CONTEXT_CHARS) {
+      contextContent = contextContent.slice(0, MAX_CONTEXT_CHARS) + '\n\n[...context truncated]';
+    }
+
     const systemPrompt = chatbot.description || 'You are a helpful AI assistant.';
     const openAIMessages = [
       { role: 'system', content: `${systemPrompt}\n\nContext from knowledge base:\n${contextContent}` },

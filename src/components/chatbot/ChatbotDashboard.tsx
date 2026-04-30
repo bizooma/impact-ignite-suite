@@ -5,11 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { MessageCircle, Users, Clock, TrendingUp, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useChatbots } from '@/hooks/useChatbots';
 import { useTierLimits } from '@/hooks/useTierLimits';
 import { formatCap } from '@/lib/aiTierLimits';
 import { ChatbotBuilder } from './ChatbotBuilder';
 import { ChatInterface } from './ChatInterface';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatbotDashboardProps {
   organizationId: string;
@@ -17,9 +19,27 @@ interface ChatbotDashboardProps {
 
 export default function ChatbotDashboard({ organizationId }: ChatbotDashboardProps) {
   const [showBuilder, setShowBuilder] = useState(false);
+  const [editChatbotId, setEditChatbotId] = useState<string | null>(null);
   const [selectedChatbot, setSelectedChatbot] = useState<string | null>(null);
   const { chatbots, loading } = useChatbots(organizationId);
   const { canCreate, limits, counts, tier } = useTierLimits(organizationId);
+
+  const chatbotIds = chatbots.map((c) => c.id);
+  const { data: totalConversations } = useQuery({
+    queryKey: ['org-total-conversations', organizationId, chatbotIds.join(',')],
+    enabled: chatbotIds.length > 0,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('chat_sessions')
+        .select('*', { count: 'exact', head: true })
+        .in('chatbot_id', chatbotIds);
+      if (error) {
+        console.error(error);
+        return 0;
+      }
+      return count || 0;
+    },
+  });
 
   if (loading) {
     return (
@@ -48,11 +68,11 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
             <h1 className="text-3xl font-bold">Chatbot Builder</h1>
             <p className="text-muted-foreground">Create and configure your chatbot</p>
           </div>
-          <Button variant="outline" onClick={() => setShowBuilder(false)}>
+          <Button variant="outline" onClick={() => { setShowBuilder(false); setEditChatbotId(null); }}>
             Back to Dashboard
           </Button>
         </div>
-        <ChatbotBuilder organizationId={organizationId} />
+        <ChatbotBuilder organizationId={organizationId} initialChatbotId={editChatbotId ?? undefined} />
       </div>
     );
   }
@@ -156,7 +176,7 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
               <Users className="h-4 w-4 text-muted-foreground" />
               <div className="ml-2">
                 <p className="text-sm font-medium text-muted-foreground">Total Conversations</p>
-                <p className="text-2xl font-bold">-</p>
+                <p className="text-2xl font-bold">{totalConversations ?? 0}</p>
               </div>
             </div>
           </CardContent>
@@ -215,7 +235,7 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        // Navigate to edit chatbot
+                        setEditChatbotId(chatbot.id);
                         setShowBuilder(true);
                       }}
                     >

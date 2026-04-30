@@ -58,22 +58,15 @@ export function ChatbotAnalytics({ chatbot }: ChatbotAnalyticsProps) {
     },
   });
 
-  // Volunteer leads captured via this chatbot
+  // Volunteer submissions captured via this chatbot
   const { data: volunteerStats } = useQuery({
     queryKey: ['chatbot-volunteers', chatbot.id, timeRange],
     queryFn: async () => {
-      const { data: sessions } = await supabase
-        .from('chat_sessions')
-        .select('id')
+      const { count, error } = await supabase
+        .from('volunteers')
+        .select('*', { count: 'exact', head: true })
         .eq('chatbot_id', chatbot.id)
         .gte('created_at', startIso);
-      const sessionIds = (sessions || []).map((s) => s.id);
-      if (sessionIds.length === 0) return 0;
-      const { count, error } = await supabase
-        .from('chat_leads')
-        .select('*', { count: 'exact', head: true })
-        .in('session_id', sessionIds)
-        .eq('interest_type', 'volunteer');
       if (error) {
         console.error(error);
         return 0;
