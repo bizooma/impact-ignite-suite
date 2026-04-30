@@ -325,11 +325,6 @@ const SocialIntegrationsPanel: React.FC<SocialIntegrationsPanelProps> = ({ organ
         </CardContent>
       </Card>
 
-      {/* placeholder removed: only render real, supported integrations */}
-      {false && null}
-        </CardContent>
-      </Card>
-
       <AlertDialog open={!!pendingDisconnect} onOpenChange={(o) => !o && setPendingDisconnect(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
