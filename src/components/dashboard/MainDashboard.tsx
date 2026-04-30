@@ -210,15 +210,9 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
 
       {/* Modules */}
       <div className="space-y-6">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-semibold text-foreground">Ready to Use</h2>
-            <div className="w-3 h-3 bg-success rounded-full animate-pulse" />
-          </div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-semibold text-foreground">In Development</h2>
-            <div className="w-3 h-3 bg-destructive rounded-full" />
-          </div>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-semibold text-foreground">Your Apps</h2>
+          <div className="w-3 h-3 bg-success rounded-full animate-pulse" />
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
