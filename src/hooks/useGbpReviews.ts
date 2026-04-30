@@ -137,29 +137,56 @@ export const useGbpReviews = (organizationId?: string) => {
       if (!review) throw new Error('Review not found');
 
       const finalResponse = editedResponse || review.ai_generated_response;
-      
-      const { error } = await supabase
+
+      // Save the edited/final response text first (no status change yet)
+      const { error: saveError } = await supabase
         .from('gbp_reviews')
         .update({
-          reply_status: 'approved',
           edited_response: editedResponse || null,
           final_response: finalResponse,
           updated_at: new Date().toISOString(),
         })
         .eq('id', reviewId);
 
-      if (error) throw error;
+      if (saveError) throw saveError;
 
-      // Trigger posting to Google
-      await supabase.functions.invoke('gbp-post-response', {
-        body: { reviewId },
-      });
+      // Post to Google BEFORE marking approved
+      const { data, error: invokeError } = await supabase.functions.invoke(
+        'gbp-post-response',
+        { body: { reviewId } }
+      );
+
+      const postFailed =
+        !!invokeError ||
+        (data && typeof data === 'object' && (data.error || data.fallback));
+
+      if (postFailed) {
+        const reason =
+          invokeError?.message ||
+          (data && (data.error as string)) ||
+          'Unknown error';
+        console.error('Failed to post response to Google:', reason);
+        toast.error(`Could not post response to Google: ${reason}`);
+        fetchReviews();
+        return;
+      }
+
+      // Google accepted — now mark approved locally
+      const { error: finalizeError } = await supabase
+        .from('gbp_reviews')
+        .update({
+          reply_status: 'approved',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', reviewId);
+
+      if (finalizeError) throw finalizeError;
 
       toast.success('Response approved and posted to Google');
       fetchReviews();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error approving review:', error);
-      toast.error('Failed to approve review');
+      toast.error(`Failed to approve review: ${error?.message || 'Unknown error'}`);
     }
   };
 
