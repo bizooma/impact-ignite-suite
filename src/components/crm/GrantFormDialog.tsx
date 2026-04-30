@@ -25,19 +25,14 @@ const grantAmountSchema = z
   .gte(0, 'Amount cannot be negative')
   .max(1_000_000_000, 'Amount is unrealistically large');
 
-type AmountResult =
-  | { ok: true; value: number | null }
-  | { ok: false; ok2?: never; message: string };
-const parseOptionalAmount = (raw: unknown): AmountResult => {
-  if (raw === null || raw === undefined || raw === '') {
-    return { ok: true, value: null } as AmountResult;
-  }
+const parseOptionalAmount = (raw: unknown): number | null => {
+  if (raw === null || raw === undefined || raw === '') return null;
   const n = typeof raw === 'number' ? raw : Number(raw);
   const result = grantAmountSchema.safeParse(n);
   if (!result.success) {
-    return { ok: false, message: result.error.issues[0]?.message ?? 'Invalid amount' } as AmountResult;
+    throw new Error(result.error.issues[0]?.message ?? 'Invalid amount');
   }
-  return { ok: true, value: result.data } as AmountResult;
+  return result.data;
 };
 
 export function GrantFormDialog({ open, onClose, organizationId, grant, defaultStage }: Props) {
@@ -57,14 +52,18 @@ export function GrantFormDialog({ open, onClose, organizationId, grant, defaultS
   const handleSubmit = async () => {
     if (!form.foundation_name || !form.grant_name) return;
 
-    const requested: AmountResult = parseOptionalAmount(form.amount_requested);
-    if (!requested.ok) {
-      toast({ title: 'Invalid amount requested', description: requested.message, variant: 'destructive' });
+    let requested: number | null;
+    let awarded: number | null;
+    try {
+      requested = parseOptionalAmount(form.amount_requested);
+    } catch (err: any) {
+      toast({ title: 'Invalid amount requested', description: err?.message ?? 'Invalid amount', variant: 'destructive' });
       return;
     }
-    const awarded: AmountResult = parseOptionalAmount(form.amount_awarded);
-    if (!awarded.ok) {
-      toast({ title: 'Invalid amount awarded', description: awarded.message, variant: 'destructive' });
+    try {
+      awarded = parseOptionalAmount(form.amount_awarded);
+    } catch (err: any) {
+      toast({ title: 'Invalid amount awarded', description: err?.message ?? 'Invalid amount', variant: 'destructive' });
       return;
     }
 
