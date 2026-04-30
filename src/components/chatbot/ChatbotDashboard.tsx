@@ -68,11 +68,11 @@ export default function ChatbotDashboard({ organizationId }: ChatbotDashboardPro
             <h1 className="text-3xl font-bold">Chatbot Builder</h1>
             <p className="text-muted-foreground">Create and configure your chatbot</p>
           </div>
-          <Button variant="outline" onClick={() => setShowBuilder(false)}>
+          <Button variant="outline" onClick={() => { setShowBuilder(false); setEditChatbotId(null); }}>
             Back to Dashboard
           </Button>
         </div>
-        <ChatbotBuilder organizationId={organizationId} />
+        <ChatbotBuilder organizationId={organizationId} initialChatbotId={editChatbotId ?? undefined} />
       </div>
     );
   }
