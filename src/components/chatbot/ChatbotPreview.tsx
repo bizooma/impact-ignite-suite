@@ -130,8 +130,6 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
 <script
   src="${appUrl}/embed.js"
   data-chatbot-id="${chatbot.id}"
-  data-primary-color="${chatbot.brand_settings.primary_color || '#0066CC'}"
-  data-accent-color="${chatbot.brand_settings.accent_color || '#00AA44'}"
 ></script>`;
 
   const copyEmbedCode = () => {
