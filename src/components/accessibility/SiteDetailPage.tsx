@@ -12,6 +12,7 @@ import { InstallSnippet } from './InstallSnippet';
 import { SiteIssuesList } from './SiteIssuesList';
 import { SiteSettingsPanel } from './SiteSettingsPanel';
 import { SiteStatementPanel } from './SiteStatementPanel';
+import { SiteFeedbackPanel } from './SiteFeedbackPanel';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -76,6 +77,7 @@ export function SiteDetailPage({ organizationId }: Props) {
           <TabsTrigger value="issues">Issues {issues.length > 0 && <Badge variant="secondary" className="ml-2">{issues.length}</Badge>}</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="statement">Statement</TabsTrigger>
+          <TabsTrigger value="feedback">Feedback</TabsTrigger>
           <TabsTrigger value="install">Install</TabsTrigger>
         </TabsList>
 
@@ -154,6 +156,10 @@ export function SiteDetailPage({ organizationId }: Props) {
 
         <TabsContent value="statement" className="mt-4">
           <SiteStatementPanel siteId={site.id} domain={site.domain} businessName={site.business_name} />
+        </TabsContent>
+
+        <TabsContent value="feedback" className="mt-4">
+          <SiteFeedbackPanel siteId={site.id} />
         </TabsContent>
 
         <TabsContent value="install" className="space-y-4 mt-4">
