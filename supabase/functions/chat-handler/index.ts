@@ -149,7 +149,9 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({
             error: 'cap_reached',
-            message: `This chatbot has reached its monthly message limit (${cap}). Please contact the site owner to upgrade.`,
+            message: cap === 0
+              ? `AI chat is not included in the ${tier} plan. Please upgrade to Starter or higher to enable this chatbot.`
+              : `This chatbot has reached its monthly message limit (${used}/${cap} on the ${tier} plan). Please upgrade or contact the site owner.`,
             tier,
             cap,
             used,
