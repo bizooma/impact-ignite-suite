@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCrmGrants, GRANT_STAGES, type CrmGrant, type GrantStage } from '@/hooks/useCrmGrants';
 import { useCrm } from '@/hooks/useCrm';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Props {
   open: boolean;
@@ -16,9 +18,27 @@ interface Props {
   defaultStage?: GrantStage;
 }
 
+// Grant amounts are optional but, when present, must be non-negative and finite.
+const grantAmountSchema = z
+  .number({ message: 'Amount must be a number' })
+  .finite('Amount must be a valid number')
+  .gte(0, 'Amount cannot be negative')
+  .max(1_000_000_000, 'Amount is unrealistically large');
+
+const parseOptionalAmount = (raw: unknown): { ok: true; value: number | null } | { ok: false; message: string } => {
+  if (raw === null || raw === undefined || raw === '') return { ok: true, value: null };
+  const n = typeof raw === 'number' ? raw : Number(raw);
+  const result = grantAmountSchema.safeParse(n);
+  if (!result.success) {
+    return { ok: false, message: result.error.issues[0]?.message ?? 'Invalid amount' };
+  }
+  return { ok: true, value: result.data };
+};
+
 export function GrantFormDialog({ open, onClose, organizationId, grant, defaultStage }: Props) {
   const { createGrant, updateGrant } = useCrmGrants(organizationId);
   const { contacts } = useCrm(organizationId);
+  const { toast } = useToast();
   const [form, setForm] = useState<Partial<CrmGrant>>({});
 
   useEffect(() => {
@@ -31,10 +51,22 @@ export function GrantFormDialog({ open, onClose, organizationId, grant, defaultS
 
   const handleSubmit = async () => {
     if (!form.foundation_name || !form.grant_name) return;
+
+    const requested = parseOptionalAmount(form.amount_requested);
+    if (!requested.ok) {
+      toast({ title: 'Invalid amount requested', description: requested.message, variant: 'destructive' });
+      return;
+    }
+    const awarded = parseOptionalAmount(form.amount_awarded);
+    if (!awarded.ok) {
+      toast({ title: 'Invalid amount awarded', description: awarded.message, variant: 'destructive' });
+      return;
+    }
+
     const payload = {
       ...form,
-      amount_requested: form.amount_requested ? Number(form.amount_requested) : null,
-      amount_awarded: form.amount_awarded ? Number(form.amount_awarded) : null,
+      amount_requested: requested.value,
+      amount_awarded: awarded.value,
       contact_id: form.contact_id || null,
       deadline: form.deadline || null,
       submitted_date: form.submitted_date || null,
