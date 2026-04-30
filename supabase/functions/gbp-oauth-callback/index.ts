@@ -5,6 +5,33 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helpers to read/write GBP secrets via Supabase Vault.
+// Sensitive fields (client_secret, access_token, refresh_token) are stored
+// as a JSON blob in vault.secrets. Non-sensitive metadata (client_id,
+// expires_at, scopes, etc.) remains in integrations.encrypted_tokens.
+async function readVaultSecrets(client: any, orgId: string) {
+  const { data, error } = await client.rpc('get_integration_vault_secret_internal', {
+    _org_id: orgId,
+    _provider: 'google_business',
+  });
+  if (error) throw error;
+  if (!data) return {};
+  try {
+    return JSON.parse(data as string);
+  } catch {
+    return {};
+  }
+}
+
+async function writeVaultSecrets(client: any, orgId: string, secrets: Record<string, unknown>) {
+  const { error } = await client.rpc('set_integration_vault_secret', {
+    _org_id: orgId,
+    _provider: 'google_business',
+    _secret: JSON.stringify(secrets),
+  });
+  if (error) throw error;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -35,9 +62,14 @@ Deno.serve(async (req) => {
       throw new Error('Integration not found');
     }
 
-    const tokens = integration.encrypted_tokens as any;
-    const clientId = tokens.client_id;
-    const clientSecret = tokens.client_secret;
+    const meta = (integration.encrypted_tokens || {}) as any;
+    const vaultSecrets = await readVaultSecrets(supabaseClient, integration.organization_id);
+    const clientId = meta.client_id;
+    const clientSecret = vaultSecrets.client_secret;
+
+    if (!clientId || !clientSecret) {
+      throw new Error('OAuth client credentials not configured');
+    }
 
     // Exchange code for access token
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -62,14 +94,18 @@ Deno.serve(async (req) => {
 
     const tokenData = await tokenResponse.json();
 
-    // Update integration with tokens
+    // Persist new tokens to vault, keep only non-sensitive metadata in JSON column
+    await writeVaultSecrets(supabaseClient, integration.organization_id, {
+      client_secret: clientSecret,
+      access_token: tokenData.access_token,
+      refresh_token: tokenData.refresh_token,
+    });
+
     const { error: updateError } = await supabaseClient
       .from('integrations')
       .update({
         encrypted_tokens: {
-          ...tokens,
-          access_token: tokenData.access_token,
-          refresh_token: tokenData.refresh_token,
+          client_id: clientId,
           expires_at: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
         },
         status: 'active',
