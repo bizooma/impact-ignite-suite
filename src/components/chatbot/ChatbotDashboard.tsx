@@ -19,9 +19,27 @@ interface ChatbotDashboardProps {
 
 export default function ChatbotDashboard({ organizationId }: ChatbotDashboardProps) {
   const [showBuilder, setShowBuilder] = useState(false);
+  const [editChatbotId, setEditChatbotId] = useState<string | null>(null);
   const [selectedChatbot, setSelectedChatbot] = useState<string | null>(null);
   const { chatbots, loading } = useChatbots(organizationId);
   const { canCreate, limits, counts, tier } = useTierLimits(organizationId);
+
+  const chatbotIds = chatbots.map((c) => c.id);
+  const { data: totalConversations } = useQuery({
+    queryKey: ['org-total-conversations', organizationId, chatbotIds.join(',')],
+    enabled: chatbotIds.length > 0,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('chat_sessions')
+        .select('*', { count: 'exact', head: true })
+        .in('chatbot_id', chatbotIds);
+      if (error) {
+        console.error(error);
+        return 0;
+      }
+      return count || 0;
+    },
+  });
 
   if (loading) {
     return (
