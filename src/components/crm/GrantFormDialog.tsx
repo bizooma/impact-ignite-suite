@@ -25,7 +25,8 @@ const grantAmountSchema = z
   .gte(0, 'Amount cannot be negative')
   .max(1_000_000_000, 'Amount is unrealistically large');
 
-const parseOptionalAmount = (raw: unknown): { ok: true; value: number | null } | { ok: false; message: string } => {
+type AmountResult = { ok: true; value: number | null } | { ok: false; message: string };
+const parseOptionalAmount = (raw: unknown): AmountResult => {
   if (raw === null || raw === undefined || raw === '') return { ok: true, value: null };
   const n = typeof raw === 'number' ? raw : Number(raw);
   const result = grantAmountSchema.safeParse(n);
