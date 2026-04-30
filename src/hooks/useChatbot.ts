@@ -180,6 +180,7 @@ export function useChatbot(chatbotId: string) {
   const startNewSession = () => {
     setMessages([]);
     setSessionId(null);
+    writePersistedSession(chatbotId, null);
   };
 
   return {
