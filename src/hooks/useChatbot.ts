@@ -171,6 +171,7 @@ export function useChatbot(chatbotId: string) {
         created_at: msg.created_at
       })));
       setSessionId(sessionId);
+      writePersistedSession(chatbotId, sessionId);
     } catch (error) {
       console.error('Error loading chat history:', error);
     }
