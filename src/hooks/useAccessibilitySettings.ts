@@ -7,14 +7,34 @@ export type WidgetPosition = 'left' | 'center' | 'right';
 export interface AccessibilitySettings {
   id: string;
   site_id: string;
+  // core toggles
   high_contrast: boolean;
   font_scaling: boolean;
   reduced_motion: boolean;
   spacing: boolean;
   highlight_links: boolean;
+  // expanded toggles
+  dyslexia_font: boolean;
+  letter_spacing: boolean;
+  line_height: boolean;
+  font_weight_adj: boolean;
+  saturation_adj: boolean;
+  monochrome: boolean;
+  color_pickers: boolean;
+  reading_mask: boolean;
+  reading_guide: boolean;
+  big_cursor: boolean;
+  stop_animations: boolean;
+  page_structure: boolean;
+  profiles_enabled: boolean;
+  language_selector: boolean;
+  report_issue: boolean;
+  oversize_widget: boolean;
+  // meta
   widget_active: boolean;
   widget_position: WidgetPosition;
   statement_text: string | null;
+  statement_url: string | null;
   updated_at: string;
 }
 

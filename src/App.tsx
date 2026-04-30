@@ -48,6 +48,7 @@ import Support from "./pages/Support";
 import Unsubscribe from "./pages/Unsubscribe";
 import { AccessibilityDashboard } from "./components/accessibility/AccessibilityDashboard";
 import { SiteDetailPage } from "./components/accessibility/SiteDetailPage";
+import AccessibilityStatement from "./pages/AccessibilityStatement";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => (
                 <Route path="/resources/google-ad-grants" element={<GoogleAdGrants />} />
                 <Route path="/resources/microsoft-grants" element={<MicrosoftGrants />} />
                 <Route path="/unsubscribe" element={<Unsubscribe />} />
+                <Route path="/a11y/:siteId/statement" element={<AccessibilityStatement />} />
                 
                 {/* Admin route with sidebar */}
                 <Route path="/admin" element={

@@ -38,19 +38,40 @@ serve(async (req) => {
 
     const { data: settings } = await admin
       .from('accessibility_settings')
-      .select('high_contrast, font_scaling, reduced_motion, spacing, highlight_links, widget_active, widget_position')
+      .select('*')
       .eq('site_id', site.id)
       .maybeSingle();
+
+    const origin = new URL(req.url).origin.replace('.supabase.co', '.lovable.app');
+    const defaultStatementUrl = `https://impact-ignite-suite.lovable.app/a11y/${siteId}/statement`;
+    const statementUrl = settings?.statement_url || defaultStatementUrl;
 
     return new Response(JSON.stringify({
       active: settings?.widget_active ?? true,
       position: settings?.widget_position ?? 'right',
+      statementUrl,
       features: {
         high_contrast: settings?.high_contrast ?? true,
         font_scaling: settings?.font_scaling ?? true,
         reduced_motion: settings?.reduced_motion ?? true,
         spacing: settings?.spacing ?? true,
         highlight_links: settings?.highlight_links ?? true,
+        dyslexia_font: settings?.dyslexia_font ?? true,
+        letter_spacing: settings?.letter_spacing ?? true,
+        line_height: settings?.line_height ?? true,
+        font_weight_adj: settings?.font_weight_adj ?? true,
+        saturation_adj: settings?.saturation_adj ?? true,
+        monochrome: settings?.monochrome ?? true,
+        color_pickers: settings?.color_pickers ?? true,
+        reading_mask: settings?.reading_mask ?? true,
+        reading_guide: settings?.reading_guide ?? true,
+        big_cursor: settings?.big_cursor ?? true,
+        stop_animations: settings?.stop_animations ?? true,
+        page_structure: settings?.page_structure ?? true,
+        profiles_enabled: settings?.profiles_enabled ?? true,
+        language_selector: settings?.language_selector ?? true,
+        report_issue: settings?.report_issue ?? true,
+        oversize_widget: settings?.oversize_widget ?? true,
       },
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },

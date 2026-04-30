@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      accessibility_feedback: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          message: string
+          name: string | null
+          page_url: string | null
+          site_id: string
+          status: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          message: string
+          name?: string | null
+          page_url?: string | null
+          site_id: string
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string
+          name?: string | null
+          page_url?: string | null
+          site_id?: string
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       accessibility_issues: {
         Row: {
           category: Database["public"]["Enums"]["accessibility_issue_category"]
@@ -98,40 +137,91 @@ export type Database = {
       }
       accessibility_settings: {
         Row: {
+          big_cursor: boolean
+          color_pickers: boolean
+          dyslexia_font: boolean
           font_scaling: boolean
+          font_weight_adj: boolean
           high_contrast: boolean
           highlight_links: boolean
           id: string
+          language_selector: boolean
+          letter_spacing: boolean
+          line_height: boolean
+          monochrome: boolean
+          oversize_widget: boolean
+          page_structure: boolean
+          profiles_enabled: boolean
+          reading_guide: boolean
+          reading_mask: boolean
           reduced_motion: boolean
+          report_issue: boolean
+          saturation_adj: boolean
           site_id: string
           spacing: boolean
           statement_text: string | null
+          statement_url: string | null
+          stop_animations: boolean
           updated_at: string
           widget_active: boolean
           widget_position: string
         }
         Insert: {
+          big_cursor?: boolean
+          color_pickers?: boolean
+          dyslexia_font?: boolean
           font_scaling?: boolean
+          font_weight_adj?: boolean
           high_contrast?: boolean
           highlight_links?: boolean
           id?: string
+          language_selector?: boolean
+          letter_spacing?: boolean
+          line_height?: boolean
+          monochrome?: boolean
+          oversize_widget?: boolean
+          page_structure?: boolean
+          profiles_enabled?: boolean
+          reading_guide?: boolean
+          reading_mask?: boolean
           reduced_motion?: boolean
+          report_issue?: boolean
+          saturation_adj?: boolean
           site_id: string
           spacing?: boolean
           statement_text?: string | null
+          statement_url?: string | null
+          stop_animations?: boolean
           updated_at?: string
           widget_active?: boolean
           widget_position?: string
         }
         Update: {
+          big_cursor?: boolean
+          color_pickers?: boolean
+          dyslexia_font?: boolean
           font_scaling?: boolean
+          font_weight_adj?: boolean
           high_contrast?: boolean
           highlight_links?: boolean
           id?: string
+          language_selector?: boolean
+          letter_spacing?: boolean
+          line_height?: boolean
+          monochrome?: boolean
+          oversize_widget?: boolean
+          page_structure?: boolean
+          profiles_enabled?: boolean
+          reading_guide?: boolean
+          reading_mask?: boolean
           reduced_motion?: boolean
+          report_issue?: boolean
+          saturation_adj?: boolean
           site_id?: string
           spacing?: boolean
           statement_text?: string | null
+          statement_url?: string | null
+          stop_animations?: boolean
           updated_at?: string
           widget_active?: boolean
           widget_position?: string
