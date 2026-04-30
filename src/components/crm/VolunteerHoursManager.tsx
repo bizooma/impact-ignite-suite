@@ -84,14 +84,18 @@ export function VolunteerHoursManager({ organizationId }: Props) {
                       {h.approved ? <Badge>Approved</Badge> : <Badge variant="secondary">Pending</Badge>}
                     </TableCell>
                     <TableCell className="text-right">
-                      {h.approved ? (
-                        <Button size="sm" variant="ghost" onClick={() => setApproval.mutate({ id: h.id, approved: false })}>
-                          <X className="h-4 w-4" />
-                        </Button>
+                      {isAdminOrOwner ? (
+                        h.approved ? (
+                          <Button size="sm" variant="ghost" onClick={() => setApproval.mutate({ id: h.id, approved: false })}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="ghost" onClick={() => setApproval.mutate({ id: h.id, approved: true })}>
+                            <Check className="h-4 w-4" />
+                          </Button>
+                        )
                       ) : (
-                        <Button size="sm" variant="ghost" onClick={() => setApproval.mutate({ id: h.id, approved: true })}>
-                          <Check className="h-4 w-4" />
-                        </Button>
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </TableCell>
                   </TableRow>
