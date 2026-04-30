@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useSocialPosts } from '@/hooks/useSocialPosts';
-import { Calendar, Share2, Users, TrendingUp, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Calendar, Share2, Users, TrendingUp, Facebook, Linkedin } from 'lucide-react';
 import { toast } from 'sonner';
 import { PostComposer } from './PostComposer';
 import { CampaignManager } from './CampaignManager';
