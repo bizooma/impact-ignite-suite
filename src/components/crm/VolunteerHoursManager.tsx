@@ -15,6 +15,7 @@ interface Props { organizationId: string; }
 export function VolunteerHoursManager({ organizationId }: Props) {
   const { hours, isLoading, setApproval } = useCrmVolunteerHours(organizationId);
   const { contacts } = useCrm(organizationId);
+  const { isAdminOrOwner } = useOrgRole(organizationId);
   const [showForm, setShowForm] = useState(false);
 
   const contactMap = useMemo(() => {
