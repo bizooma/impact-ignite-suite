@@ -73,7 +73,15 @@ export function useCrmVolunteerHours(organizationId: string, contactId?: string)
       qc.invalidateQueries({ queryKey: ['crm-volunteer-hours', organizationId] });
       toast.success('Updated');
     },
-    onError: (e: any) => toast.error(`Failed: ${e.message}`),
+    onError: (e: any) => {
+      const msg = String(e?.message || '');
+      // RLS denial surfaces as a permission/policy error from PostgREST
+      if (/row-level security|permission denied|not.{0,5}authoriz/i.test(msg)) {
+        toast.error("You don't have permission to approve volunteer hours. Ask an admin or owner.");
+      } else {
+        toast.error(`Failed: ${msg}`);
+      }
+    },
   });
 
   return { hours, isLoading, createHours, setApproval };
