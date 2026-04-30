@@ -136,7 +136,6 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
     switch (platform) {
       case 'facebook': return <Facebook className="h-4 w-4" />;
       case 'linkedin': return <Linkedin className="h-4 w-4" />;
-      case 'twitter': return <Twitter className="h-4 w-4" />;
       default: return <Share2 className="h-4 w-4" />;
     }
   };
