@@ -102,11 +102,11 @@ export function GrantFormDialog({ open, onClose, organizationId, grant, defaultS
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Amount requested</Label>
-              <Input type="number" value={form.amount_requested ?? ''} onChange={(e) => set('amount_requested', e.target.value)} />
+              <Input type="number" min="0" step="0.01" value={form.amount_requested ?? ''} onChange={(e) => set('amount_requested', e.target.value)} />
             </div>
             <div>
               <Label>Amount awarded</Label>
-              <Input type="number" value={form.amount_awarded ?? ''} onChange={(e) => set('amount_awarded', e.target.value)} />
+              <Input type="number" min="0" step="0.01" value={form.amount_awarded ?? ''} onChange={(e) => set('amount_awarded', e.target.value)} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
