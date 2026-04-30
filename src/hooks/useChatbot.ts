@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,11 +17,50 @@ interface ChatSession {
   created_at: string;
 }
 
+const sessionStorageKey = (chatbotId: string) => `chatbot:session:${chatbotId}`;
+
+const readPersistedSession = (chatbotId: string): string | null => {
+  if (typeof window === 'undefined' || !chatbotId) return null;
+  try {
+    return window.localStorage.getItem(sessionStorageKey(chatbotId));
+  } catch {
+    return null;
+  }
+};
+
+const writePersistedSession = (chatbotId: string, sessionId: string | null) => {
+  if (typeof window === 'undefined' || !chatbotId) return;
+  try {
+    if (sessionId) {
+      window.localStorage.setItem(sessionStorageKey(chatbotId), sessionId);
+    } else {
+      window.localStorage.removeItem(sessionStorageKey(chatbotId));
+    }
+  } catch {
+    /* storage unavailable (private mode, quota) — ignore */
+  }
+};
+
 export function useChatbot(chatbotId: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  // Lazy initializer reads localStorage so the session survives navigation/reload.
+  const [sessionId, setSessionId] = useState<string | null>(() => readPersistedSession(chatbotId));
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // If chatbotId changes (different bot mounted), swap to its persisted session.
+  useEffect(() => {
+    setSessionId(readPersistedSession(chatbotId));
+    setMessages([]);
+  }, [chatbotId]);
+
+  // Auto-load history whenever we have a persisted session but no messages yet.
+  useEffect(() => {
+    if (sessionId && messages.length === 0) {
+      loadChatHistory(sessionId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
 
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;
@@ -84,9 +123,10 @@ export function useChatbot(chatbotId: string) {
         throw error || new Error('Chat failed');
       }
 
-      // Update session ID if new
+      // Update session ID if new — and persist so it survives navigation/reload.
       if (data.sessionId && !sessionId) {
         setSessionId(data.sessionId);
+        writePersistedSession(chatbotId, data.sessionId);
       }
 
       const assistantMessage: ChatMessage = {
@@ -131,6 +171,7 @@ export function useChatbot(chatbotId: string) {
         created_at: msg.created_at
       })));
       setSessionId(sessionId);
+      writePersistedSession(chatbotId, sessionId);
     } catch (error) {
       console.error('Error loading chat history:', error);
     }
@@ -139,6 +180,7 @@ export function useChatbot(chatbotId: string) {
   const startNewSession = () => {
     setMessages([]);
     setSessionId(null);
+    writePersistedSession(chatbotId, null);
   };
 
   return {
