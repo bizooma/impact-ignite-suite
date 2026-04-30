@@ -95,7 +95,7 @@ export function VolunteerHoursFormDialog({ open, onClose, organizationId, contac
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Hours</Label>
-              <Input type="number" step="0.25" min="0" value={hours} onChange={(e) => setHours(e.target.value)} required />
+              <Input type="number" step="0.25" min="0.25" max="24" value={hours} onChange={(e) => setHours(e.target.value)} required />
             </div>
             <div>
               <Label>Date</Label>
