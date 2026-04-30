@@ -20,7 +20,7 @@ interface Props {
 // Donations must be a positive monetary value. Cap at 10M to catch typos /
 // abuse before they reach analytics + donor segments.
 const donationAmountSchema = z
-  .number({ invalid_type_error: 'Amount must be a number' })
+  .number({ message: 'Amount must be a number' })
   .finite('Amount must be a valid number')
   .gt(0, 'Amount must be greater than zero')
   .max(10_000_000, 'Amount is unrealistically large');
