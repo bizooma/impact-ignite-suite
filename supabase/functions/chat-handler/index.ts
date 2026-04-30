@@ -77,6 +77,33 @@ serve(async (req) => {
     const orgId = chatbot.organization_id as string;
     const tier = (chatbot.organizations as any)?.subscription_tier ?? 'free';
 
+    // ---- Platform-admin org bypass ----
+    // If any member of the org is a platform admin, skip cap enforcement entirely.
+    // Mirrors frontend `usePlatformAdmin` semantics so internal/admin orgs are uncapped.
+    let isPlatformOrg = false;
+    try {
+      const { data: adminMembers } = await supabase
+        .from('memberships')
+        .select('user_id, profiles:user_id(is_platform_admin)')
+        .eq('organization_id', orgId);
+      if (adminMembers?.some((m: any) => m.profiles?.is_platform_admin === true)) {
+        isPlatformOrg = true;
+      } else {
+        // Fallback: check platform_roles table directly
+        const userIds = (adminMembers ?? []).map((m: any) => m.user_id);
+        if (userIds.length > 0) {
+          const { data: roles } = await supabase
+            .from('platform_roles')
+            .select('user_id')
+            .eq('role', 'platform_admin')
+            .in('user_id', userIds);
+          if ((roles?.length ?? 0) > 0) isPlatformOrg = true;
+        }
+      }
+    } catch (err) {
+      console.warn('Platform-admin bypass check failed, continuing with normal cap logic:', err);
+    }
+
     // ---- BYO key lookup (secret stored in Supabase Vault) ----
     const { data: openaiIntegration } = await supabase
       .from('integrations')
