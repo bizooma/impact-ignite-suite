@@ -155,23 +155,25 @@ export const useIntegrations = (organizationId: string) => {
       const existing = integrations.find(i => i.id === id);
 
       // Best-effort cleanup of any vault-stored secrets for this provider/org.
-      // For Facebook the vault holds a per-page-id map shared across all
-      // Page integrations of the org, so we strip just this Page and only
-      // delete the whole secret when no other rows remain.
-      if (existing?.provider === 'facebook') {
+      // For Facebook and LinkedIn the vault holds a per-page-id map shared
+      // across all Page integrations of the org, so we strip just this Page
+      // and only delete the whole secret when no other rows remain.
+      const PER_PAGE_PROVIDERS = ['facebook', 'linkedin'];
+      if (existing?.provider && PER_PAGE_PROVIDERS.includes(existing.provider)) {
+        const provider = existing.provider;
         const pageId = (existing.config as any)?.page_id as string | undefined;
-        const otherFbRows = integrations.filter(
-          i => i.id !== id && i.provider === 'facebook'
+        const otherRows = integrations.filter(
+          i => i.id !== id && i.provider === provider
         );
-        if (otherFbRows.length === 0) {
+        if (otherRows.length === 0) {
           await supabase.rpc('delete_integration_vault_secret', {
             _org_id: existing.organization_id,
-            _provider: 'facebook',
+            _provider: provider,
           });
         } else if (pageId) {
           const { data: vaultJson } = await supabase.rpc(
             'get_integration_vault_secret',
-            { _org_id: existing.organization_id, _provider: 'facebook' }
+            { _org_id: existing.organization_id, _provider: provider }
           );
           let map: Record<string, unknown> = {};
           try { map = vaultJson ? JSON.parse(vaultJson as string) : {}; } catch {}
@@ -179,7 +181,7 @@ export const useIntegrations = (organizationId: string) => {
             delete map[pageId];
             await supabase.rpc('set_integration_vault_secret', {
               _org_id: existing.organization_id,
-              _provider: 'facebook',
+              _provider: provider,
               _secret: JSON.stringify(map),
             });
           }
