@@ -235,7 +235,21 @@ serve(async (req) => {
       );
     }
 
-    // 4. Upsert one integration row per Page
+    // 4. Read existing LinkedIn vault secret (per-page map) so we can merge new tokens
+    let vaultMap: Record<string, { access_token: string; token_expires_at: string | null }> = {};
+    try {
+      const { data: existingVault } = await supabase.rpc(
+        "get_integration_vault_secret_internal",
+        { _org_id: orgId, _provider: "linkedin" },
+      );
+      if (existingVault) {
+        try { vaultMap = JSON.parse(existingVault as string) || {}; } catch { vaultMap = {}; }
+      }
+    } catch (e) {
+      console.warn("[linkedin-oauth-callback] vault read failed (continuing)", e);
+    }
+
+    // 5. Upsert one integration row per Page (metadata only — secrets go to vault)
     let upserted = 0;
     for (const page of pages) {
       const config = {
@@ -251,7 +265,12 @@ serve(async (req) => {
         connected_user_name: personName,
         connected_at: new Date().toISOString(),
       };
-      const tokens = {
+      // Non-sensitive metadata only. The actual access_token lives in Supabase Vault.
+      const tokensMeta = {
+        token_expires_at: expiresAt,
+      };
+
+      vaultMap[page.org_id] = {
         access_token: accessToken,
         token_expires_at: expiresAt,
       };
@@ -270,7 +289,7 @@ serve(async (req) => {
           .update({
             status: "active",
             config,
-            encrypted_tokens: tokens,
+            encrypted_tokens: tokensMeta,
             last_synced_at: new Date().toISOString(),
             name: `LinkedIn — ${page.name}`,
           })
@@ -286,12 +305,28 @@ serve(async (req) => {
             name: `LinkedIn — ${page.name}`,
             status: "active",
             config,
-            encrypted_tokens: tokens,
+            encrypted_tokens: tokensMeta,
             last_synced_at: new Date().toISOString(),
           });
         if (insErr) console.error("[linkedin-oauth-callback] insert error", insErr);
         else upserted++;
       }
+    }
+
+    // 6. Persist the merged token map to the Vault (single secret per org/provider)
+    try {
+      const { error: vaultErr } = await supabase.rpc("set_integration_vault_secret", {
+        _org_id: orgId,
+        _provider: "linkedin",
+        _secret: JSON.stringify(vaultMap),
+      });
+      if (vaultErr) {
+        console.error("[linkedin-oauth-callback] vault write failed", vaultErr);
+        return errorRedirect("Connected to LinkedIn but failed to securely store credentials. Please try again.");
+      }
+    } catch (e) {
+      console.error("[linkedin-oauth-callback] vault write threw", e);
+      return errorRedirect("Connected to LinkedIn but failed to securely store credentials. Please try again.");
     }
 
     if (upserted === 0) {
