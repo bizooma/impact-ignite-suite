@@ -52,15 +52,23 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
     setMounted(true);
   }, []);
 
+  // Wrap onTrackEvent to always include the current sessionId for correlation
+  const trackEvent = React.useCallback(
+    (eventType: string, eventData?: any) => {
+      onTrackEvent(eventType, { ...(eventData || {}), sessionId: sessionId || null });
+    },
+    [onTrackEvent, sessionId],
+  );
+
   useEffect(() => {
     if (isOpen) {
-      onTrackEvent('chat_opened');
+      trackEvent('chat_opened');
       // Auto-focus input when opened
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
-      onTrackEvent('chat_closed');
+      trackEvent('chat_closed');
     }
-  }, [isOpen, onTrackEvent]);
+  }, [isOpen, trackEvent]);
 
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
@@ -86,12 +94,12 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
 
   const handleVolunteerClick = () => {
     setShowVolunteerDialog(true);
-    onTrackEvent('volunteer_opened');
+    trackEvent('volunteer_opened');
   };
 
   const handleFaqClick = () => {
     setShowFaqDialog(true);
-    onTrackEvent('faq_opened');
+    trackEvent('faq_opened');
   };
 
   if (!mounted || !isOpen) return null;
