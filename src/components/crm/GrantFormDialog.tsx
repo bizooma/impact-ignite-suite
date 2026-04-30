@@ -53,12 +53,12 @@ export function GrantFormDialog({ open, onClose, organizationId, grant, defaultS
   const handleSubmit = async () => {
     if (!form.foundation_name || !form.grant_name) return;
 
-    const requested = parseOptionalAmount(form.amount_requested);
+    const requested: AmountResult = parseOptionalAmount(form.amount_requested);
     if (!requested.ok) {
       toast({ title: 'Invalid amount requested', description: requested.message, variant: 'destructive' });
       return;
     }
-    const awarded = parseOptionalAmount(form.amount_awarded);
+    const awarded: AmountResult = parseOptionalAmount(form.amount_awarded);
     if (!awarded.ok) {
       toast({ title: 'Invalid amount awarded', description: awarded.message, variant: 'destructive' });
       return;
