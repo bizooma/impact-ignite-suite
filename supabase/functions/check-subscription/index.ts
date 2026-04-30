@@ -36,6 +36,13 @@ const TIER_BUNDLES: Record<string, string[]> = {
   ],
 };
 
+// Every product that appears in ANY tier bundle. Anything in an org's
+// `purchased_products` that is NOT in this set is treated as a manual
+// platform-admin grant and preserved across subscription syncs.
+const MANAGED_PRODUCTS: Set<string> = new Set(
+  Object.values(TIER_BUNDLES).flat()
+);
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -102,8 +109,9 @@ serve(async (req) => {
     }
 
     // Sync tier + product bundle to all orgs the user owns.
-    // NOTE: this OVERWRITES purchased_products with the tier bundle. Manual
-    // platform-admin overrides will be reset. Adjust the user's tier instead.
+    // We MERGE the tier bundle with any manually-granted products (anything in
+    // `purchased_products` that isn't part of any known tier bundle) so platform-admin
+    // overrides survive subscription sync.
     const { data: ownerOrgs, error: orgErr } = await supabaseAdmin
       .from('memberships')
       .select('organization_id')
@@ -115,14 +123,38 @@ serve(async (req) => {
     } else if (ownerOrgs && ownerOrgs.length > 0) {
       const bundle = TIER_BUNDLES[tier] || TIER_BUNDLES.free;
       const orgIds = ownerOrgs.map((m: any) => m.organization_id);
-      const { error: updateErr } = await supabaseAdmin
+
+      // Read current purchased_products so we can preserve manual grants per-org.
+      const { data: existingOrgs, error: fetchErr } = await supabaseAdmin
         .from('organizations')
-        .update({ subscription_tier: tier, purchased_products: bundle })
+        .select('id, purchased_products')
         .in('id', orgIds);
-      if (updateErr) {
-        logStep("Error updating orgs (non-fatal)", { error: updateErr.message });
+
+      if (fetchErr) {
+        logStep("Error fetching existing orgs (non-fatal)", { error: fetchErr.message });
       } else {
-        logStep("Synced tier + bundle to orgs", { orgIds, tier, bundle });
+        // Update each org with: tier bundle ∪ (existing products that are NOT
+        // part of any tier bundle, i.e. manual grants).
+        for (const org of existingOrgs ?? []) {
+          const existing: string[] = Array.isArray(org.purchased_products)
+            ? (org.purchased_products as string[])
+            : [];
+          const manualGrants = existing.filter((p) => !MANAGED_PRODUCTS.has(p));
+          const merged = Array.from(new Set([...bundle, ...manualGrants]));
+
+          const { error: updateErr } = await supabaseAdmin
+            .from('organizations')
+            .update({ subscription_tier: tier, purchased_products: merged })
+            .eq('id', org.id);
+
+          if (updateErr) {
+            logStep("Error updating org (non-fatal)", { orgId: org.id, error: updateErr.message });
+          } else {
+            logStep("Synced tier + merged bundle to org", {
+              orgId: org.id, tier, bundle, manualGrants, merged,
+            });
+          }
+        }
       }
     }
 
