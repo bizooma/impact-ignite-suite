@@ -22,11 +22,18 @@ serve(async (req) => {
       }
     );
 
+    // Service client (bypasses RLS) — only used for the Vault secret lookup,
+    // which is gated by a SECURITY DEFINER RPC granted to service_role only.
+    const supabaseService = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
     const { mapping_id } = await req.json();
 
     console.log('Starting Mailchimp sync for mapping:', mapping_id);
 
-    // Get mapping details
+    // Get mapping details (RLS-checked via the user's client)
     const { data: mapping, error: mappingError } = await supabaseClient
       .from('crm_mailchimp_mappings')
       .select('*, crm_lists(*)')
@@ -37,10 +44,10 @@ serve(async (req) => {
       throw new Error('Mapping not found');
     }
 
-    // Get integration details
+    // Get integration row to confirm it's active
     const { data: integration, error: integrationError } = await supabaseClient
       .from('integrations')
-      .select('*')
+      .select('id, status, vault_secret_id')
       .eq('organization_id', mapping.organization_id)
       .eq('provider', 'mailchimp')
       .eq('status', 'active')
@@ -50,7 +57,16 @@ serve(async (req) => {
       throw new Error('Mailchimp integration not found or inactive');
     }
 
-    const apiKey = integration.encrypted_tokens?.api_key;
+    // Pull the API key from Vault
+    const { data: secret, error: secretErr } = await supabaseService.rpc(
+      'get_integration_vault_secret_internal',
+      { _org_id: mapping.organization_id, _provider: 'mailchimp' },
+    );
+    if (secretErr) {
+      console.error('vault read failed:', secretErr);
+      throw new Error('Failed to read Mailchimp credentials');
+    }
+    const apiKey = (secret as string | null) ?? null;
     if (!apiKey) {
       throw new Error('Mailchimp API key not found');
     }
