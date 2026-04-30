@@ -151,6 +151,20 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
         {/* Messages Area */}
         <ScrollArea ref={scrollRef} className="flex-1 p-4">
           <div className="space-y-4">
+            {showWelcome && (
+              <div className="flex gap-3 justify-start">
+                <Avatar className="w-8 h-8 flex-shrink-0">
+                  <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                  <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
+                </Avatar>
+                <div className="max-w-[80%]">
+                  <p className="text-xs text-muted-foreground mb-1">{config.bot_name || 'Assistant'}</p>
+                  <div className="rounded-lg p-3 bg-muted text-foreground">
+                    <p className="text-sm whitespace-pre-wrap">{welcomeMessage}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -227,7 +241,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
           brandColors={brandColors}
           onVolunteerClick={handleVolunteerClick}
           onFaqClick={handleFaqClick}
-          onTrackEvent={onTrackEvent}
+          onTrackEvent={trackEvent}
         />
       </div>
 
@@ -236,7 +250,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
         isOpen={showVolunteerDialog}
         onClose={() => setShowVolunteerDialog(false)}
         chatbotId={chatbot.id}
-        onTrackEvent={onTrackEvent}
+        onTrackEvent={trackEvent}
       />
 
       {/* FAQ Dialog */}
@@ -244,7 +258,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
         isOpen={showFaqDialog}
         onClose={() => setShowFaqDialog(false)}
         chatbotId={chatbot.id}
-        onTrackEvent={onTrackEvent}
+        onTrackEvent={trackEvent}
       />
     </div>
   );
