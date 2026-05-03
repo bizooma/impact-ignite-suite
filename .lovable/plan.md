@@ -1,32 +1,42 @@
 ## Goal
 
-Weave the meaning of the tagline **"Where Purpose Meets Performance"** into the existing **Our Story** section on the landing page so it becomes a natural, canonical explanation visitors will see.
+Generate a single, copy-paste-ready prompt for **Manus.ai** that describes the Causeio accessibility widget in enough detail that Manus can produce a functionally equivalent **WordPress plugin**.
 
-## Where
+No code changes will be made to this project. The deliverable is a Markdown file the user can copy from.
 
-`src/pages/Landing.tsx`, lines ~334–346 — the "Our Story" / "Built by Bizooma Creative Agency" card.
+## What the prompt will include
 
-## Change
+Drawn from the actual implementation in this repo (`public/accessibility.js`, `supabase/functions/accessibility-widget-config`, `accessibility-feedback-submit`, `src/components/accessibility/SiteSettingsPanel.tsx`, `src/hooks/useAccessibilitySettings.ts`):
 
-Add a third paragraph (and a small visual emphasis) that ties the Bizooma origin story directly to the tagline, so the "why" of the platform is explicit on the page.
+1. **Product overview** — what the widget does and who it's for (WCAG 2.1 AA assistive overlay).
+2. **Full feature inventory**, grouped exactly like our settings panel:
+   - Profiles & Utilities (profiles, language translator, report-an-issue, oversize widget)
+   - Content adjustments (font scaling, highlight links, dyslexia font, letter spacing, line height, bolder text, reading spacing bundle)
+   - Color adjustments (contrast modes, saturation, monochrome)
+   - Orientation & navigation (reading mask, reading guide, big cursor, stop animations, reduced motion)
+3. **UX requirements** — floating launcher button, position (left/center/right), slide-out panel, persistent state per-site in `localStorage`, accessibility statement link, keyboard focus styles.
+4. **WordPress-specific requirements**:
+   - Plugin header, activation/deactivation hooks, uninstall cleanup
+   - Admin settings page under Settings → Accessibility (mirror of our `SiteSettingsPanel` toggles)
+   - Settings stored via WordPress Options API (no external backend required for MVP)
+   - Optional: REST endpoint for the "Report an issue" form, storing feedback in a custom DB table, plus admin inbox
+   - Frontend enqueue via `wp_enqueue_script` / `wp_enqueue_style`, loaded site-wide
+   - Shortcode `[causeio_a11y_statement]` and auto-generated statement page on activation
+   - i18n with `__()` / `_e()` and `.pot` file
+   - Gutenberg block (optional) for the statement
+   - No jQuery dependency — vanilla JS
+5. **Architecture & file layout** suggestion for the plugin (`/causeio-accessibility/causeio-accessibility.php`, `/admin/`, `/public/`, `/includes/`, `/languages/`, `/assets/`).
+6. **Acceptance criteria** — toggles persist, widget renders on every page, no JS errors, passes WP Plugin Check, works without conflicting with common themes.
+7. **Tone/branding note** — keep visual style close to our current widget (deep blue `#1e3a8a` accent, amber focus ring `#fbbf24`, rounded 12px panel) but allow admin to customize accent color.
 
-### Updated copy (proposed)
+## Deliverable
 
-Keep the existing two paragraphs intact, then add:
-
-> **Where Purpose Meets Performance.** That tagline isn't just words on our logo — it's the bridge between the two worlds we live in. **Purpose** is the mission driving every nonprofit we serve: the donors moved, the volunteers mobilized, the lives changed. **Performance** is the marketing horsepower we built for high-budget law firms — automation, AI, analytics, and reach. Causeio fuses them, so mission-driven teams never have to choose between doing good and doing it well.
-
-Styled as a short, slightly emphasized block (e.g. a left-bordered callout using `border-l-4 border-primary pl-4 italic` or a subtle muted card) so it visually anchors as the takeaway of the section.
-
-### Layout note
-
-The "Offices: Jacksonville, FL & Amarillo, TX" line stays at the bottom. The new paragraph goes between the existing second paragraph and the offices line.
+A single file: `/mnt/documents/manus-wordpress-plugin-prompt.md` containing the prompt, ready to paste into Manus.ai. After generating it, I'll surface it as a downloadable artifact.
 
 ## Out of scope
 
-- No changes to other sections, the hero, or the FAQ.
-- No new images or icons — purely typographic emphasis using existing tokens.
+- Actually building the WordPress plugin
+- Modifying any existing Causeio code
+- Migrating data from the SaaS widget to the plugin
 
-## Files touched
-
-- `src/pages/Landing.tsx` (single section edit)
+Approve and I'll generate the file.
