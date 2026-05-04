@@ -521,6 +521,7 @@ export function CampaignBriefWizard({ open, onOpenChange, organizationId }: Prop
             </Button>
           )}
         </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
