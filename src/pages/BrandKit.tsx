@@ -52,7 +52,14 @@ export default function BrandKit() {
       await upsert({ ...draft, organization_id: orgId });
       if (markComplete) {
         await markCompleted();
-        toast.success('Brand kit set up — every app now uses these styles');
+        toast.success('🎉 Brand Kit complete!', {
+          description: 'Your colors, fonts, logos, and voice are now applied across every app — chatbots, QR codes, campaigns, and more.',
+          duration: 8000,
+          action: {
+            label: 'Back to dashboard',
+            onClick: () => navigate('/dashboard'),
+          },
+        });
       } else {
         toast.success('Brand kit saved');
       }

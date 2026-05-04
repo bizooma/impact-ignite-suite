@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Palette, Upload, X } from 'lucide-react';
 import { useBrandKit } from '@/hooks/useBrandKit';
-import { useOnboardingState } from '@/hooks/useOnboardingState';
+import { useDismissedBanner } from '@/hooks/useDismissedBanner';
 
 interface BrandKitBannerProps {
   organizationId: string;
@@ -11,11 +11,11 @@ interface BrandKitBannerProps {
 
 export function BrandKitBanner({ organizationId }: BrandKitBannerProps) {
   const { brandKit, isLoading } = useBrandKit(organizationId);
-  const { state, dismissBanner } = useOnboardingState(organizationId);
+  const { dismissed, dismiss } = useDismissedBanner('brand_kit', organizationId);
 
   if (isLoading) return null;
   if (brandKit?.setup_completed_at) return null;
-  if (state?.dismissed_banners?.brand_kit) return null;
+  if (dismissed) return null;
 
   return (
     <Card className="border-primary/40 bg-gradient-to-r from-primary/10 to-accent/10 mb-6">
@@ -52,7 +52,7 @@ export function BrandKitBanner({ organizationId }: BrandKitBannerProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => dismissBanner('brand_kit')}
+              onClick={() => dismiss()}
               aria-label="Dismiss"
             >
               <X className="h-4 w-4" />
