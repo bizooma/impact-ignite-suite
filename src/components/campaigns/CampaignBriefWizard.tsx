@@ -212,25 +212,28 @@ export function CampaignBriefWizard({ open, onOpenChange, organizationId }: Prop
         created_by: user?.id,
       } as any);
 
-      await seedCampaignFromBrief({
-        campaignId: campaign.id,
-        organizationId,
-        campaignName: draft.name,
-        brief: {
-          objective: draft.objective,
-          tone: draft.tone,
-          key_message: draft.key_message,
-          call_to_action: draft.call_to_action,
-          landing_url: draft.landing_url,
-          channels: draft.channels,
-          event_date: draft.event_date,
-          start_date: draft.start_date,
-          end_date: draft.end_date,
-        },
-        createdBy: user?.id || null,
-      });
-
-      toast.success('Campaign created with timeline, content drafts, and tasks!');
+      if (!skipSeeding) {
+        await seedCampaignFromBrief({
+          campaignId: campaign.id,
+          organizationId,
+          campaignName: draft.name,
+          brief: {
+            objective: draft.objective,
+            tone: draft.tone,
+            key_message: draft.key_message,
+            call_to_action: draft.call_to_action,
+            landing_url: draft.landing_url,
+            channels: draft.channels,
+            event_date: draft.event_date,
+            start_date: draft.start_date,
+            end_date: draft.end_date,
+          },
+          createdBy: user?.id || null,
+        });
+        toast.success('Campaign created with timeline, content drafts, and tasks!');
+      } else {
+        toast.success('Campaign created. You can seed content later from the brief tab.');
+      }
       close();
       navigate(`/dashboard/campaigns/${campaign.id}`);
     } catch (e: any) {
