@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Database } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
+import { useMarketingCampaignsList } from '@/hooks/useMarketingCampaignsList';
 
 
 export type QrCodeRow = Database['public']['Tables']['qr_codes']['Row'];
@@ -21,6 +23,7 @@ interface QrSettingsDialogProps {
 
 export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClose, qrCode, organizationId, updateQrCode }) => {
   const { toast } = useToast();
+  const { data: marketingCampaigns } = useMarketingCampaignsList(organizationId);
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [active, setActive] = useState(true);
@@ -32,6 +35,7 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
   const [utmCampaign, setUtmCampaign] = useState('');
   const [utmTerm, setUtmTerm] = useState('');
   const [utmContent, setUtmContent] = useState('');
+  const [marketingCampaignId, setMarketingCampaignId] = useState<string>('none');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -49,6 +53,7 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
       setUtmCampaign(utm.utm_campaign || '');
       setUtmTerm(utm.utm_term || '');
       setUtmContent(utm.utm_content || '');
+      setMarketingCampaignId((qrCode as any).marketing_campaign_id || 'none');
     }
   }, [qrCode]);
 
@@ -68,6 +73,7 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
       is_active: active,
       brand_config: { primaryColor, backgroundColor, logoUrl } as any,
       utm_params: utm_params as any,
+      marketing_campaign_id: marketingCampaignId === 'none' ? null : marketingCampaignId,
     } as Partial<QrCodeRow>);
     setSaving(false);
     if (res) {
@@ -111,6 +117,23 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
                 <p className="text-xs text-muted-foreground">Disabled codes will not redirect when scanned.</p>
               </div>
               <Switch id="qr-active" checked={active} onCheckedChange={setActive} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="qr-campaign">Marketing campaign (optional)</Label>
+              <Select value={marketingCampaignId} onValueChange={setMarketingCampaignId}>
+                <SelectTrigger id="qr-campaign">
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {(marketingCampaigns || []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Attach this QR code to a campaign so its scans roll up into that campaign's analytics.
+              </p>
             </div>
           </TabsContent>
 
