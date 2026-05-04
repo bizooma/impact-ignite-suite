@@ -233,7 +233,7 @@ export function PdfImportDialog({ open, onOpenChange, organizationId, onApplied 
           {!extracted ? (
             <Button onClick={handleProcess} disabled={!file || processing}>
               {processing ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Analyzing PDF…</>
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {progressLabel || 'Analyzing PDF…'}</>
               ) : (
                 <><Sparkles className="h-4 w-4 mr-2" /> Extract brand</>
               )}
