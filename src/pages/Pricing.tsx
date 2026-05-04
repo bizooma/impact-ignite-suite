@@ -55,6 +55,7 @@ const tiers = {
       "20 Team Members",
       "AI Chatbots (1,000 conversations/month)",
       "Bring your own OpenAI key (unlimited messages)",
+      "Brand Kit + PDF import & AI extraction",
       "CRM (up to 1,000 contacts)",
       "10 Social Media Accounts",
       "Analytics",
