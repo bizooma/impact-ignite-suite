@@ -114,7 +114,7 @@ export default function CampaignDetail({ organizationId }: { organizationId: str
           <CampaignContentLibrary campaignId={campaign.id} />
         </TabsContent>
         <TabsContent value="audience" className="mt-4">
-          <CampaignAudienceSelector organizationId={organizationId} />
+          <CampaignAudienceSelector organizationId={organizationId} campaignId={campaign.id} />
         </TabsContent>
         <TabsContent value="analytics" className="mt-4">
           <CampaignAnalytics campaignId={campaign.id} organizationId={organizationId} />
