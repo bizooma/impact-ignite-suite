@@ -146,9 +146,71 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
           </TabsContent>
 
           <TabsContent value="design" className="space-y-4 pt-4">
-            <div className="grid grid-cols-2 gap-4">
+            {/* Brand Kit sync toggle */}
+            <div className="flex items-start justify-between gap-4 p-3 rounded-lg border bg-muted/30">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <Label htmlFor="qr-use-brand-kit" className="font-medium cursor-pointer">
+                    Sync with Brand Kit
+                  </Label>
+                  {useBrandKitSync && brandKit && (
+                    <Badge variant="secondary" className="text-xs">Active</Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {brandKit
+                    ? 'Foreground, background, and logo update automatically when your brand kit changes.'
+                    : 'No brand kit yet — set one up to share branding across all your apps.'}
+                </p>
+                {!brandKit && (
+                  <Link
+                    to="/dashboard/brand-kit"
+                    className="text-xs text-primary inline-flex items-center gap-1 hover:underline"
+                  >
+                    Set up Brand Kit <ExternalLink className="h-3 w-3" />
+                  </Link>
+                )}
+              </div>
+              <Switch
+                id="qr-use-brand-kit"
+                checked={useBrandKitSync && !!brandKit}
+                disabled={!brandKit}
+                onCheckedChange={setUseBrandKitSync}
+              />
+            </div>
+
+            {/* Live brand kit swatches */}
+            {useBrandKitSync && brandKit && (
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg border bg-background">
+                <span className="text-xs text-muted-foreground">From your Brand Kit:</span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-6 w-6 rounded border"
+                    style={{ backgroundColor: brandKit.primary_color || '#000000' }}
+                    title={`Foreground ${brandKit.primary_color || ''}`}
+                  />
+                  <div
+                    className="h-6 w-6 rounded border"
+                    style={{ backgroundColor: brandKit.background_color || '#FFFFFF' }}
+                    title={`Background ${brandKit.background_color || '#FFFFFF'}`}
+                  />
+                  {(brandKit.logo_mark_url || brandKit.logo_primary_url) && (
+                    <img
+                      src={brandKit.logo_mark_url || brandKit.logo_primary_url || ''}
+                      alt="Brand logo"
+                      className="h-6 w-auto max-w-[60px] object-contain"
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className={`grid grid-cols-2 gap-4 transition-opacity ${useBrandKitSync && brandKit ? 'opacity-50' : ''}`}>
               <div className="space-y-2">
-                <Label htmlFor="qr-color">Foreground Color</Label>
+                <Label htmlFor="qr-color">
+                  {useBrandKitSync && brandKit ? 'Foreground Color (override)' : 'Foreground Color'}
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     id="qr-color"
@@ -156,12 +218,19 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
                     className="h-10 w-16 p-1"
+                    disabled={useBrandKitSync && !!brandKit}
                   />
-                  <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
+                  <Input
+                    value={primaryColor}
+                    onChange={(e) => setPrimaryColor(e.target.value)}
+                    disabled={useBrandKitSync && !!brandKit}
+                  />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="qr-bg">Background Color</Label>
+                <Label htmlFor="qr-bg">
+                  {useBrandKitSync && brandKit ? 'Background Color (override)' : 'Background Color'}
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     id="qr-bg"
@@ -169,18 +238,26 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
                     value={backgroundColor}
                     onChange={(e) => setBackgroundColor(e.target.value)}
                     className="h-10 w-16 p-1"
+                    disabled={useBrandKitSync && !!brandKit}
                   />
-                  <Input value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} />
+                  <Input
+                    value={backgroundColor}
+                    onChange={(e) => setBackgroundColor(e.target.value)}
+                    disabled={useBrandKitSync && !!brandKit}
+                  />
                 </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="qr-logo">Logo URL (optional)</Label>
+            <div className={`space-y-2 transition-opacity ${useBrandKitSync && brandKit ? 'opacity-50' : ''}`}>
+              <Label htmlFor="qr-logo">
+                {useBrandKitSync && brandKit ? 'Logo URL (override)' : 'Logo URL (optional)'}
+              </Label>
               <Input
                 id="qr-logo"
                 value={logoUrl}
                 onChange={(e) => setLogoUrl(e.target.value)}
                 placeholder="https://.../logo.png"
+                disabled={useBrandKitSync && !!brandKit}
               />
             </div>
             <p className="text-xs text-muted-foreground">
