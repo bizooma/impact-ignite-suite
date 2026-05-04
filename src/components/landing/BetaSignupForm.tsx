@@ -160,7 +160,7 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
   return (
     <Card className={`w-full ${compact ? '' : 'max-w-2xl mx-auto'} border-2 border-primary/20 bg-card shadow-lg`}>
       <CardHeader className={`text-center ${compact ? 'pb-2 pt-6' : 'pb-4'}`}>
-        <CardTitle className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold`}>Early Adopters - Save Big!</CardTitle>
+        <CardTitle className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold`}>Early Adopters - Become our VIP</CardTitle>
         <CardDescription className={`${compact ? 'text-sm' : 'text-lg'} mt-1`}>
           Create your account and lock in{" "}
           <span className="text-primary font-semibold">lifetime pricing</span>
