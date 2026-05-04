@@ -32,8 +32,6 @@ export function ChatbotBuilder({ organizationId, initialChatbotId }: ChatbotBuil
     description: '',
     welcome_message: '',
     tone: '',
-    primary_color: '#0066CC',
-    accent_color: '#00AA44',
   });
 
   // Auto-select chatbot when initialChatbotId is provided and chatbots have loaded
@@ -50,10 +48,10 @@ export function ChatbotBuilder({ organizationId, initialChatbotId }: ChatbotBuil
       name: formData.name,
       description: formData.description,
       brand_settings: {
+        // New chatbots inherit colors/logo from the org's Brand Kit by default
+        use_brand_kit: true,
         welcome_message: formData.welcome_message,
         tone: formData.tone,
-        primary_color: formData.primary_color,
-        accent_color: formData.accent_color,
       },
       web_widget_config: {
         position: 'bottom-right',
@@ -71,8 +69,6 @@ export function ChatbotBuilder({ organizationId, initialChatbotId }: ChatbotBuil
         description: '',
         welcome_message: '',
         tone: '',
-        primary_color: '#0066CC',
-        accent_color: '#00AA44',
       });
     }
     setIsCreating(false);
