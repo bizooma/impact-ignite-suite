@@ -4,10 +4,14 @@ interface Props {
   raised: number;
   goal: number | null;
   currency?: string;
-  themeColor?: string;
+  /** Optional per-campaign override. When omitted, falls back to the org's brand primary color. */
+  themeColor?: string | null;
 }
 
-export function GoalThermometer({ raised, goal, currency = 'USD', themeColor = '#dc2626' }: Props) {
+export function GoalThermometer({ raised, goal, currency = 'USD', themeColor }: Props) {
+  // Default to the brand-kit primary color (set on :root by useBrandKit) so
+  // campaigns inherit the org's identity unless explicitly overridden.
+  const color = themeColor || 'var(--brand-primary)';
   const percent = goal ? Math.min(100, (raised / goal) * 100) : 0;
   const fmt = (n: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -16,7 +20,7 @@ export function GoalThermometer({ raised, goal, currency = 'USD', themeColor = '
     <Card className="p-6">
       <div className="flex items-baseline justify-between mb-3">
         <div>
-          <div className="text-3xl font-bold" style={{ color: themeColor }}>{fmt(raised)}</div>
+          <div className="text-3xl font-bold" style={{ color }}>{fmt(raised)}</div>
           <div className="text-sm text-muted-foreground">raised{goal ? ` of ${fmt(goal)}` : ''}</div>
         </div>
         <div className="text-2xl font-semibold text-muted-foreground">{percent.toFixed(0)}%</div>
@@ -24,7 +28,7 @@ export function GoalThermometer({ raised, goal, currency = 'USD', themeColor = '
       <div className="h-4 w-full bg-muted rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${percent}%`, backgroundColor: themeColor }}
+          style={{ width: `${percent}%`, backgroundColor: color }}
         />
       </div>
     </Card>

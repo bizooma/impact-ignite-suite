@@ -56,7 +56,7 @@ export function CampaignAnalytics({ campaignId, organizationId }: Props) {
                 {metrics.percent_to_goal.toFixed(0)}% of {fmt(metrics.goal_amount)}
               </div>
               <div className="h-1.5 mt-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: `${metrics.percent_to_goal}%` }} />
+                <div className="h-full" style={{ width: `${metrics.percent_to_goal}%`, backgroundColor: 'var(--brand-primary)' }} />
               </div>
             </>
           ) : (
@@ -74,7 +74,7 @@ export function CampaignAnalytics({ campaignId, organizationId }: Props) {
                 {metrics.percent_to_donor_goal.toFixed(0)}% of {metrics.goal_donors}
               </div>
               <div className="h-1.5 mt-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: `${metrics.percent_to_donor_goal}%` }} />
+                <div className="h-full" style={{ width: `${metrics.percent_to_donor_goal}%`, backgroundColor: 'var(--brand-accent)' }} />
               </div>
             </>
           ) : (
@@ -231,8 +231,8 @@ function DonationsBars({ points, fmt }: { points: DailyPoint[]; fmt: (n: number)
         return (
           <div key={p.date} className="flex-1 flex flex-col items-center gap-1 group min-w-0">
             <div
-              className="w-full bg-primary/70 hover:bg-primary rounded-sm transition-colors"
-              style={{ height: `${h}%` }}
+              className="w-full rounded-sm transition-opacity opacity-70 hover:opacity-100"
+              style={{ height: `${h}%`, backgroundColor: 'var(--brand-primary)' }}
               title={`${date}: ${fmt(p.amount)} (${p.count})`}
             />
             <div className="text-[10px] text-muted-foreground truncate w-full text-center hidden group-hover:block">
