@@ -160,24 +160,14 @@ export function ChatbotBuilder({ organizationId, initialChatbotId }: ChatbotBuil
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="primary_color">Primary Color</Label>
-                  <Input
-                    id="primary_color"
-                    type="color"
-                    value={formData.primary_color}
-                    onChange={(e) => setFormData(prev => ({ ...prev, primary_color: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="accent_color">Accent Color</Label>
-                  <Input
-                    id="accent_color"
-                    type="color"
-                    value={formData.accent_color}
-                    onChange={(e) => setFormData(prev => ({ ...prev, accent_color: e.target.value }))}
-                  />
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-3">
+                <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-foreground">Colors come from your Brand Kit</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This chatbot will automatically use your organization's brand colors and logo.
+                    You can override them per-chatbot from Settings after it's created.
+                  </p>
                 </div>
               </div>
 
