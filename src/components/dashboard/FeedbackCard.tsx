@@ -16,7 +16,7 @@ interface FeedbackCardProps {
 
 type FeedbackType = 'feature_request' | 'feedback' | 'bug';
 
-export function FeedbackCard({ organizationId }: FeedbackCardProps) {
+export function FeedbackForm({ organizationId, fieldClassName = 'bg-background' }: { organizationId: string; fieldClassName?: string }) {
   const { user } = useAuth();
   const [type, setType] = useState<FeedbackType>('feature_request');
   const [title, setTitle] = useState('');
@@ -57,6 +57,56 @@ export function FeedbackCard({ organizationId }: FeedbackCardProps) {
   };
 
   return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-[200px_1fr]">
+        <div className="space-y-2">
+          <Label htmlFor="feedback-type">Type</Label>
+          <Select value={type} onValueChange={(v) => setType(v as FeedbackType)}>
+            <SelectTrigger id="feedback-type" className={fieldClassName}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="feature_request">Feature Request</SelectItem>
+              <SelectItem value="feedback">General Feedback</SelectItem>
+              <SelectItem value="bug">Bug Report</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="feedback-title">Title</Label>
+          <Input
+            id="feedback-title"
+            placeholder="Short summary of your idea or issue"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={150}
+            className={fieldClassName}
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="feedback-description">Details</Label>
+        <Textarea
+          id="feedback-description"
+          placeholder="Tell us more — what problem would this solve, or what did you experience?"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={4}
+          className={fieldClassName}
+        />
+      </div>
+      <div className="flex justify-end">
+        <Button type="submit" disabled={submitting}>
+          <Send className="w-4 h-4 mr-2" />
+          {submitting ? 'Submitting…' : 'Submit Feedback'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function FeedbackCard({ organizationId }: FeedbackCardProps) {
+  return (
     <Card className="bg-accent border-2 border-accent-foreground/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-accent-foreground">
@@ -69,51 +119,7 @@ export function FeedbackCard({ organizationId }: FeedbackCardProps) {
         </p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-[200px_1fr]">
-            <div className="space-y-2">
-              <Label htmlFor="feedback-type">Type</Label>
-              <Select value={type} onValueChange={(v) => setType(v as FeedbackType)}>
-                <SelectTrigger id="feedback-type" className="bg-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="feature_request">Feature Request</SelectItem>
-                  <SelectItem value="feedback">General Feedback</SelectItem>
-                  <SelectItem value="bug">Bug Report</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="feedback-title">Title</Label>
-              <Input
-                id="feedback-title"
-                placeholder="Short summary of your idea or issue"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={150}
-                className="bg-background"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="feedback-description">Details</Label>
-            <Textarea
-              id="feedback-description"
-              placeholder="Tell us more — what problem would this solve, or what did you experience?"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              className="bg-background"
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button type="submit" disabled={submitting}>
-              <Send className="w-4 h-4 mr-2" />
-              {submitting ? 'Submitting…' : 'Submit Feedback'}
-            </Button>
-          </div>
-        </form>
+        <FeedbackForm organizationId={organizationId} />
       </CardContent>
     </Card>
   );

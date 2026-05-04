@@ -22,6 +22,7 @@ import {
   Accessibility
 } from 'lucide-react';
 import { FeedbackCard } from './FeedbackCard';
+import { BetaVipSection } from './BetaVipSection';
 import { BrandKitBanner } from './BrandKitBanner';
 import { OnboardingChecklist } from './OnboardingChecklist';
 
@@ -138,7 +139,7 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('organizations')
-        .select('slug')
+        .select('slug, is_beta_org')
         .eq('id', organizationId)
         .single();
       
@@ -288,7 +289,11 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
       )}
 
       {/* Wishlist & Feedback */}
-      <FeedbackCard organizationId={organizationId} />
+      {organization?.is_beta_org ? (
+        <BetaVipSection organizationId={organizationId} />
+      ) : (
+        <FeedbackCard organizationId={organizationId} />
+      )}
 
       {/* Flipbook Viewer Dialog */}
       {selectedFlipbook && (
