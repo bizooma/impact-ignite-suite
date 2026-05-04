@@ -58,13 +58,14 @@ export const useSocialPosts = (organizationId?: string) => {
     platform: 'facebook' | 'twitter' | 'instagram' | 'linkedin';
     scheduled_for?: string;
     campaign_id?: string;
+    marketing_campaign_id?: string;
     media_urls?: string[];
     target_page_id?: string;
   }) => {
     if (!organizationId) return null;
 
     try {
-      const { target_page_id, ...rest } = postData;
+      const { target_page_id, marketing_campaign_id, ...rest } = postData;
       const insertPayload: any = {
         organization_id: organizationId,
         ...rest,
@@ -72,6 +73,9 @@ export const useSocialPosts = (organizationId?: string) => {
       };
       if (target_page_id) {
         insertPayload.metadata = { target_page_id };
+      }
+      if (marketing_campaign_id) {
+        insertPayload.marketing_campaign_id = marketing_campaign_id;
       }
       const { data, error } = await supabase
         .from('social_posts')

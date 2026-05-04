@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 import { useCrmDonations } from '@/hooks/useCrmDonations';
 import { useCrm } from '@/hooks/useCrm';
+import { useMarketingCampaignsList } from '@/hooks/useMarketingCampaignsList';
 import { useToast } from '@/components/ui/use-toast';
 
 interface Props {
@@ -28,11 +29,13 @@ const donationAmountSchema = z
 export function DonationFormDialog({ open, onClose, organizationId, contactId }: Props) {
   const { createDonation } = useCrmDonations(organizationId);
   const { contacts } = useCrm(organizationId);
+  const { data: marketingCampaigns } = useMarketingCampaignsList(organizationId);
   const { toast } = useToast();
   const [selectedContactId, setSelectedContactId] = useState(contactId || '');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [paymentMethod, setPaymentMethod] = useState('credit_card');
+  const [marketingCampaignId, setMarketingCampaignId] = useState<string>('none');
   const [notes, setNotes] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
 
@@ -58,10 +61,11 @@ export function DonationFormDialog({ open, onClose, organizationId, contactId }:
       donation_date: date,
       payment_method: paymentMethod,
       is_recurring: isRecurring,
+      marketing_campaign_id: marketingCampaignId === 'none' ? null : marketingCampaignId,
       notes,
       currency: 'USD',
-    });
-    setAmount(''); setNotes(''); setIsRecurring(false);
+    } as any);
+    setAmount(''); setNotes(''); setIsRecurring(false); setMarketingCampaignId('none');
     onClose();
   };
 
@@ -106,6 +110,18 @@ export function DonationFormDialog({ open, onClose, organizationId, contactId }:
                 <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                 <SelectItem value="stock">Stock</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Marketing campaign (Optional)</Label>
+            <Select value={marketingCampaignId} onValueChange={setMarketingCampaignId}>
+              <SelectTrigger><SelectValue placeholder="Attribute this gift to a campaign" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No campaign</SelectItem>
+                {(marketingCampaigns || []).map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

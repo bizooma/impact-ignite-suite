@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { useOrganization } from '@/hooks/useOrganization';
+import { useMarketingCampaignsList } from '@/hooks/useMarketingCampaignsList';
 import { CalendarIcon, Facebook, Linkedin, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -25,6 +26,8 @@ interface PostComposerProps {
   campaigns: any[];
   initialContent?: string;
   initialDate?: Date;
+  initialMarketingCampaignId?: string;
+  sourceAssetId?: string;
 }
 
 export const PostComposer: React.FC<PostComposerProps> = ({
@@ -34,11 +37,14 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   campaigns,
   initialContent,
   initialDate,
+  initialMarketingCampaignId,
+  sourceAssetId,
 }) => {
   const [content, setContent] = useState(initialContent ?? '');
   const [platform, setPlatform] = useState<'facebook' | 'linkedin'>('facebook');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(initialDate);
   const [scheduledTime, setScheduledTime] = useState(initialDate ? '09:00' : '');
+  const [marketingCampaignId, setMarketingCampaignId] = useState<string>(initialMarketingCampaignId ?? 'none');
 
   // Apply prefill whenever the dialog opens with new values
   useEffect(() => {
@@ -48,7 +54,8 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       setScheduledDate(initialDate);
       setScheduledTime((prev) => prev || '09:00');
     }
-  }, [open, initialContent, initialDate]);
+    if (initialMarketingCampaignId !== undefined) setMarketingCampaignId(initialMarketingCampaignId);
+  }, [open, initialContent, initialDate, initialMarketingCampaignId]);
   const [campaignId, setCampaignId] = useState<string>('none');
   const [targetPageId, setTargetPageId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,6 +65,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   const { createPost } = useSocialPosts(organizationId);
   const { integrations } = useIntegrations(organizationId);
   const { organization } = useOrganization();
+  const { data: marketingCampaigns } = useMarketingCampaignsList(organizationId);
 
   const isPlatformConnected = (platformName: string) => {
     return integrations.some(
@@ -134,19 +142,36 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       scheduledFor = scheduled.toISOString();
     }
 
-    await createPost({
+    const created = await createPost({
       content: content.trim(),
       platform,
       scheduled_for: scheduledFor,
       campaign_id: campaignId === 'none' ? undefined : campaignId,
+      marketing_campaign_id: marketingCampaignId === 'none' ? undefined : marketingCampaignId,
       media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
       target_page_id: (platform === 'facebook' || platform === 'linkedin') && targetPageId ? targetPageId : undefined,
     });
+
+    // If this post originated from a campaign asset, mark the asset published and link it
+    if (created && sourceAssetId) {
+      try {
+        await supabase
+          .from('campaign_assets')
+          .update({
+            status: scheduledFor ? 'scheduled' : 'published',
+            asset_id: created.id,
+          } as any)
+          .eq('id', sourceAssetId);
+      } catch (err) {
+        console.error('Failed to update source campaign asset:', err);
+      }
+    }
 
     setContent('');
     setScheduledDate(undefined);
     setScheduledTime('');
     setCampaignId('none');
+    setMarketingCampaignId('none');
     setMediaUrls([]);
     setIsSubmitting(false);
     onClose();
@@ -389,7 +414,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label>Campaign (Optional)</Label>
+                <Label>Legacy campaign tag (Optional)</Label>
                 <Select value={campaignId} onValueChange={setCampaignId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a campaign" />
@@ -403,6 +428,22 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Marketing campaign (Optional)</Label>
+                <Select value={marketingCampaignId} onValueChange={setMarketingCampaignId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Attribute this post to a campaign" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No marketing campaign</SelectItem>
+                    {(marketingCampaigns || []).map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Tagged posts roll up into the campaign's analytics.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
