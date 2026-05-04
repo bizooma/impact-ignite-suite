@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { useOrganization } from '@/hooks/useOrganization';
+import { useBrandKit } from '@/hooks/useBrandKit';
 import { useMarketingCampaignsList } from '@/hooks/useMarketingCampaignsList';
 import { CalendarIcon, Facebook, Linkedin, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
@@ -65,6 +66,8 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   const { createPost } = useSocialPosts(organizationId);
   const { integrations } = useIntegrations(organizationId);
   const { organization } = useOrganization();
+  const { brandKit } = useBrandKit(organizationId);
+  const brandLogo = brandKit?.logo_mark_url || brandKit?.logo_primary_url || organization?.logo_url || undefined;
   const { data: marketingCampaigns } = useMarketingCampaignsList(organizationId);
 
   const isPlatformConnected = (platformName: string) => {
@@ -509,15 +512,15 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                   content={content}
                   mediaUrls={mediaUrls}
                   organizationName={organization?.name || "Organization"}
-                  organizationLogo={organization?.logo_url}
+                  organizationLogo={brandLogo}
                 />
               )}
 
               {platform === 'linkedin' && (
                 <div className="rounded-lg border bg-background p-4 space-y-3">
                   <div className="flex items-center gap-3">
-                    {organization?.logo_url ? (
-                      <img src={organization.logo_url} alt="" className="w-12 h-12 rounded-full object-cover" />
+                    {brandLogo ? (
+                      <img src={brandLogo} alt="" className="w-12 h-12 rounded-full object-cover bg-background border" />
                     ) : (
                       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
                         <Linkedin className="w-6 h-6 text-muted-foreground" />
