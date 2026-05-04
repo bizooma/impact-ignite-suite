@@ -5,9 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sparkles, Calendar, Plus, Search } from 'lucide-react';
 import { AWARENESS_EVENTS, getNextOccurrence, daysUntil, type AwarenessEvent } from '@/lib/campaignTemplates/awarenessCalendar';
-import { useCampaigns } from '@/hooks/useCampaigns';
-import { useNavigate } from 'react-router-dom';
-import { formatLocalDate } from '@/lib/campaignTemplates/givingTuesday';
+import { CampaignBriefWizard } from './CampaignBriefWizard';
 
 interface Props {
   organizationId: string;
@@ -25,10 +23,9 @@ const CATEGORY_LABELS: Record<AwarenessEvent['category'], string> = {
 };
 
 export function CampaignInspirationGrid({ organizationId }: Props) {
-  const { createCampaign, createFromGivingTuesday } = useCampaigns(organizationId);
-  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [search, setSearch] = useState('');
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   const sorted = useMemo(() => {
     const today = new Date();
@@ -50,39 +47,9 @@ export function CampaignInspirationGrid({ organizationId }: Props) {
     ...Object.entries(CATEGORY_LABELS).map(([key, label]) => ({ key, label })),
   ];
 
-  const handleCreate = async (event: AwarenessEvent, date: Date) => {
-    // Special case: Giving Tuesday uses the full pre-built template
-    if (event.key === 'giving_tuesday') {
-      const c = await createFromGivingTuesday.mutateAsync({});
-      navigate(`/dashboard/campaigns/${c.id}`);
-      return;
-    }
-
-    const isMonth = event.scope === 'month';
-    const startDate = new Date(date);
-    startDate.setDate(date.getDate() - 56); // 8 weeks lead time
-    const endDate = new Date(date);
-    if (isMonth) {
-      // For month-long observances, end at month's end
-      endDate.setMonth(date.getMonth() + 1, 0);
-    } else {
-      endDate.setDate(date.getDate() + 7); // week of stewardship
-    }
-
-    const slug = `${event.key}-${date.getFullYear()}-${Date.now().toString(36)}`;
-    const c = await createCampaign.mutateAsync({
-      name: `${event.name} ${date.getFullYear()}`,
-      slug,
-      template_key: event.key,
-      start_date: formatLocalDate(startDate),
-      end_date: formatLocalDate(endDate),
-      event_date: formatLocalDate(date),
-      theme_color: event.color,
-      tagline: event.description,
-      status: 'draft',
-      channels: { social: true, email: true, sms: false, chatbot: true, qr: true, gbp: true },
-    });
-    navigate(`/dashboard/campaigns/${c.id}`);
+  const handleCreate = () => {
+    // Open the brief wizard. User picks a starting point (including the awareness moments) inside it.
+    setWizardOpen(true);
   };
 
   return (
