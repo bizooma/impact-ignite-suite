@@ -37,9 +37,23 @@
 
     function injectStyles() {
       if (document.getElementById('lov-a11y-styles')) return;
+      var brandPrimary = (window._lovA11yBrand && window._lovA11yBrand.primary) || '#1e3a8a';
+      // Lighten brand for the active-tile background (mimic dbeafe = primary at ~12% on white)
+      function lighten(hex) {
+        try {
+          var h = hex.replace('#', '');
+          if (h.length === 3) h = h.split('').map(function (c) { return c + c; }).join('');
+          var r = parseInt(h.slice(0, 2), 16);
+          var g = parseInt(h.slice(2, 4), 16);
+          var b = parseInt(h.slice(4, 6), 16);
+          var mix = function (c) { return Math.round(c + (255 - c) * 0.85); };
+          return 'rgb(' + mix(r) + ',' + mix(g) + ',' + mix(b) + ')';
+        } catch (e) { return '#dbeafe'; }
+      }
+      var brandSoft = lighten(brandPrimary);
       var s = document.createElement('style');
       s.id = 'lov-a11y-styles';
-      s.textContent = [
+      var css = [
         // Launcher button
         '.lov-a11y-launcher{position:fixed;bottom:20px;width:52px;height:52px;border-radius:50%;background:#1e3a8a;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:2147483646;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:system-ui,sans-serif}',
         posCss('.lov-a11y-launcher'),
