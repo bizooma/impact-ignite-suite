@@ -11,6 +11,7 @@ import { VolunteerDialog } from './VolunteerDialog';
 import { FaqDialog } from './FaqDialog';
 import { Chatbot, ChatbotWidgetConfig } from '@/types/database';
 import { useChatbot } from '@/hooks/useChatbot';
+import { useChatbotBranding } from '@/hooks/useChatbotBranding';
 
 interface ChatbotWidgetProps {
   chatbot: Chatbot;
@@ -40,12 +41,13 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
   const config = chatbot.web_widget_config as ChatbotWidgetConfig || {};
   const { messages, sessionId, loading, sendMessage } = useChatbot(chatbot.id);
 
-  const welcomeMessage = chatbot.brand_settings?.welcome_message?.trim();
+  const branding = useChatbotBranding(chatbot);
+  const welcomeMessage = branding.welcomeMessage;
   const showWelcome = !!welcomeMessage && messages.length === 0 && !loading;
 
   const brandColors = {
-    primary: chatbot.brand_settings?.primary_color || '#0066cc',
-    accent: chatbot.brand_settings?.accent_color || '#00AA44',
+    primary: branding.primary,
+    accent: branding.accent,
   };
 
   useEffect(() => {
