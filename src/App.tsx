@@ -49,6 +49,7 @@ import Unsubscribe from "./pages/Unsubscribe";
 import { AccessibilityDashboard } from "./components/accessibility/AccessibilityDashboard";
 import { SiteDetailPage } from "./components/accessibility/SiteDetailPage";
 import AccessibilityStatement from "./pages/AccessibilityStatement";
+import BrandKit from "./pages/BrandKit";
 
 const queryClient = new QueryClient();
 
@@ -310,6 +311,7 @@ const App = () => (
                                   <CampaignDetail organizationId={organizationId} />
                                 </ProtectedProductRoute>
                               } />
+                              <Route path="/brand-kit" element={<BrandKit />} />
                               <Route path="/members" element={<MembershipManagement organizationId={organizationId} />} />
                               <Route path="/profile" element={<Profile />} />
                               <Route path="/pricing-beta" element={<PricingBeta />} />
