@@ -4,11 +4,15 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sparkles, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { Database } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
 import { useMarketingCampaignsList } from '@/hooks/useMarketingCampaignsList';
+import { useBrandKit } from '@/hooks/useBrandKit';
 
 
 export type QrCodeRow = Database['public']['Tables']['qr_codes']['Row'];
@@ -24,9 +28,11 @@ interface QrSettingsDialogProps {
 export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClose, qrCode, organizationId, updateQrCode }) => {
   const { toast } = useToast();
   const { data: marketingCampaigns } = useMarketingCampaignsList(organizationId);
+  const { brandKit } = useBrandKit(organizationId);
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [active, setActive] = useState(true);
+  const [useBrandKitSync, setUseBrandKitSync] = useState(true);
   const [primaryColor, setPrimaryColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [logoUrl, setLogoUrl] = useState('');
@@ -44,6 +50,8 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
       setUrl(qrCode.destination_url || '');
       setActive(!!qrCode.is_active);
       const bc = (qrCode.brand_config as any) || {};
+      // Default to syncing with brand kit unless explicitly disabled
+      setUseBrandKitSync(bc.use_brand_kit !== false);
       setPrimaryColor(bc.primaryColor || '#000000');
       setBackgroundColor(bc.backgroundColor || '#FFFFFF');
       setLogoUrl(bc.logoUrl || '');
