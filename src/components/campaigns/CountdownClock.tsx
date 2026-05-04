@@ -4,9 +4,12 @@ import { Card } from '@/components/ui/card';
 interface Props {
   targetDate: string | null;
   label?: string;
+  /** Optional per-campaign override. Falls back to brand accent (then brand primary). */
+  themeColor?: string | null;
 }
 
-export function CountdownClock({ targetDate, label = 'Until event' }: Props) {
+export function CountdownClock({ targetDate, label = 'Until event', themeColor }: Props) {
+  const color = themeColor || 'var(--brand-accent)';
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -31,12 +34,12 @@ export function CountdownClock({ targetDate, label = 'Until event' }: Props) {
       ) : (
         <div className="flex items-baseline justify-center gap-3">
           <div>
-            <div className="text-4xl font-bold">{days}</div>
+            <div className="text-4xl font-bold" style={{ color }}>{days}</div>
             <div className="text-xs text-muted-foreground">days</div>
           </div>
           <div className="text-3xl text-muted-foreground">:</div>
           <div>
-            <div className="text-4xl font-bold">{hours}</div>
+            <div className="text-4xl font-bold" style={{ color }}>{hours}</div>
             <div className="text-xs text-muted-foreground">hours</div>
           </div>
         </div>

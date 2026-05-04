@@ -49,7 +49,7 @@ export function CampaignOverview({ campaign, organizationId }: Props) {
           goal={campaign.goal_amount}
           themeColor={campaign.theme_color}
         />
-        <CountdownClock targetDate={campaign.event_date} label="Until event" />
+        <CountdownClock targetDate={campaign.event_date} label="Until event" themeColor={campaign.theme_color} />
       </div>
 
       <Card className="p-5">
