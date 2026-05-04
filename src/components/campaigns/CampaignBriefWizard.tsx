@@ -245,13 +245,15 @@ export function CampaignBriefWizard({ open, onOpenChange, organizationId }: Prop
 
   return (
     <Dialog open={open} onOpenChange={(o) => (o ? onOpenChange(true) : close())}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+        <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg, var(--brand-primary), var(--brand-accent))' }} />
+        <DialogHeader className="px-6 pt-6">
           <DialogTitle>Create a campaign</DialogTitle>
           <DialogDescription>
             Step {step} of 3 — {step === 1 ? 'Choose a starting point' : step === 2 ? 'Fill out the creative brief' : 'Review & launch'}
           </DialogDescription>
         </DialogHeader>
+        <div className="px-6 pb-6">
 
         {step === 1 && (
           <div className="space-y-4">
