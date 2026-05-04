@@ -30,7 +30,7 @@ export function useCampaignMetrics(campaignId: string, organizationId: string) {
           .order('donation_date', { ascending: false }),
         supabase
           .from('social_posts')
-          .select('id, status, platform, metrics')
+          .select('id, status, platform, metadata')
           .eq('marketing_campaign_id', campaignId),
       ]);
 
@@ -39,11 +39,11 @@ export function useCampaignMetrics(campaignId: string, organizationId: string) {
       const uniqueDonors = new Set(list.map((d) => d.contact_id)).size;
       const goal = campaign?.goal_amount || null;
 
-      const postsList = (posts || []) as Array<{ status: string; platform: string; metrics: any }>;
+      const postsList = (posts || []) as Array<{ status: string; platform: string; metadata: any }>;
       const published = postsList.filter((p) => p.status === 'published' || p.status === 'scheduled').length;
-      const reach = postsList.reduce((s, p) => s + Number(p.metrics?.reach || p.metrics?.impressions || 0), 0);
+      const reach = postsList.reduce((s, p) => s + Number(p.metadata?.reach || p.metadata?.impressions || 0), 0);
       const engagement = postsList.reduce(
-        (s, p) => s + Number(p.metrics?.likes || 0) + Number(p.metrics?.comments || 0) + Number(p.metrics?.shares || 0),
+        (s, p) => s + Number(p.metadata?.likes || 0) + Number(p.metadata?.comments || 0) + Number(p.metadata?.shares || 0),
         0,
       );
       const byPlatformMap = postsList.reduce<Record<string, number>>((acc, p) => {
