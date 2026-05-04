@@ -15,6 +15,7 @@ import SocialIntegrationsPanel from './SocialIntegrationsPanel';
 import SocialCalendar from './SocialCalendar';
 import PostDetailsDialog from './PostDetailsDialog';
 import { AWARENESS_EVENTS } from '@/lib/campaignTemplates/awarenessCalendar';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SocialMediaDashboardProps {
   organizationId: string;
@@ -25,6 +26,8 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
   const [showComposer, setShowComposer] = useState(false);
   const [composerInitialContent, setComposerInitialContent] = useState<string | undefined>();
   const [composerInitialDate, setComposerInitialDate] = useState<Date | undefined>();
+  const [composerCampaignId, setComposerCampaignId] = useState<string | undefined>();
+  const [composerSourceAssetId, setComposerSourceAssetId] = useState<string | undefined>();
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
@@ -65,12 +68,14 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
-  // Handle ?compose=1&date=YYYY-MM-DD&awareness=<key> from awareness day popover
+  // Handle ?compose=1 with optional date / awareness / campaign-asset prefill
   useEffect(() => {
     if (searchParams.get('compose') !== '1') return;
 
     const dateStr = searchParams.get('date');
     const awarenessKey = searchParams.get('awareness');
+    const assetId = searchParams.get('asset');
+    const campaignParam = searchParams.get('campaign');
 
     let initialDate: Date | undefined;
     if (dateStr) {
@@ -87,14 +92,38 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
       }
     }
 
-    setComposerInitialContent(initialContent);
-    setComposerInitialDate(initialDate);
-    setShowComposer(true);
+    const openComposerWith = (content?: string, asset?: string, campaign?: string) => {
+      setComposerInitialContent(content);
+      setComposerInitialDate(initialDate);
+      setComposerSourceAssetId(asset);
+      setComposerCampaignId(campaign);
+      setShowComposer(true);
+    };
+
+    if (assetId) {
+      // Pull the body from the campaign asset, then open the composer prefilled.
+      supabase
+        .from('campaign_assets')
+        .select('body, campaign_id')
+        .eq('id', assetId)
+        .maybeSingle()
+        .then(({ data }) => {
+          openComposerWith(
+            data?.body || initialContent,
+            assetId,
+            campaignParam || data?.campaign_id || undefined,
+          );
+        });
+    } else {
+      openComposerWith(initialContent, undefined, campaignParam || undefined);
+    }
 
     const next = new URLSearchParams(searchParams);
     next.delete('compose');
     next.delete('date');
     next.delete('awareness');
+    next.delete('asset');
+    next.delete('campaign');
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
@@ -382,11 +411,15 @@ const SocialMediaDashboard: React.FC<SocialMediaDashboardProps> = ({ organizatio
           setShowComposer(false);
           setComposerInitialContent(undefined);
           setComposerInitialDate(undefined);
+          setComposerCampaignId(undefined);
+          setComposerSourceAssetId(undefined);
         }}
         organizationId={organizationId}
         campaigns={campaigns}
         initialContent={composerInitialContent}
         initialDate={composerInitialDate}
+        initialMarketingCampaignId={composerCampaignId}
+        sourceAssetId={composerSourceAssetId}
       />
 
       <PostDetailsDialog
