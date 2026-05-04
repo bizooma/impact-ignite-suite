@@ -73,6 +73,7 @@ const tiers = {
       "Everything in Free, Starter & Professional, plus:",
       "Unlimited Team Members",
       "AI Chatbots (5,000 conversations/month)",
+      "Brand Kit with multi-brand support",
       "Unlimited CRM Contacts",
       "Unlimited QR Codes",
       "Unlimited Social Media Accounts",
