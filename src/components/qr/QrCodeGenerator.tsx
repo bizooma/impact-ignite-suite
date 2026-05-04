@@ -60,9 +60,10 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
     setIsSubmitting(true);
     
     const brandConfig = {
+      use_brand_kit: useBrandKitSync,
       primaryColor,
       backgroundColor,
-      logo: logo || undefined
+      logo: logo || undefined,
     };
 
     const utmParams = {
