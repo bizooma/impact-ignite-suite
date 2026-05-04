@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useCampaigns } from '@/hooks/useCampaigns';
+import { useCampaignDashboardStats } from '@/hooks/useCampaignDashboardStats';
 import { CampaignBriefWizard } from './CampaignBriefWizard';
 import { CampaignInspirationGrid } from './CampaignInspirationGrid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Calendar, Target, Users, Loader2, Trash2 } from 'lucide-react';
+import { Plus, Calendar, Target, Users, Loader2, Trash2, FileText, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
@@ -25,6 +26,7 @@ interface Props {
 
 export function CampaignDashboard({ organizationId }: Props) {
   const { campaigns, isLoading, deleteCampaign } = useCampaigns(organizationId);
+  const { data: stats } = useCampaignDashboardStats(organizationId);
   const [picker, setPicker] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -127,6 +129,41 @@ export function CampaignDashboard({ organizationId }: Props) {
                       <span>Target: {c.goal_donors} donors</span>
                     </div>
                   )}
+                  {(() => {
+                    const s = stats?.[c.id];
+                    if (!s) return null;
+                    const milestonePct = s.milestonesTotal ? Math.round((s.milestonesDone / s.milestonesTotal) * 100) : 0;
+                    return (
+                      <div className="pt-2 mt-2 border-t space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {s.briefStatus === 'complete' ? (
+                            <Badge variant="default" className="text-xs gap-1"><CheckCircle2 className="h-3 w-3" />Brief complete</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-xs gap-1"><FileText className="h-3 w-3" />Brief {s.briefStatus === 'missing' ? 'missing' : 'draft'}</Badge>
+                          )}
+                          {s.assetsTotal > 0 && (
+                            <Badge variant="outline" className="text-xs">{s.assetsPublished}/{s.assetsTotal} assets used</Badge>
+                          )}
+                        </div>
+                        {s.milestonesTotal > 0 && (
+                          <div>
+                            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                              <span>Milestones</span><span>{s.milestonesDone}/{s.milestonesTotal} ({milestonePct}%)</span>
+                            </div>
+                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div className="h-full bg-primary" style={{ width: `${milestonePct}%` }} />
+                            </div>
+                          </div>
+                        )}
+                        {s.donationsAmount > 0 && (
+                          <div className="text-xs text-muted-foreground">Raised so far: <span className="font-semibold text-foreground">{fmt(s.donationsAmount)}</span></div>
+                        )}
+                        {s.nextMilestoneTitle && (
+                          <div className="text-xs text-muted-foreground line-clamp-1">Next: {s.nextMilestoneTitle}</div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </Card>
             );
