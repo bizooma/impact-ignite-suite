@@ -13,27 +13,31 @@ import { useToast } from '@/hooks/use-toast';
 import { QrAnalyticsDialog } from './QrAnalyticsDialog';
 import { QrSettingsDialog } from './QrSettingsDialog';
 import QRCode from 'qrcode';
+import { useBrandKit } from '@/hooks/useBrandKit';
+import { resolveQrBranding } from '@/hooks/useQrBranding';
 
 interface QrCodeDashboardProps {
   organizationId: string;
 }
 
-const QrPreview: React.FC<{ url: string; brandConfig?: any }> = ({ url, brandConfig }) => {
+const QrPreview: React.FC<{
+  url: string;
+  brandConfig?: any;
+  brandKit?: any;
+}> = ({ url, brandConfig, brandKit }) => {
   const [dataUrl, setDataUrl] = useState<string>('');
+  const branding = resolveQrBranding(brandKit, brandConfig);
 
   useEffect(() => {
     if (!url) return;
     QRCode.toDataURL(url, {
       width: 240,
       margin: 1,
-      color: {
-        dark: brandConfig?.primaryColor || '#000000',
-        light: brandConfig?.backgroundColor || '#ffffff',
-      },
+      color: { dark: branding.foreground, light: branding.background },
     })
       .then(setDataUrl)
       .catch((e) => console.error('QR preview error:', e));
-  }, [url, brandConfig?.primaryColor, brandConfig?.backgroundColor]);
+  }, [url, branding.foreground, branding.background]);
 
   if (!dataUrl) return <div className="w-20 h-20 bg-muted rounded animate-pulse" />;
 
@@ -50,6 +54,7 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
   const [showGenerator, setShowGenerator] = useState(false);
   const { qrCodes, loading, createQrCode, updateQrCode } = useQrCodes(organizationId);
   const { canCreate, limits, counts, tier, refetch: refetchLimits } = useTierLimits(organizationId);
+  const { brandKit } = useBrandKit(organizationId);
   const { toast } = useToast();
   const [analyticsQr, setAnalyticsQr] = useState<{ id: string; name: string } | null>(null);
   const [settingsQr, setSettingsQr] = useState<any | null>(null);
@@ -58,13 +63,11 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
 
   const handleDownload = async (id: string, name: string, url?: string | null, brandConfig?: any) => {
     try {
+      const branding = resolveQrBranding(brandKit, brandConfig);
       const dataUrl = await QRCode.toDataURL(url || '', {
         width: 1024,
         margin: 2,
-        color: {
-          dark: brandConfig?.primaryColor || '#000000',
-          light: brandConfig?.backgroundColor || '#ffffff',
-        },
+        color: { dark: branding.foreground, light: branding.background },
       });
       const a = document.createElement('a');
       a.href = dataUrl;
