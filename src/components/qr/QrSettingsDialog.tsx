@@ -118,6 +118,23 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
               </div>
               <Switch id="qr-active" checked={active} onCheckedChange={setActive} />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="qr-campaign">Marketing campaign (optional)</Label>
+              <Select value={marketingCampaignId} onValueChange={setMarketingCampaignId}>
+                <SelectTrigger id="qr-campaign">
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {(marketingCampaigns || []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Attach this QR code to a campaign so its scans roll up into that campaign's analytics.
+              </p>
+            </div>
           </TabsContent>
 
           <TabsContent value="design" className="space-y-4 pt-4">
