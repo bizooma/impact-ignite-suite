@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useSocialPosts } from '@/hooks/useSocialPosts';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { useOrganization } from '@/hooks/useOrganization';
+import { useMarketingCampaignsList } from '@/hooks/useMarketingCampaignsList';
 import { CalendarIcon, Facebook, Linkedin, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -64,6 +65,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   const { createPost } = useSocialPosts(organizationId);
   const { integrations } = useIntegrations(organizationId);
   const { organization } = useOrganization();
+  const { data: marketingCampaigns } = useMarketingCampaignsList(organizationId);
 
   const isPlatformConnected = (platformName: string) => {
     return integrations.some(
