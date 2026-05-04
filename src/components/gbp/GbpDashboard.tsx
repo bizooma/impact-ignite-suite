@@ -13,6 +13,7 @@ import { TaskManager } from './TaskManager';
 import { ReviewsManager } from './ReviewsManager';
 import { GbpSetupGuide } from './GbpSetupGuide';
 import { IntegrationStatusBanner } from './IntegrationStatusBanner';
+import { GbpDraftBanner } from './GbpDraftBanner';
 import { supabase } from '@/integrations/supabase/client';
 
 interface GbpDashboardProps {
@@ -106,6 +107,8 @@ const GbpDashboard: React.FC<GbpDashboardProps> = ({ organizationId }) => {
             fetchReviews();
           }}
         />
+
+        <GbpDraftBanner />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Copy, Edit2, Loader2, Save, X, Send, MessageSquare, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AddFaqToChatbotDialog } from './AddFaqToChatbotDialog';
+import { writePendingGbpDraft } from '@/components/gbp/GbpDraftBanner';
 
 interface Props {
   campaignId: string;
@@ -69,9 +70,14 @@ export function CampaignContentLibrary({ campaignId }: Props) {
   };
 
   const sendGbpToComposer = (a: CampaignAsset) => {
-    // GBP module doesn't yet support a draft hand-off. For now, copy + route the user there.
-    copy(a.body || '');
-    toast.info('Body copied. Paste it into Google Business → New Post.');
+    writePendingGbpDraft({
+      body: a.body || '',
+      title: a.title,
+      campaignId,
+      assetId: a.id,
+    });
+    updateAsset.mutate({ id: a.id, updates: { status: 'scheduled' } });
+    toast.success('Draft sent to Google Business — opening composer');
     navigate('/dashboard/gbp');
   };
 
