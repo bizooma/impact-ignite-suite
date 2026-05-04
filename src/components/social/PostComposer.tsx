@@ -140,19 +140,36 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       scheduledFor = scheduled.toISOString();
     }
 
-    await createPost({
+    const created = await createPost({
       content: content.trim(),
       platform,
       scheduled_for: scheduledFor,
       campaign_id: campaignId === 'none' ? undefined : campaignId,
+      marketing_campaign_id: marketingCampaignId === 'none' ? undefined : marketingCampaignId,
       media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
       target_page_id: (platform === 'facebook' || platform === 'linkedin') && targetPageId ? targetPageId : undefined,
     });
+
+    // If this post originated from a campaign asset, mark the asset published and link it
+    if (created && sourceAssetId) {
+      try {
+        await supabase
+          .from('campaign_assets')
+          .update({
+            status: scheduledFor ? 'scheduled' : 'published',
+            asset_id: created.id,
+          } as any)
+          .eq('id', sourceAssetId);
+      } catch (err) {
+        console.error('Failed to update source campaign asset:', err);
+      }
+    }
 
     setContent('');
     setScheduledDate(undefined);
     setScheduledTime('');
     setCampaignId('none');
+    setMarketingCampaignId('none');
     setMediaUrls([]);
     setIsSubmitting(false);
     onClose();
