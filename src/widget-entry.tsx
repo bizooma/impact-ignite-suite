@@ -1,7 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StandaloneWidget } from './components/chatbot/StandaloneWidget';
 import './index.css';
+
+// Standalone QueryClient for the embeddable widget (separate from the dashboard app)
+const widgetQueryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
+});
 
 // Declare global window interface
 declare global {
@@ -36,11 +42,13 @@ window.CauseioWidget = {
     const root = ReactDOM.createRoot(container);
     root.render(
       <React.StrictMode>
-        <StandaloneWidget
-          chatbotId={config.chatbotId}
-          primaryColor={config.primaryColor}
-          accentColor={config.accentColor}
-        />
+        <QueryClientProvider client={widgetQueryClient}>
+          <StandaloneWidget
+            chatbotId={config.chatbotId}
+            primaryColor={config.primaryColor}
+            accentColor={config.accentColor}
+          />
+        </QueryClientProvider>
       </React.StrictMode>
     );
 

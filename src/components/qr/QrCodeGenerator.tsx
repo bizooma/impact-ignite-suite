@@ -3,10 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Palette, Link, BarChart3 } from 'lucide-react';
+import { Palette, Link as LinkIcon, BarChart3, Sparkles, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useBrandKit } from '@/hooks/useBrandKit';
+import { resolveQrBranding } from '@/hooks/useQrBranding';
 
 interface QrCodeGeneratorProps {
   open: boolean;
@@ -27,9 +32,11 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
   organizationId,
   createQrCode
 }) => {
+  const { brandKit } = useBrandKit(organizationId);
   const [name, setName] = useState('');
   const [destinationUrl, setDestinationUrl] = useState('');
   const [type, setType] = useState<'static' | 'dynamic'>('dynamic');
+  const [useBrandKitSync, setUseBrandKitSync] = useState(true);
   const [primaryColor, setPrimaryColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [logo, setLogo] = useState('');
@@ -38,6 +45,14 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
   const [utmCampaign, setUtmCampaign] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Effective branding for preview & saved record
+  const branding = resolveQrBranding(brandKit, {
+    use_brand_kit: useBrandKitSync,
+    primaryColor,
+    backgroundColor,
+    logo,
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !destinationUrl.trim()) return;
@@ -45,9 +60,10 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
     setIsSubmitting(true);
     
     const brandConfig = {
+      use_brand_kit: useBrandKitSync,
       primaryColor,
       backgroundColor,
-      logo: logo || undefined
+      logo: logo || undefined,
     };
 
     const utmParams = {
@@ -145,7 +161,7 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
                 Tracking
               </TabsTrigger>
               <TabsTrigger value="preview">
-                <Link className="h-4 w-4 mr-2" />
+                <LinkIcon className="h-4 w-4 mr-2" />
                 Preview
               </TabsTrigger>
             </TabsList>
@@ -154,12 +170,50 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Visual Customization</CardTitle>
-                  <CardDescription>Customize the appearance of your QR code</CardDescription>
+                  <CardDescription>
+                    Defaults to your organization's Brand Kit. Turn off sync to override.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Brand Kit sync toggle */}
+                  <div className="flex items-start justify-between gap-4 p-3 rounded-lg border bg-muted/30">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        <Label htmlFor="qr-gen-use-brand-kit" className="font-medium cursor-pointer">
+                          Sync with Brand Kit
+                        </Label>
+                        {useBrandKitSync && brandKit && (
+                          <Badge variant="secondary" className="text-xs">Active</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {brandKit
+                          ? 'Foreground, background, and logo update with your brand kit.'
+                          : 'No brand kit yet — set one up to share branding across all your apps.'}
+                      </p>
+                      {!brandKit && (
+                        <Link
+                          to="/dashboard/brand-kit"
+                          className="text-xs text-primary inline-flex items-center gap-1 hover:underline"
+                        >
+                          Set up Brand Kit <ExternalLink className="h-3 w-3" />
+                        </Link>
+                      )}
+                    </div>
+                    <Switch
+                      id="qr-gen-use-brand-kit"
+                      checked={useBrandKitSync && !!brandKit}
+                      disabled={!brandKit}
+                      onCheckedChange={setUseBrandKitSync}
+                    />
+                  </div>
+
+                  <div className={`grid grid-cols-2 gap-4 transition-opacity ${useBrandKitSync && brandKit ? 'opacity-50' : ''}`}>
                     <div className="space-y-2">
-                      <Label htmlFor="primaryColor">Primary Color</Label>
+                      <Label htmlFor="primaryColor">
+                        {useBrandKitSync && brandKit ? 'Foreground (override)' : 'Foreground Color'}
+                      </Label>
                       <div className="flex gap-2">
                         <Input
                           id="primaryColor"
@@ -167,18 +221,22 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
                           value={primaryColor}
                           onChange={(e) => setPrimaryColor(e.target.value)}
                           className="w-12 p-1 h-10"
+                          disabled={useBrandKitSync && !!brandKit}
                         />
                         <Input
                           value={primaryColor}
                           onChange={(e) => setPrimaryColor(e.target.value)}
                           placeholder="#000000"
                           className="flex-1"
+                          disabled={useBrandKitSync && !!brandKit}
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="backgroundColor">Background Color</Label>
+                      <Label htmlFor="backgroundColor">
+                        {useBrandKitSync && brandKit ? 'Background (override)' : 'Background Color'}
+                      </Label>
                       <div className="flex gap-2">
                         <Input
                           id="backgroundColor"
@@ -186,25 +244,30 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
                           value={backgroundColor}
                           onChange={(e) => setBackgroundColor(e.target.value)}
                           className="w-12 p-1 h-10"
+                          disabled={useBrandKitSync && !!brandKit}
                         />
                         <Input
                           value={backgroundColor}
                           onChange={(e) => setBackgroundColor(e.target.value)}
                           placeholder="#ffffff"
                           className="flex-1"
+                          disabled={useBrandKitSync && !!brandKit}
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="logo">Logo URL (Optional)</Label>
+                  <div className={`space-y-2 transition-opacity ${useBrandKitSync && brandKit ? 'opacity-50' : ''}`}>
+                    <Label htmlFor="logo">
+                      {useBrandKitSync && brandKit ? 'Logo URL (override)' : 'Logo URL (Optional)'}
+                    </Label>
                     <Input
                       id="logo"
                       type="url"
                       placeholder="https://example.com/logo.png"
                       value={logo}
                       onChange={(e) => setLogo(e.target.value)}
+                      disabled={useBrandKitSync && !!brandKit}
                     />
                   </div>
                 </CardContent>
@@ -258,15 +321,15 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
                   <CardDescription>Preview how your QR code will look</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center space-y-4">
-                  <div 
+                  <div
                     className="w-48 h-48 border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center"
-                    style={{ 
-                      backgroundColor: backgroundColor,
-                      color: primaryColor 
-                    }}
+                    style={{ backgroundColor: branding.background, color: branding.foreground }}
                   >
                     <div className="text-center">
                       <div className="text-sm font-medium mb-2">QR Code Preview</div>
+                      {branding.fromBrandKit && (
+                        <Badge variant="secondary" className="text-xs">Brand kit synced</Badge>
+                      )}
                     </div>
                   </div>
                   <div className="text-center">
