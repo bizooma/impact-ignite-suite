@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCampaign } from '@/hooks/useCampaigns';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -15,6 +15,8 @@ import givingTuesdayLogo from '@/assets/giving-tuesday-logo.png';
 export default function CampaignDetail({ organizationId }: { organizationId: string }) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'brief';
   const { data: campaign, isLoading } = useCampaign(id!);
 
   if (isLoading) {
@@ -92,7 +94,14 @@ export default function CampaignDetail({ organizationId }: { organizationId: str
         </div>
       )}
 
-      <Tabs defaultValue="brief">
+      <Tabs
+        value={initialTab}
+        onValueChange={(v) => {
+          const next = new URLSearchParams(searchParams);
+          next.set('tab', v);
+          setSearchParams(next, { replace: true });
+        }}
+      >
         <TabsList>
           <TabsTrigger value="brief">Brief</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
