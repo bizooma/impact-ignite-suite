@@ -150,7 +150,7 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
                 Tracking
               </TabsTrigger>
               <TabsTrigger value="preview">
-                <Link className="h-4 w-4 mr-2" />
+                <LinkIcon className="h-4 w-4 mr-2" />
                 Preview
               </TabsTrigger>
             </TabsList>
