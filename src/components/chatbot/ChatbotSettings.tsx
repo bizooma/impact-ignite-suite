@@ -409,13 +409,78 @@ export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
             Brand Colors & Messaging
           </CardTitle>
           <CardDescription>
-            Customize colors and conversation style
+            Colors come from your organization's Brand Kit by default. Turn off
+            sync to override them just for this chatbot.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          {/* Brand Kit sync toggle */}
+          <div className="flex items-start justify-between gap-4 p-3 rounded-lg border bg-muted/30">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <Label htmlFor="use_brand_kit" className="font-medium cursor-pointer">
+                  Sync with Brand Kit
+                </Label>
+                {config.use_brand_kit && brandKit && (
+                  <Badge variant="secondary" className="text-xs">Active</Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {brandKit
+                  ? 'Primary, accent, and logo update automatically when your brand kit changes.'
+                  : 'No brand kit yet — set one up to share branding across all your apps.'}
+              </p>
+              {!brandKit && (
+                <Link
+                  to="/dashboard/brand-kit"
+                  className="text-xs text-primary inline-flex items-center gap-1 hover:underline"
+                >
+                  Set up Brand Kit <ExternalLink className="h-3 w-3" />
+                </Link>
+              )}
+            </div>
+            <Switch
+              id="use_brand_kit"
+              checked={config.use_brand_kit && !!brandKit}
+              disabled={!brandKit}
+              onCheckedChange={(checked) =>
+                setConfig(prev => ({ ...prev, use_brand_kit: checked }))
+              }
+            />
+          </div>
+
+          {/* Live brand kit preview swatches */}
+          {config.use_brand_kit && brandKit && (
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg border bg-background">
+              <span className="text-xs text-muted-foreground">From your Brand Kit:</span>
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-6 w-6 rounded border"
+                  style={{ backgroundColor: brandKit.primary_color || '#0066CC' }}
+                  title={`Primary ${brandKit.primary_color || ''}`}
+                />
+                <div
+                  className="h-6 w-6 rounded border"
+                  style={{ backgroundColor: brandKit.accent_color || '#00AA44' }}
+                  title={`Accent ${brandKit.accent_color || ''}`}
+                />
+                {(brandKit.logo_mark_url || brandKit.logo_primary_url) && (
+                  <img
+                    src={brandKit.logo_mark_url || brandKit.logo_primary_url || ''}
+                    alt="Brand logo"
+                    className="h-6 w-auto max-w-[60px] object-contain"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className={`grid grid-cols-2 gap-4 transition-opacity ${config.use_brand_kit && brandKit ? 'opacity-50' : ''}`}>
             <div className="space-y-2">
-              <Label htmlFor="primary_color">Primary Color</Label>
+              <Label htmlFor="primary_color">
+                {config.use_brand_kit && brandKit ? 'Primary Color (override)' : 'Primary Color'}
+              </Label>
               <div className="flex gap-2">
                 <Input
                   id="primary_color"
@@ -423,16 +488,20 @@ export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
                   value={config.primary_color}
                   onChange={(e) => setConfig(prev => ({ ...prev, primary_color: e.target.value }))}
                   className="w-20"
+                  disabled={config.use_brand_kit && !!brandKit}
                 />
                 <Input
                   value={config.primary_color}
                   onChange={(e) => setConfig(prev => ({ ...prev, primary_color: e.target.value }))}
                   placeholder="#0066CC"
+                  disabled={config.use_brand_kit && !!brandKit}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="accent_color">Accent Color</Label>
+              <Label htmlFor="accent_color">
+                {config.use_brand_kit && brandKit ? 'Accent Color (override)' : 'Accent Color'}
+              </Label>
               <div className="flex gap-2">
                 <Input
                   id="accent_color"
@@ -440,11 +509,13 @@ export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
                   value={config.accent_color}
                   onChange={(e) => setConfig(prev => ({ ...prev, accent_color: e.target.value }))}
                   className="w-20"
+                  disabled={config.use_brand_kit && !!brandKit}
                 />
                 <Input
                   value={config.accent_color}
                   onChange={(e) => setConfig(prev => ({ ...prev, accent_color: e.target.value }))}
                   placeholder="#00AA44"
+                  disabled={config.use_brand_kit && !!brandKit}
                 />
               </div>
             </div>
