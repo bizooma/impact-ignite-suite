@@ -104,6 +104,17 @@ The ${organizationName} Team${voice.ps}`;
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Thank-you email draft for {fullName}</DialogTitle>
+          {brandKit?.voice_descriptors && brandKit.voice_descriptors.length > 0 && (
+            <div className="flex items-center gap-2 pt-1">
+              <Badge variant="secondary" className="gap-1">
+                <Sparkles className="h-3 w-3" />
+                Brand voice
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                Tone adapted from your brand kit: {brandKit.voice_descriptors.slice(0, 3).join(', ')}
+              </span>
+            </div>
+          )}
         </DialogHeader>
 
         <div className="space-y-4">
