@@ -19,7 +19,7 @@ export function OnboardingChecklist({ organizationId }: OnboardingChecklistProps
   const { integrations } = useIntegrations(organizationId);
   const { chatbots } = useChatbots(organizationId);
   const { qrCodes } = useQrCodes(organizationId);
-  const { members } = useTeamMembers(organizationId);
+  const { teamMembers: members } = useTeamMembers(organizationId);
 
   const brandKitDone = !!brandKit?.setup_completed_at;
   const integrationDone = (integrations?.length || 0) > 0;
