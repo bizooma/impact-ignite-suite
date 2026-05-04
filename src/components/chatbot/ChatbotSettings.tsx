@@ -7,9 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Video, MapPin, Palette, MessageCircle, Phone, Mail, Heart, Save } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Video, MapPin, Palette, MessageCircle, Phone, Mail, Heart, Save, Sparkles, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import type { Chatbot } from '@/types/database';
+import { useBrandKit } from '@/hooks/useBrandKit';
 
 interface ChatbotSettingsProps {
   chatbot: Chatbot;
