@@ -412,7 +412,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label>Campaign (Optional)</Label>
+                <Label>Legacy campaign tag (Optional)</Label>
                 <Select value={campaignId} onValueChange={setCampaignId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a campaign" />
@@ -426,6 +426,22 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Marketing campaign (Optional)</Label>
+                <Select value={marketingCampaignId} onValueChange={setMarketingCampaignId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Attribute this post to a campaign" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No marketing campaign</SelectItem>
+                    {(marketingCampaigns || []).map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Tagged posts roll up into the campaign's analytics.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
