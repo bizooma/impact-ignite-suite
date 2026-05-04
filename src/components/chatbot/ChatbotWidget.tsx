@@ -49,6 +49,8 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
     primary: branding.primary,
     accent: branding.accent,
   };
+  // Per-widget logo override wins, otherwise fall back to brand kit logo
+  const botLogo = config.logo_url || branding.logoUrl || undefined;
 
   useEffect(() => {
     setMounted(true);
