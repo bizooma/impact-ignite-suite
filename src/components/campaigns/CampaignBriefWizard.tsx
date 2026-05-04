@@ -69,12 +69,14 @@ export function CampaignBriefWizard({ open, onOpenChange, organizationId }: Prop
   const [starting, setStarting] = useState<StartingPoint | null>(null);
   const [draft, setDraft] = useState<BriefDraft>(DEFAULT_DRAFT);
   const [busy, setBusy] = useState(false);
+  const [skipSeeding, setSkipSeeding] = useState(false);
 
   const reset = () => {
     setStep(1);
     setStarting(null);
     setDraft(DEFAULT_DRAFT);
     setBusy(false);
+    setSkipSeeding(false);
   };
 
   const close = () => {
