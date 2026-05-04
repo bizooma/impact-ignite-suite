@@ -557,6 +557,7 @@
         }
         var features = cfg.features || {};
         window._lovA11yStatementUrl = cfg.statementUrl || null;
+        window._lovA11yBrand = cfg.brand || null;
 
         function start() {
           injectStyles();
