@@ -198,7 +198,7 @@ const QrCodeDashboard: React.FC<QrCodeDashboardProps> = ({ organizationId }) => 
                       {qrCode.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
-                  <QrPreview url={qrUrl} brandConfig={qrCode.brand_config} />
+                  <QrPreview url={qrUrl} brandConfig={qrCode.brand_config} brandKit={brandKit} />
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
