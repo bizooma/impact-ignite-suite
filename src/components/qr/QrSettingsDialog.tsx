@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Database } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
+import { useMarketingCampaignsList } from '@/hooks/useMarketingCampaignsList';
 
 
 export type QrCodeRow = Database['public']['Tables']['qr_codes']['Row'];
@@ -21,6 +23,7 @@ interface QrSettingsDialogProps {
 
 export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClose, qrCode, organizationId, updateQrCode }) => {
   const { toast } = useToast();
+  const { data: marketingCampaigns } = useMarketingCampaignsList(organizationId);
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [active, setActive] = useState(true);
@@ -32,6 +35,7 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
   const [utmCampaign, setUtmCampaign] = useState('');
   const [utmTerm, setUtmTerm] = useState('');
   const [utmContent, setUtmContent] = useState('');
+  const [marketingCampaignId, setMarketingCampaignId] = useState<string>('none');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -49,6 +53,7 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
       setUtmCampaign(utm.utm_campaign || '');
       setUtmTerm(utm.utm_term || '');
       setUtmContent(utm.utm_content || '');
+      setMarketingCampaignId((qrCode as any).marketing_campaign_id || 'none');
     }
   }, [qrCode]);
 
@@ -68,6 +73,7 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
       is_active: active,
       brand_config: { primaryColor, backgroundColor, logoUrl } as any,
       utm_params: utm_params as any,
+      marketing_campaign_id: marketingCampaignId === 'none' ? null : marketingCampaignId,
     } as Partial<QrCodeRow>);
     setSaving(false);
     if (res) {
