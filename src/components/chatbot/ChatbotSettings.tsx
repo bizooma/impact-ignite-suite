@@ -83,6 +83,7 @@ export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
       description: config.description,
       brand_settings: {
         ...chatbot.brand_settings,
+        use_brand_kit: config.use_brand_kit,
         primary_color: config.primary_color,
         accent_color: config.accent_color,
         welcome_message: config.welcome_message,
