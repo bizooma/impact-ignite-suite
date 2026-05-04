@@ -32,9 +32,11 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
   organizationId,
   createQrCode
 }) => {
+  const { brandKit } = useBrandKit(organizationId);
   const [name, setName] = useState('');
   const [destinationUrl, setDestinationUrl] = useState('');
   const [type, setType] = useState<'static' | 'dynamic'>('dynamic');
+  const [useBrandKitSync, setUseBrandKitSync] = useState(true);
   const [primaryColor, setPrimaryColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [logo, setLogo] = useState('');
@@ -42,6 +44,14 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
   const [utmMedium, setUtmMedium] = useState('qr_code');
   const [utmCampaign, setUtmCampaign] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Effective branding for preview & saved record
+  const branding = resolveQrBranding(brandKit, {
+    use_brand_kit: useBrandKitSync,
+    primaryColor,
+    backgroundColor,
+    logo,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
