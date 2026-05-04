@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Calendar, Target, Users, Loader2, Trash2, FileText, CheckCircle2 } from 'lucide-react';
+import { Plus, Calendar, Target, Users, Loader2, Trash2, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
@@ -77,11 +77,13 @@ export function CampaignDashboard({ organizationId }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {campaigns.map((c) => {
             const days = daysUntil(c.event_date);
+            const s = stats?.[c.id];
+            const briefIncomplete = s && s.briefStatus !== 'complete';
             return (
               <Card
                 key={c.id}
-                onClick={() => navigate(`/dashboard/campaigns/${c.id}`)}
-                className="p-5 cursor-pointer hover:shadow-md transition-shadow group relative"
+                onClick={() => navigate(`/dashboard/campaigns/${c.id}${briefIncomplete ? '?tab=brief' : ''}`)}
+                className={`p-5 cursor-pointer hover:shadow-md transition-shadow group relative ${briefIncomplete ? 'opacity-75 hover:opacity-100' : ''}`}
                 style={{ borderTop: `4px solid ${c.theme_color}` }}
               >
                 <Button
@@ -103,6 +105,21 @@ export function CampaignDashboard({ organizationId }: Props) {
                   </Badge>
                 </div>
                 {c.tagline && <p className="text-sm text-muted-foreground italic mb-3">{c.tagline}</p>}
+                {briefIncomplete && (
+                  <div
+                    className="mb-3 flex items-start gap-2 rounded-md border border-amber-300/50 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700/50 p-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/dashboard/campaigns/${c.id}?tab=brief`);
+                    }}
+                  >
+                    <AlertCircle className="h-3.5 w-3.5 mt-0.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <div>
+                      <div className="font-medium text-amber-800 dark:text-amber-300">Creative brief required</div>
+                      <div className="text-amber-700/80 dark:text-amber-400/80 underline">Complete the brief →</div>
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2 text-sm">
                   {c.event_date && (() => {
                     const [y, m, d] = c.event_date.split('-').map(Number);
@@ -130,7 +147,6 @@ export function CampaignDashboard({ organizationId }: Props) {
                     </div>
                   )}
                   {(() => {
-                    const s = stats?.[c.id];
                     if (!s) return null;
                     const milestonePct = s.milestonesTotal ? Math.round((s.milestonesDone / s.milestonesTotal) * 100) : 0;
                     return (
