@@ -25,6 +25,8 @@ interface PostComposerProps {
   campaigns: any[];
   initialContent?: string;
   initialDate?: Date;
+  initialMarketingCampaignId?: string;
+  sourceAssetId?: string;
 }
 
 export const PostComposer: React.FC<PostComposerProps> = ({
@@ -34,11 +36,14 @@ export const PostComposer: React.FC<PostComposerProps> = ({
   campaigns,
   initialContent,
   initialDate,
+  initialMarketingCampaignId,
+  sourceAssetId,
 }) => {
   const [content, setContent] = useState(initialContent ?? '');
   const [platform, setPlatform] = useState<'facebook' | 'linkedin'>('facebook');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(initialDate);
   const [scheduledTime, setScheduledTime] = useState(initialDate ? '09:00' : '');
+  const [marketingCampaignId, setMarketingCampaignId] = useState<string>(initialMarketingCampaignId ?? 'none');
 
   // Apply prefill whenever the dialog opens with new values
   useEffect(() => {
@@ -48,7 +53,8 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       setScheduledDate(initialDate);
       setScheduledTime((prev) => prev || '09:00');
     }
-  }, [open, initialContent, initialDate]);
+    if (initialMarketingCampaignId !== undefined) setMarketingCampaignId(initialMarketingCampaignId);
+  }, [open, initialContent, initialDate, initialMarketingCampaignId]);
   const [campaignId, setCampaignId] = useState<string>('none');
   const [targetPageId, setTargetPageId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
