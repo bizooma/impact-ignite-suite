@@ -150,10 +150,15 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
+              <MessageSquare className="h-5 w-5" style={{ color: branding.primary }} />
               <CardTitle>Live Preview</CardTitle>
             </div>
-            <Badge variant="outline">Preview Mode</Badge>
+            <div className="flex items-center gap-2">
+              {branding.fromBrandKit && (
+                <Badge variant="secondary" className="text-xs">Brand kit synced</Badge>
+              )}
+              <Badge variant="outline">Preview Mode</Badge>
+            </div>
           </div>
           <CardDescription>Test how your chatbot will interact with visitors</CardDescription>
         </CardHeader>
@@ -175,9 +180,14 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                 <div
                   className={`max-w-[80%] p-3 rounded-lg ${
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'text-white'
                       : 'bg-muted text-foreground'
                   }`}
+                  style={
+                    message.role === 'user'
+                      ? { backgroundColor: branding.primary }
+                      : undefined
+                  }
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 </div>
