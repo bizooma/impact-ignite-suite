@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCampaigns } from '@/hooks/useCampaigns';
-import { CampaignTemplatePicker } from './CampaignTemplatePicker';
+import { CampaignBriefWizard } from './CampaignBriefWizard';
 import { CampaignInspirationGrid } from './CampaignInspirationGrid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -138,7 +138,7 @@ export function CampaignDashboard({ organizationId }: Props) {
 
       <CampaignInspirationGrid organizationId={organizationId} />
 
-      <CampaignTemplatePicker open={picker} onOpenChange={setPicker} organizationId={organizationId} />
+      <CampaignBriefWizard open={picker} onOpenChange={setPicker} organizationId={organizationId} />
 
       <AlertDialog open={!!confirmDeleteId} onOpenChange={(o) => !o && setConfirmDeleteId(null)}>
         <AlertDialogContent>

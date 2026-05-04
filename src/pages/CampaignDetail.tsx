@@ -9,6 +9,7 @@ import { CampaignTimeline } from '@/components/campaigns/CampaignTimeline';
 import { CampaignContentLibrary } from '@/components/campaigns/CampaignContentLibrary';
 import { CampaignAudienceSelector } from '@/components/campaigns/CampaignAudienceSelector';
 import { CampaignAnalytics } from '@/components/campaigns/CampaignAnalytics';
+import { BriefSummaryTab } from '@/components/campaigns/BriefSummaryTab';
 import givingTuesdayLogo from '@/assets/giving-tuesday-logo.png';
 
 export default function CampaignDetail({ organizationId }: { organizationId: string }) {
@@ -91,14 +92,18 @@ export default function CampaignDetail({ organizationId }: { organizationId: str
         </div>
       )}
 
-      <Tabs defaultValue="overview">
+      <Tabs defaultValue="brief">
         <TabsList>
+          <TabsTrigger value="brief">Brief</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="audience">Audience</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
+        <TabsContent value="brief" className="mt-4">
+          <BriefSummaryTab campaignId={campaign.id} />
+        </TabsContent>
         <TabsContent value="overview" className="mt-4">
           <CampaignOverview campaign={campaign} organizationId={organizationId} />
         </TabsContent>

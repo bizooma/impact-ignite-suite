@@ -476,6 +476,102 @@ export type Database = {
           },
         ]
       }
+      campaign_briefs: {
+        Row: {
+          audience_description: string | null
+          audience_segments: Json
+          call_to_action: string | null
+          campaign_id: string
+          channels: Json
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          event_date: string | null
+          goal_currency: string
+          hero_image_url: string | null
+          id: string
+          key_message: string | null
+          landing_url: string | null
+          objective: Database["public"]["Enums"]["campaign_objective"]
+          organization_id: string
+          primary_goal_amount: number | null
+          primary_goal_donors: number | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["brief_status"]
+          theme_color: string
+          tone: Database["public"]["Enums"]["campaign_tone"]
+          updated_at: string
+        }
+        Insert: {
+          audience_description?: string | null
+          audience_segments?: Json
+          call_to_action?: string | null
+          campaign_id: string
+          channels?: Json
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          event_date?: string | null
+          goal_currency?: string
+          hero_image_url?: string | null
+          id?: string
+          key_message?: string | null
+          landing_url?: string | null
+          objective?: Database["public"]["Enums"]["campaign_objective"]
+          organization_id: string
+          primary_goal_amount?: number | null
+          primary_goal_donors?: number | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["brief_status"]
+          theme_color?: string
+          tone?: Database["public"]["Enums"]["campaign_tone"]
+          updated_at?: string
+        }
+        Update: {
+          audience_description?: string | null
+          audience_segments?: Json
+          call_to_action?: string | null
+          campaign_id?: string
+          channels?: Json
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          event_date?: string | null
+          goal_currency?: string
+          hero_image_url?: string | null
+          id?: string
+          key_message?: string | null
+          landing_url?: string | null
+          objective?: Database["public"]["Enums"]["campaign_objective"]
+          organization_id?: string
+          primary_goal_amount?: number | null
+          primary_goal_donors?: number | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["brief_status"]
+          theme_color?: string
+          tone?: Database["public"]["Enums"]["campaign_tone"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_briefs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: true
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_briefs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_metrics_snapshots: {
         Row: {
           campaign_id: string
@@ -3495,6 +3591,7 @@ export type Database = {
       app_role: "owner" | "admin" | "editor" | "viewer"
       approval_action: "approved" | "rejected" | "edited" | "posted"
       audit_severity: "low" | "medium" | "high" | "critical"
+      brief_status: "draft" | "complete"
       campaign_asset_type:
         | "social_post"
         | "email_draft"
@@ -3509,6 +3606,13 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "skipped"
+      campaign_objective:
+        | "fundraise"
+        | "awareness"
+        | "recruit_volunteers"
+        | "event_attendance"
+        | "advocacy"
+        | "stewardship"
       campaign_phase:
         | "awareness"
         | "engagement"
@@ -3516,6 +3620,12 @@ export type Database = {
         | "day_of"
         | "stewardship"
       campaign_status: "draft" | "active" | "completed" | "archived"
+      campaign_tone:
+        | "warm"
+        | "urgent"
+        | "celebratory"
+        | "professional"
+        | "playful"
       chatbot_status: "draft" | "active" | "paused"
       grant_stage:
         | "researching"
@@ -3694,6 +3804,7 @@ export const Constants = {
       app_role: ["owner", "admin", "editor", "viewer"],
       approval_action: ["approved", "rejected", "edited", "posted"],
       audit_severity: ["low", "medium", "high", "critical"],
+      brief_status: ["draft", "complete"],
       campaign_asset_type: [
         "social_post",
         "email_draft",
@@ -3710,6 +3821,14 @@ export const Constants = {
         "completed",
         "skipped",
       ],
+      campaign_objective: [
+        "fundraise",
+        "awareness",
+        "recruit_volunteers",
+        "event_attendance",
+        "advocacy",
+        "stewardship",
+      ],
       campaign_phase: [
         "awareness",
         "engagement",
@@ -3718,6 +3837,13 @@ export const Constants = {
         "stewardship",
       ],
       campaign_status: ["draft", "active", "completed", "archived"],
+      campaign_tone: [
+        "warm",
+        "urgent",
+        "celebratory",
+        "professional",
+        "playful",
+      ],
       chatbot_status: ["draft", "active", "paused"],
       grant_stage: [
         "researching",
