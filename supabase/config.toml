@@ -130,3 +130,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.notify-org-join-request]
 verify_jwt = true
+
+[functions.import-brand-kit-from-pdf]
+verify_jwt = true
