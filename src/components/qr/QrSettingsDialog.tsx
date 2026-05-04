@@ -79,7 +79,7 @@ export const QrSettingsDialog: React.FC<QrSettingsDialogProps> = ({ open, onClos
       name,
       destination_url: url,
       is_active: active,
-      brand_config: { primaryColor, backgroundColor, logoUrl } as any,
+      brand_config: { use_brand_kit: useBrandKitSync, primaryColor, backgroundColor, logoUrl } as any,
       utm_params: utm_params as any,
       marketing_campaign_id: marketingCampaignId === 'none' ? null : marketingCampaignId,
     } as Partial<QrCodeRow>);
