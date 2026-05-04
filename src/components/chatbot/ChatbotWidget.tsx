@@ -119,9 +119,9 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
           style={{ backgroundColor: brandColors.primary }}
         >
           <div className="flex items-center gap-3">
-            {config.logo_url && (
+            {botLogo && (
               <Avatar className="w-10 h-10">
-                <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                <AvatarImage src={botLogo} alt={config.bot_name} />
                 <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
               </Avatar>
             )}
@@ -158,7 +158,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
             {showWelcome && (
               <div className="flex gap-3 justify-start">
                 <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                  <AvatarImage src={botLogo} alt={config.bot_name} />
                   <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
                 </Avatar>
                 <div className="max-w-[80%]">
@@ -176,7 +176,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
               >
                 {msg.role === 'assistant' && (
                   <Avatar className="w-8 h-8 flex-shrink-0">
-                    <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                    <AvatarImage src={botLogo} alt={config.bot_name} />
                     <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
                   </Avatar>
                 )}
@@ -202,7 +202,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
             {loading && (
               <div className="flex gap-3 justify-start">
                 <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                  <AvatarImage src={botLogo} alt={config.bot_name} />
                   <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
                 </Avatar>
                 <div className="bg-muted rounded-lg p-3">
