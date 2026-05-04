@@ -1,12 +1,14 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCampaignAssets, type CampaignAsset } from '@/hooks/useCampaignAssets';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Edit2, Loader2, Save, X } from 'lucide-react';
+import { Copy, Edit2, Loader2, Save, X, Send, MessageSquare, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { AddFaqToChatbotDialog } from './AddFaqToChatbotDialog';
 
 interface Props {
   campaignId: string;
@@ -22,8 +24,10 @@ const TYPE_LABELS: Record<string, string> = {
 
 export function CampaignContentLibrary({ campaignId }: Props) {
   const { assets, isLoading, updateAsset } = useCampaignAssets(campaignId);
+  const navigate = useNavigate();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editBody, setEditBody] = useState('');
+  const [faqDialog, setFaqDialog] = useState<{ open: boolean; asset?: CampaignAsset }>({ open: false });
 
   if (isLoading) {
     return (
@@ -58,38 +62,98 @@ export function CampaignContentLibrary({ campaignId }: Props) {
     toast.success('Saved');
   };
 
+  const sendSocialToComposer = (a: CampaignAsset) => {
+    // Hand the asset to Social Media → composer. SocialMediaDashboard reads ?compose=1&asset=<id>&campaign=<id>.
+    const params = new URLSearchParams({ compose: '1', asset: a.id, campaign: campaignId });
+    navigate(`/dashboard/social?${params.toString()}`);
+  };
+
+  const sendGbpToComposer = (a: CampaignAsset) => {
+    // GBP module doesn't yet support a draft hand-off. For now, copy + route the user there.
+    copy(a.body || '');
+    toast.info('Body copied. Paste it into Google Business → New Post.');
+    navigate('/dashboard/gbp');
+  };
+
+  const renderActions = (a: CampaignAsset) => {
+    const isEditing = editingId === a.id;
+    if (isEditing) {
+      return (
+        <>
+          <Button size="sm" variant="ghost" onClick={() => saveEdit(a)} title="Save"><Save className="h-4 w-4" /></Button>
+          <Button size="sm" variant="ghost" onClick={() => setEditingId(null)} title="Cancel"><X className="h-4 w-4" /></Button>
+        </>
+      );
+    }
+    return (
+      <>
+        {a.asset_type === 'social_post' && (
+          <Button size="sm" variant="ghost" onClick={() => sendSocialToComposer(a)} title="Send to Composer">
+            <Send className="h-4 w-4" />
+          </Button>
+        )}
+        {a.asset_type === 'chatbot_faq' && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setFaqDialog({ open: true, asset: a })}
+            title="Add to a chatbot"
+          >
+            <MessageSquare className="h-4 w-4" />
+          </Button>
+        )}
+        {a.asset_type === 'gbp_post' && (
+          <Button size="sm" variant="ghost" onClick={() => sendGbpToComposer(a)} title="Send to Google Business">
+            <Send className="h-4 w-4" />
+          </Button>
+        )}
+        <Button size="sm" variant="ghost" onClick={() => startEdit(a)} title="Edit"><Edit2 className="h-4 w-4" /></Button>
+        <Button size="sm" variant="ghost" onClick={() => copy(a.body || '')} title="Copy"><Copy className="h-4 w-4" /></Button>
+      </>
+    );
+  };
+
   const renderAsset = (a: CampaignAsset) => {
     const isEditing = editingId === a.id;
+    const isPublished = a.status === 'published' || a.status === 'scheduled';
     return (
       <Card key={a.id} className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div>
-            <div className="font-medium">{a.title}</div>
-            {a.metadata?.platform && (
-              <Badge variant="outline" className="mt-1 capitalize text-xs">{a.metadata.platform}</Badge>
-            )}
-            {a.metadata?.phase && (
-              <Badge variant="secondary" className="mt-1 ml-1 capitalize text-xs">{a.metadata.phase.replace('_', ' ')}</Badge>
-            )}
+            <div className="font-medium flex items-center gap-2">
+              {a.title}
+              {isPublished && (
+                <Badge variant="default" className="text-xs gap-1">
+                  <CheckCircle2 className="h-3 w-3" />
+                  {a.status === 'scheduled' ? 'Scheduled' : 'Published'}
+                </Badge>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {a.metadata?.platform && (
+                <Badge variant="outline" className="capitalize text-xs">{a.metadata.platform}</Badge>
+              )}
+              {a.metadata?.phase && (
+                <Badge variant="secondary" className="capitalize text-xs">{a.metadata.phase.replace('_', ' ')}</Badge>
+              )}
+            </div>
           </div>
-          <div className="flex gap-1 shrink-0">
-            {isEditing ? (
-              <>
-                <Button size="sm" variant="ghost" onClick={() => saveEdit(a)}><Save className="h-4 w-4" /></Button>
-                <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}><X className="h-4 w-4" /></Button>
-              </>
-            ) : (
-              <>
-                <Button size="sm" variant="ghost" onClick={() => startEdit(a)}><Edit2 className="h-4 w-4" /></Button>
-                <Button size="sm" variant="ghost" onClick={() => copy(a.body || '')}><Copy className="h-4 w-4" /></Button>
-              </>
-            )}
-          </div>
+          <div className="flex gap-1 shrink-0">{renderActions(a)}</div>
         </div>
         {isEditing ? (
           <Textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={6} className="text-sm" />
         ) : (
           <pre className="text-sm whitespace-pre-wrap font-sans text-muted-foreground bg-muted/30 rounded p-3">{a.body}</pre>
+        )}
+        {a.asset_type === 'email_draft' && !isEditing && (
+          <div className="text-xs text-muted-foreground mt-2 italic">
+            Tip: copy this into your email tool (Mailchimp, etc.) when you're ready to send.
+          </div>
+        )}
+        {a.asset_type === 'sms_draft' && !isEditing && (
+          <div className="text-xs text-muted-foreground mt-2 italic">
+            Tip: copy this into your SMS provider.
+          </div>
         )}
       </Card>
     );
@@ -104,19 +168,31 @@ export function CampaignContentLibrary({ campaignId }: Props) {
   }
 
   return (
-    <Tabs defaultValue={types[0]}>
-      <TabsList>
+    <>
+      <Tabs defaultValue={types[0]}>
+        <TabsList>
+          {types.map((t) => (
+            <TabsTrigger key={t} value={t}>
+              {TYPE_LABELS[t]} ({grouped[t].length})
+            </TabsTrigger>
+          ))}
+        </TabsList>
         {types.map((t) => (
-          <TabsTrigger key={t} value={t}>
-            {TYPE_LABELS[t]} ({grouped[t].length})
-          </TabsTrigger>
+          <TabsContent key={t} value={t} className="space-y-3 mt-4">
+            {grouped[t].map(renderAsset)}
+          </TabsContent>
         ))}
-      </TabsList>
-      {types.map((t) => (
-        <TabsContent key={t} value={t} className="space-y-3 mt-4">
-          {grouped[t].map(renderAsset)}
-        </TabsContent>
-      ))}
-    </Tabs>
+      </Tabs>
+
+      <AddFaqToChatbotDialog
+        open={faqDialog.open}
+        onOpenChange={(o) => setFaqDialog({ open: o, asset: o ? faqDialog.asset : undefined })}
+        question={faqDialog.asset?.title || ''}
+        answer={faqDialog.asset?.body || ''}
+        onAdded={() => {
+          if (faqDialog.asset) updateAsset.mutate({ id: faqDialog.asset.id, updates: { status: 'published' } });
+        }}
+      />
+    </>
   );
 }
