@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { BrandKit, ExtractedBrandData } from '@/types/brandKit';
 import { suggestFontAlternative, googleFontUrl, normalizeHex } from '@/lib/brandKit';
+import { renderPdfPagesToPngs } from '@/lib/pdfRenderer';
 
 interface PdfImportDialogProps {
   open: boolean;
@@ -23,12 +24,14 @@ interface PdfImportDialogProps {
 export function PdfImportDialog({ open, onOpenChange, organizationId, onApplied }: PdfImportDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [progressLabel, setProgressLabel] = useState<string>('');
   const [extracted, setExtracted] = useState<ExtractedBrandData | null>(null);
 
   const reset = () => {
     setFile(null);
     setExtracted(null);
     setProcessing(false);
+    setProgressLabel('');
   };
 
   const handleClose = (next: boolean) => {
@@ -40,16 +43,32 @@ export function PdfImportDialog({ open, onOpenChange, organizationId, onApplied 
     if (!file) return;
     setProcessing(true);
     try {
-      // 1. Upload PDF to storage
+      // 1. Upload PDF to storage (kept for audit trail / re-runs)
+      setProgressLabel('Uploading PDF…');
       const path = `${organizationId}/imports/${Date.now()}-${file.name}`;
       const { error: upErr } = await supabase.storage
         .from('brand-kits')
         .upload(path, file, { contentType: 'application/pdf' });
       if (upErr) throw upErr;
 
-      // 2. Call edge function (will be created in follow-up step).
+      // 2. Render pages to PNGs in the browser (pdfjs is reliable here;
+      //    Deno edge function would be far more fragile).
+      setProgressLabel('Rendering pages…');
+      const pages = await renderPdfPagesToPngs(file, { maxPages: 8, maxDimension: 1024 });
+
+      // 3. Hand off to the edge function for AI extraction + logo cropping.
+      setProgressLabel('Analyzing with AI…');
       const { data, error } = await supabase.functions.invoke('import-brand-kit-from-pdf', {
-        body: { organization_id: organizationId, pdf_file_path: path },
+        body: {
+          organization_id: organizationId,
+          pdf_file_path: path,
+          page_images: pages.map(p => ({
+            page_number: p.pageNumber,
+            data_url: p.dataUrl,
+            width: p.width,
+            height: p.height,
+          })),
+        },
       });
       if (error) throw error;
 
@@ -59,6 +78,7 @@ export function PdfImportDialog({ open, onOpenChange, organizationId, onApplied 
       toast.error(e?.message || 'PDF import failed. The import service may still be deploying — try again in a moment.');
     } finally {
       setProcessing(false);
+      setProgressLabel('');
     }
   };
 
@@ -213,7 +233,7 @@ export function PdfImportDialog({ open, onOpenChange, organizationId, onApplied 
           {!extracted ? (
             <Button onClick={handleProcess} disabled={!file || processing}>
               {processing ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Analyzing PDF…</>
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {progressLabel || 'Analyzing PDF…'}</>
               ) : (
                 <><Sparkles className="h-4 w-4 mr-2" /> Extract brand</>
               )}
