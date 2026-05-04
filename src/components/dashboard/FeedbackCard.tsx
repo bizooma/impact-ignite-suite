@@ -16,7 +16,7 @@ interface FeedbackCardProps {
 
 type FeedbackType = 'feature_request' | 'feedback' | 'bug';
 
-export function FeedbackCard({ organizationId }: FeedbackCardProps) {
+export function FeedbackForm({ organizationId }: { organizationId: string }) {
   const { user } = useAuth();
   const [type, setType] = useState<FeedbackType>('feature_request');
   const [title, setTitle] = useState('');
