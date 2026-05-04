@@ -117,11 +117,10 @@ export function CampaignInspirationGrid({ organizationId }: Props) {
                 size="sm"
                 variant="outline"
                 className="w-full"
-                onClick={() => handleCreate(event, date)}
-                disabled={createCampaign.isPending || createFromGivingTuesday.isPending}
+                onClick={handleCreate}
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
-                Create campaign
+                Start a brief
               </Button>
             </Card>
           );
@@ -133,6 +132,8 @@ export function CampaignInspirationGrid({ organizationId }: Props) {
           No observances match your filters.
         </Card>
       )}
+
+      <CampaignBriefWizard open={wizardOpen} onOpenChange={setWizardOpen} organizationId={organizationId} />
     </div>
   );
 }
