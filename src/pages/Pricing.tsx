@@ -37,6 +37,7 @@ const tiers = {
       "Everything in Free, plus:",
       "5 Team Members",
       "AI Chatbots (50 conversations/month)",
+      "Brand Kit applied across all apps",
       "CRM (up to 100 contacts)",
       "2 Social Media Accounts",
       "Email Support",
