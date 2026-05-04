@@ -22,6 +22,8 @@ import {
   Accessibility
 } from 'lucide-react';
 import { FeedbackCard } from './FeedbackCard';
+import { BrandKitBanner } from './BrandKitBanner';
+import { OnboardingChecklist } from './OnboardingChecklist';
 
 interface MainDashboardProps {
   organizationId: string;
@@ -156,6 +158,10 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
 
   return (
     <div className="space-y-8">
+      {/* Onboarding */}
+      <BrandKitBanner organizationId={organizationId} />
+      <OnboardingChecklist organizationId={organizationId} />
+
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold text-foreground">

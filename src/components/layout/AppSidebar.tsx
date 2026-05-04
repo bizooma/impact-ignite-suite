@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers, Sparkles, HelpCircle, Accessibility } from 'lucide-react';
+import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers, Sparkles, HelpCircle, Accessibility, Palette } from 'lucide-react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
 import {
   Sidebar,
@@ -32,6 +32,7 @@ const navigationItems: Array<{
   alwaysShow?: boolean;
 }> = [
   { title: 'Dashboard', url: '/dashboard', icon: Home, alwaysShow: true },
+  { title: 'Brand Kit', url: '/dashboard/brand-kit', icon: Palette, alwaysShow: true },
   { title: 'Chatbots', url: '/dashboard/chatbots', icon: MessageCircle, productId: 'chatbots' },
   { title: 'QR Codes', url: '/dashboard/qr-codes', icon: QrCode, productId: 'qr_codes' },
   { title: 'CRM', url: '/dashboard/crm', icon: UserCircle, productId: 'crm' },

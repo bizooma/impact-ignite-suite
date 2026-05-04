@@ -426,6 +426,158 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_kit_imports: {
+        Row: {
+          brand_kit_id: string | null
+          created_at: string
+          error_message: string | null
+          extracted_data: Json
+          id: string
+          organization_id: string
+          pdf_file_path: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          brand_kit_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          extracted_data?: Json
+          id?: string
+          organization_id: string
+          pdf_file_path: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          brand_kit_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          extracted_data?: Json
+          id?: string
+          organization_id?: string
+          pdf_file_path?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_kit_imports_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "brand_kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_kit_imports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brand_kits: {
+        Row: {
+          accent_color: string | null
+          background_color: string | null
+          body_font_family: string | null
+          body_font_url: string | null
+          body_font_weight: string | null
+          created_at: string
+          do_use: string | null
+          dont_use: string | null
+          extended_palette: Json
+          favicon_url: string | null
+          heading_font_family: string | null
+          heading_font_url: string | null
+          heading_font_weight: string | null
+          id: string
+          logo_dark_url: string | null
+          logo_light_url: string | null
+          logo_mark_url: string | null
+          logo_primary_url: string | null
+          mission_statement: string | null
+          organization_id: string
+          primary_color: string | null
+          secondary_color: string | null
+          setup_completed_at: string | null
+          source: string
+          tagline: string | null
+          text_color: string | null
+          updated_at: string
+          voice_descriptors: Json
+        }
+        Insert: {
+          accent_color?: string | null
+          background_color?: string | null
+          body_font_family?: string | null
+          body_font_url?: string | null
+          body_font_weight?: string | null
+          created_at?: string
+          do_use?: string | null
+          dont_use?: string | null
+          extended_palette?: Json
+          favicon_url?: string | null
+          heading_font_family?: string | null
+          heading_font_url?: string | null
+          heading_font_weight?: string | null
+          id?: string
+          logo_dark_url?: string | null
+          logo_light_url?: string | null
+          logo_mark_url?: string | null
+          logo_primary_url?: string | null
+          mission_statement?: string | null
+          organization_id: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          setup_completed_at?: string | null
+          source?: string
+          tagline?: string | null
+          text_color?: string | null
+          updated_at?: string
+          voice_descriptors?: Json
+        }
+        Update: {
+          accent_color?: string | null
+          background_color?: string | null
+          body_font_family?: string | null
+          body_font_url?: string | null
+          body_font_weight?: string | null
+          created_at?: string
+          do_use?: string | null
+          dont_use?: string | null
+          extended_palette?: Json
+          favicon_url?: string | null
+          heading_font_family?: string | null
+          heading_font_url?: string | null
+          heading_font_weight?: string | null
+          id?: string
+          logo_dark_url?: string | null
+          logo_light_url?: string | null
+          logo_mark_url?: string | null
+          logo_primary_url?: string | null
+          mission_statement?: string | null
+          organization_id?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          setup_completed_at?: string | null
+          source?: string
+          tagline?: string | null
+          text_color?: string | null
+          updated_at?: string
+          voice_descriptors?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_kits_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_assets: {
         Row: {
           asset_id: string | null
@@ -932,6 +1084,7 @@ export type Database = {
           organization_id: string
           status: Database["public"]["Enums"]["chatbot_status"] | null
           updated_at: string
+          use_brand_kit: boolean
           web_widget_config: Json | null
         }
         Insert: {
@@ -943,6 +1096,7 @@ export type Database = {
           organization_id: string
           status?: Database["public"]["Enums"]["chatbot_status"] | null
           updated_at?: string
+          use_brand_kit?: boolean
           web_widget_config?: Json | null
         }
         Update: {
@@ -954,6 +1108,7 @@ export type Database = {
           organization_id?: string
           status?: Database["public"]["Enums"]["chatbot_status"] | null
           updated_at?: string
+          use_brand_kit?: boolean
           web_widget_config?: Json | null
         }
         Relationships: [
@@ -2565,6 +2720,50 @@ export type Database = {
           },
         ]
       }
+      org_onboarding_state: {
+        Row: {
+          brand_kit_done: boolean
+          created_at: string
+          dismissed_banners: Json
+          first_asset_created: boolean
+          id: string
+          integration_connected: boolean
+          organization_id: string
+          team_member_invited: boolean
+          updated_at: string
+        }
+        Insert: {
+          brand_kit_done?: boolean
+          created_at?: string
+          dismissed_banners?: Json
+          first_asset_created?: boolean
+          id?: string
+          integration_connected?: boolean
+          organization_id: string
+          team_member_invited?: boolean
+          updated_at?: string
+        }
+        Update: {
+          brand_kit_done?: boolean
+          created_at?: string
+          dismissed_banners?: Json
+          first_asset_created?: boolean
+          id?: string
+          integration_connected?: boolean
+          organization_id?: string
+          team_member_invited?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_onboarding_state_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_success_stories: {
         Row: {
           author_name: string | null
@@ -2868,6 +3067,7 @@ export type Database = {
           short_url: string | null
           type: Database["public"]["Enums"]["qr_code_type"] | null
           updated_at: string
+          use_brand_kit: boolean
           utm_params: Json | null
         }
         Insert: {
@@ -2882,6 +3082,7 @@ export type Database = {
           short_url?: string | null
           type?: Database["public"]["Enums"]["qr_code_type"] | null
           updated_at?: string
+          use_brand_kit?: boolean
           utm_params?: Json | null
         }
         Update: {
@@ -2896,6 +3097,7 @@ export type Database = {
           short_url?: string | null
           type?: Database["public"]["Enums"]["qr_code_type"] | null
           updated_at?: string
+          use_brand_kit?: boolean
           utm_params?: Json | null
         }
         Relationships: [
