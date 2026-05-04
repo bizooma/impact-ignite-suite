@@ -20,6 +20,8 @@ interface ChatbotSettingsProps {
 }
 
 export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
+  const { brandKit } = useBrandKit(chatbot.organization_id);
+
   const [config, setConfig] = useState({
     // About / basics
     name: chatbot.name || '',
@@ -30,29 +32,30 @@ export function ChatbotSettings({ chatbot, onUpdate }: ChatbotSettingsProps) {
     video_type: chatbot.web_widget_config?.video_type || 'youtube',
     launcher_text: chatbot.web_widget_config?.launcher_text || 'Chat with us',
     video_cta_text: chatbot.web_widget_config?.video_cta_text || 'Continue to chat',
-    
+
     // Position & branding
     position: chatbot.web_widget_config?.position || 'bottom-right',
     logo_url: chatbot.web_widget_config?.logo_url || '',
     bot_name: chatbot.web_widget_config?.bot_name || chatbot.name,
-    
+
     // Contact info
     email_contact: chatbot.web_widget_config?.email_contact || '',
     phone_contact: chatbot.web_widget_config?.phone_contact || '',
-    
+
     // Donations
     show_donations: chatbot.web_widget_config?.show_donations || false,
     donation_button_1_label: chatbot.web_widget_config?.donation_button_1?.label || '',
     donation_button_1_url: chatbot.web_widget_config?.donation_button_1?.url || '',
     donation_button_2_label: chatbot.web_widget_config?.donation_button_2?.label || '',
     donation_button_2_url: chatbot.web_widget_config?.donation_button_2?.url || '',
-    
+
     // Appearance
     size: chatbot.web_widget_config?.size || 'compact',
     theme: chatbot.web_widget_config?.theme || 'light',
     show_branding: chatbot.web_widget_config?.show_branding !== false,
-    
-    // Brand colors
+
+    // Brand colors — defaults to syncing with the org's brand kit
+    use_brand_kit: chatbot.brand_settings?.use_brand_kit !== false,
     primary_color: chatbot.brand_settings?.primary_color || '#0066CC',
     accent_color: chatbot.brand_settings?.accent_color || '#00AA44',
     welcome_message: chatbot.brand_settings?.welcome_message || '',
