@@ -156,6 +156,9 @@
         '.lov-a11y-cursor-big-white,.lov-a11y-cursor-big-white *{cursor:url("data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 width=%2748%27 height=%2748%27 viewBox=%270 0 24 24%27><path fill=%27%23fff%27 stroke=%27%23000%27 stroke-width=%271%27 d=%27M3 2l7 18 2.5-7.5L20 10z%27/></svg>") 0 0,auto!important}',
         '.lov-a11y-focus *:focus{outline:3px solid #f59e0b!important;outline-offset:2px!important}',
       ].join('\n');
+      // Substitute the default brand blue + soft tile background with the org's brand kit colors.
+      css = css.split('#1e3a8a').join(brandPrimary).split('#dbeafe').join(brandSoft);
+      s.textContent = css;
       document.head.appendChild(s);
     }
 
