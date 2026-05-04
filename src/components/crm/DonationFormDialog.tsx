@@ -113,6 +113,18 @@ export function DonationFormDialog({ open, onClose, organizationId, contactId }:
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <Label>Marketing campaign (Optional)</Label>
+            <Select value={marketingCampaignId} onValueChange={setMarketingCampaignId}>
+              <SelectTrigger><SelectValue placeholder="Attribute this gift to a campaign" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No campaign</SelectItem>
+                {(marketingCampaigns || []).map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" id="recurring" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} />
             <Label htmlFor="recurring">Recurring donation</Label>
