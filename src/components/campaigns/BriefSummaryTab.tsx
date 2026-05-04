@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { useCampaignBrief } from '@/hooks/useCampaignBrief';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, FileText, Edit2, X } from 'lucide-react';
+import { BriefForm } from './BriefForm';
 
 interface Props {
   campaignId: string;
+  organizationId: string;
 }
 
 const OBJECTIVE_LABEL: Record<string, string> = {
@@ -16,8 +20,9 @@ const OBJECTIVE_LABEL: Record<string, string> = {
   stewardship: 'Donor stewardship',
 };
 
-export function BriefSummaryTab({ campaignId }: Props) {
+export function BriefSummaryTab({ campaignId, organizationId }: Props) {
   const { brief, isLoading } = useCampaignBrief(campaignId);
+  const [editing, setEditing] = useState(false);
 
   if (isLoading) {
     return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
@@ -25,12 +30,33 @@ export function BriefSummaryTab({ campaignId }: Props) {
 
   if (!brief) {
     return (
-      <Card className="p-8 text-center">
-        <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-        <h3 className="font-semibold mb-1">No creative brief yet</h3>
-        <p className="text-sm text-muted-foreground">
-          This campaign was created before briefs were required. Future campaigns start with a brief.
-        </p>
+      <Card className="p-6 space-y-4">
+        <div className="text-center pb-2 border-b">
+          <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+          <h3 className="font-semibold mb-1">Add a creative brief</h3>
+          <p className="text-sm text-muted-foreground">
+            This campaign was created before briefs were required. Fill it in to unlock content seeding and analytics.
+          </p>
+        </div>
+        <BriefForm campaignId={campaignId} organizationId={organizationId} initial={null} showSeedOption />
+      </Card>
+    );
+  }
+
+  if (editing) {
+    return (
+      <Card className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold">Edit brief</h3>
+          <Button variant="ghost" size="sm" onClick={() => setEditing(false)}><X className="h-4 w-4 mr-1" />Cancel</Button>
+        </div>
+        <BriefForm
+          campaignId={campaignId}
+          organizationId={organizationId}
+          initial={brief}
+          showSeedOption={brief.status !== 'complete'}
+          onSaved={() => setEditing(false)}
+        />
       </Card>
     );
   }
@@ -42,12 +68,17 @@ export function BriefSummaryTab({ campaignId }: Props) {
   return (
     <div className="space-y-4">
       <Card className="p-5 space-y-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge>{OBJECTIVE_LABEL[brief.objective] || brief.objective}</Badge>
-          <Badge variant="outline" className="capitalize">{brief.tone} tone</Badge>
-          <Badge variant={brief.status === 'complete' ? 'default' : 'secondary'} className="capitalize">
-            {brief.status}
-          </Badge>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge>{OBJECTIVE_LABEL[brief.objective] || brief.objective}</Badge>
+            <Badge variant="outline" className="capitalize">{brief.tone} tone</Badge>
+            <Badge variant={brief.status === 'complete' ? 'default' : 'secondary'} className="capitalize">
+              {brief.status}
+            </Badge>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+            <Edit2 className="h-3.5 w-3.5 mr-1" /> Edit
+          </Button>
         </div>
         {brief.key_message && (
           <div>

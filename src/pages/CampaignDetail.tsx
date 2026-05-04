@@ -102,7 +102,7 @@ export default function CampaignDetail({ organizationId }: { organizationId: str
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
         <TabsContent value="brief" className="mt-4">
-          <BriefSummaryTab campaignId={campaign.id} />
+          <BriefSummaryTab campaignId={campaign.id} organizationId={organizationId} />
         </TabsContent>
         <TabsContent value="overview" className="mt-4">
           <CampaignOverview campaign={campaign} organizationId={organizationId} />
