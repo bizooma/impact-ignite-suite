@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Plus, Calendar, Loader2, ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { Heart, Plus, Calendar, Loader2, ArrowLeft, ArrowRight, Sparkles, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCampaigns } from '@/hooks/useCampaigns';
 import { useCampaignBrief, type CampaignObjective, type CampaignTone } from '@/hooks/useCampaignBrief';
@@ -412,30 +412,92 @@ export function CampaignBriefWizard({ open, onOpenChange, organizationId }: Prop
           </div>
         )}
 
-        {step === 3 && (
-          <div className="space-y-4">
-            <Card className="p-4 space-y-2">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-lg">{draft.name}</h3>
-                <Badge variant="outline" className="capitalize">{draft.objective.replace('_', ' ')}</Badge>
-              </div>
-              <p className="text-sm italic text-muted-foreground">"{draft.key_message}"</p>
-              <div className="grid grid-cols-2 gap-3 text-sm pt-2">
-                <div><span className="text-muted-foreground">Audience:</span> {draft.audience_description}</div>
-                <div><span className="text-muted-foreground">CTA:</span> {draft.call_to_action}</div>
-                <div><span className="text-muted-foreground">Event:</span> {draft.event_date || '—'}</div>
-                <div><span className="text-muted-foreground">Goal:</span> {draft.primary_goal_amount ? `$${draft.primary_goal_amount}` : '—'}</div>
-                <div className="col-span-2">
-                  <span className="text-muted-foreground">Channels:</span>{' '}
-                  {Object.entries(draft.channels).filter(([, v]) => v).map(([k]) => k).join(', ')}
+        {step === 3 && (() => {
+          const enabledChannels = Object.entries(draft.channels).filter(([, v]) => v).map(([k]) => k);
+          const warnings: string[] = [];
+          if (draft.objective === 'fundraise' && !draft.primary_goal_amount) {
+            warnings.push('Your objective is "Raise funds" but no dollar goal is set — analytics won\'t show progress to goal.');
+          }
+          if (draft.objective === 'recruit_volunteers' && !draft.primary_goal_donors) {
+            warnings.push('No participant goal set — consider adding one to track recruiting progress.');
+          }
+          if (!draft.landing_url) {
+            warnings.push('No destination URL — content drafts will reference your campaign generically instead of linking out.');
+          }
+          if (enabledChannels.length === 0) {
+            warnings.push('No channels selected — we\'ll skip content seeding.');
+          }
+          if (draft.start_date && draft.event_date && draft.start_date > draft.event_date) {
+            warnings.push('Start date is after the event date — double-check those.');
+          }
+
+          return (
+            <div className="space-y-4">
+              <Card className="p-4 space-y-3" style={{ borderLeft: `4px solid ${draft.theme_color}` }}>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-lg">{draft.name}</h3>
+                  <Badge variant="outline" className="capitalize">{draft.objective.replace('_', ' ')}</Badge>
+                  <Badge variant="secondary" className="capitalize">{draft.tone}</Badge>
                 </div>
-              </div>
-            </Card>
-            <p className="text-sm text-muted-foreground">
-              When you launch, we'll create the campaign, save your brief, and pre-build a 5-phase timeline, content drafts for each enabled channel, and a task checklist.
-            </p>
-          </div>
-        )}
+                <p className="text-sm italic text-muted-foreground">"{draft.key_message}"</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm pt-1">
+                  <div><span className="text-muted-foreground">Audience:</span> {draft.audience_description}</div>
+                  <div><span className="text-muted-foreground">CTA:</span> {draft.call_to_action}</div>
+                  <div><span className="text-muted-foreground">Event:</span> {draft.event_date || '—'}</div>
+                  <div>
+                    <span className="text-muted-foreground">Goal:</span>{' '}
+                    {draft.primary_goal_amount ? `$${Number(draft.primary_goal_amount).toLocaleString()}` : '—'}
+                    {draft.primary_goal_donors ? ` · ${draft.primary_goal_donors} donors` : ''}
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="text-muted-foreground">Channels:</span>{' '}
+                    {enabledChannels.length === 0 ? (
+                      <span className="text-muted-foreground italic">none</span>
+                    ) : (
+                      <span className="inline-flex flex-wrap gap-1 align-middle">
+                        {enabledChannels.map((ch) => (
+                          <Badge key={ch} variant="outline" className="capitalize text-xs">
+                            {ch === 'gbp' ? 'Google Business' : ch}
+                          </Badge>
+                        ))}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Card>
+
+              {warnings.length > 0 && (
+                <Card className="p-3 bg-amber-50 dark:bg-amber-950/30 border-amber-300/50 dark:border-amber-700/50">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                    <div className="text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                      {warnings.map((w, i) => <div key={i}>{w}</div>)}
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              <label className="flex items-start gap-2 text-sm cursor-pointer rounded-md border p-3 bg-muted/30">
+                <Checkbox
+                  checked={!skipSeeding}
+                  onCheckedChange={(v) => setSkipSeeding(!v)}
+                  className="mt-0.5"
+                  disabled={enabledChannels.length === 0 || starting === 'giving_tuesday'}
+                />
+                <span>
+                  <span className="font-medium">Pre-build timeline, content drafts, and tasks for me.</span>
+                  <span className="block text-muted-foreground mt-0.5">
+                    {starting === 'giving_tuesday'
+                      ? 'The Giving Tuesday template always seeds its full plan.'
+                      : enabledChannels.length === 0
+                      ? 'Select at least one channel above to enable seeding.'
+                      : 'Uncheck to start with an empty campaign and add things manually.'}
+                  </span>
+                </span>
+              </label>
+            </div>
+          );
+        })()}
 
         <div className="flex items-center justify-between pt-4 border-t">
           <Button
