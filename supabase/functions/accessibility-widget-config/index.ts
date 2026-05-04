@@ -26,7 +26,7 @@ serve(async (req) => {
 
     const { data: site } = await admin
       .from('accessibility_sites')
-      .select('id, is_active')
+      .select('id, is_active, organization_id')
       .eq('site_id', siteId)
       .maybeSingle();
 
@@ -42,6 +42,13 @@ serve(async (req) => {
       .eq('site_id', site.id)
       .maybeSingle();
 
+    // Pull brand kit colors so the on-page widget chrome matches the org's brand.
+    const { data: brandKit } = await admin
+      .from('brand_kits')
+      .select('primary_color, accent_color, logo_mark_url, logo_primary_url')
+      .eq('organization_id', site.organization_id)
+      .maybeSingle();
+
     const origin = new URL(req.url).origin.replace('.supabase.co', '.lovable.app');
     const defaultStatementUrl = `https://impact-ignite-suite.lovable.app/a11y/${siteId}/statement`;
     const statementUrl = settings?.statement_url || defaultStatementUrl;
@@ -50,6 +57,11 @@ serve(async (req) => {
       active: settings?.widget_active ?? true,
       position: settings?.widget_position ?? 'right',
       statementUrl,
+      brand: {
+        primary: brandKit?.primary_color || null,
+        accent: brandKit?.accent_color || null,
+        logo: brandKit?.logo_mark_url || brandKit?.logo_primary_url || null,
+      },
       features: {
         high_contrast: settings?.high_contrast ?? true,
         font_scaling: settings?.font_scaling ?? true,

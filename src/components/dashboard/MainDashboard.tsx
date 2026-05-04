@@ -297,6 +297,7 @@ export function MainDashboard({ organizationId }: MainDashboardProps) {
             <FlipbookViewer
               pdfUrl={selectedFlipbook.pdf_url}
               title={selectedFlipbook.title}
+              organizationId={organizationId}
               onClose={() => setSelectedFlipbook(null)}
             />
           </DialogContent>

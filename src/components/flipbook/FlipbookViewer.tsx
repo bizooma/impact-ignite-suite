@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import * as pdfjsLib from 'pdfjs-dist';
 import workerSrc from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import type { PDFPageProxy } from 'pdfjs-dist';
+import { useBrandKit } from '@/hooks/useBrandKit';
 
 // Configure PDF.js worker locally (Vite)
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
@@ -14,9 +15,14 @@ interface FlipbookViewerProps {
   pdfUrl: string;
   title?: string;
   onClose?: () => void;
+  /** When provided, the viewer chrome is themed with the org's Brand Kit. */
+  organizationId?: string;
 }
 
-export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) => {
+export const FlipbookViewer = ({ pdfUrl, title, onClose, organizationId }: FlipbookViewerProps) => {
+  const { brandKit } = useBrandKit(organizationId);
+  const brandPrimary = brandKit?.primary_color || null;
+  const brandLogo = brandKit?.logo_primary_url || brandKit?.logo_mark_url || null;
   const [pages, setPages] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -184,8 +190,25 @@ export const FlipbookViewer = ({ pdfUrl, title, onClose }: FlipbookViewerProps) 
   return (
     <div ref={containerRef} className="flipbook-container relative bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-2xl font-bold">{title || 'Flipbook'}</h2>
+      <div
+        className="flex items-center justify-between p-4 border-b"
+        style={brandPrimary ? { borderColor: brandPrimary, borderBottomWidth: 2 } : undefined}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          {brandLogo && (
+            <img
+              src={brandLogo}
+              alt=""
+              className="h-8 w-auto max-w-[120px] object-contain flex-shrink-0"
+            />
+          )}
+          <h2
+            className="text-2xl font-bold truncate"
+            style={brandPrimary ? { color: brandPrimary } : undefined}
+          >
+            {title || 'Document'}
+          </h2>
+        </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 border rounded-md p-1">
             <Button 
