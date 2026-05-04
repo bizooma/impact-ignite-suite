@@ -16,6 +16,7 @@ import {
 import { toast } from 'sonner';
 import type { Chatbot } from '@/types/database';
 import { useChatbots } from '@/hooks/useChatbots';
+import { useChatbotBranding } from '@/hooks/useChatbotBranding';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ChatbotPreviewProps {
@@ -48,12 +49,13 @@ const SIZE_LABELS: Record<string, string> = {
 
 export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
   const { updateChatbot } = useChatbots(chatbot.organization_id);
+  const branding = useChatbotBranding(chatbot);
   const [messages, setMessages] = useState<PreviewMessage[]>([
     {
       id: '1',
       role: 'assistant',
       content:
-        chatbot.brand_settings.welcome_message ||
+        branding.welcomeMessage ||
         "Hello! I'm here to help you learn about our mission and find ways to get involved. How can I assist you today?",
       timestamp: new Date().toISOString(),
     },
@@ -148,10 +150,15 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
+              <MessageSquare className="h-5 w-5" style={{ color: branding.primary }} />
               <CardTitle>Live Preview</CardTitle>
             </div>
-            <Badge variant="outline">Preview Mode</Badge>
+            <div className="flex items-center gap-2">
+              {branding.fromBrandKit && (
+                <Badge variant="secondary" className="text-xs">Brand kit synced</Badge>
+              )}
+              <Badge variant="outline">Preview Mode</Badge>
+            </div>
           </div>
           <CardDescription>Test how your chatbot will interact with visitors</CardDescription>
         </CardHeader>
@@ -173,9 +180,14 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                 <div
                   className={`max-w-[80%] p-3 rounded-lg ${
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'text-white'
                       : 'bg-muted text-foreground'
                   }`}
+                  style={
+                    message.role === 'user'
+                      ? { backgroundColor: branding.primary }
+                      : undefined
+                  }
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 </div>

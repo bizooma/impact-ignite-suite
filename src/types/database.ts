@@ -13,6 +13,12 @@ export interface Organization {
 }
 
 export interface ChatbotBrandSettings {
+  /**
+   * When true (default), this chatbot reads colors and logo from the org's
+   * Brand Kit. Per-chatbot color/logo overrides below are still respected
+   * when set, but the live brand kit values win otherwise.
+   */
+  use_brand_kit?: boolean;
   primary_color?: string;
   accent_color?: string;
   avatar_url?: string;

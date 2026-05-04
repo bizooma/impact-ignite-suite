@@ -11,6 +11,7 @@ import { VolunteerDialog } from './VolunteerDialog';
 import { FaqDialog } from './FaqDialog';
 import { Chatbot, ChatbotWidgetConfig } from '@/types/database';
 import { useChatbot } from '@/hooks/useChatbot';
+import { useChatbotBranding } from '@/hooks/useChatbotBranding';
 
 interface ChatbotWidgetProps {
   chatbot: Chatbot;
@@ -40,13 +41,16 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
   const config = chatbot.web_widget_config as ChatbotWidgetConfig || {};
   const { messages, sessionId, loading, sendMessage } = useChatbot(chatbot.id);
 
-  const welcomeMessage = chatbot.brand_settings?.welcome_message?.trim();
+  const branding = useChatbotBranding(chatbot);
+  const welcomeMessage = branding.welcomeMessage;
   const showWelcome = !!welcomeMessage && messages.length === 0 && !loading;
 
   const brandColors = {
-    primary: chatbot.brand_settings?.primary_color || '#0066cc',
-    accent: chatbot.brand_settings?.accent_color || '#00AA44',
+    primary: branding.primary,
+    accent: branding.accent,
   };
+  // Per-widget logo override wins, otherwise fall back to brand kit logo
+  const botLogo = config.logo_url || branding.logoUrl || undefined;
 
   useEffect(() => {
     setMounted(true);
@@ -115,9 +119,9 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
           style={{ backgroundColor: brandColors.primary }}
         >
           <div className="flex items-center gap-3">
-            {config.logo_url && (
+            {botLogo && (
               <Avatar className="w-10 h-10">
-                <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                <AvatarImage src={botLogo} alt={config.bot_name} />
                 <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
               </Avatar>
             )}
@@ -154,7 +158,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
             {showWelcome && (
               <div className="flex gap-3 justify-start">
                 <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                  <AvatarImage src={botLogo} alt={config.bot_name} />
                   <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
                 </Avatar>
                 <div className="max-w-[80%]">
@@ -172,7 +176,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
               >
                 {msg.role === 'assistant' && (
                   <Avatar className="w-8 h-8 flex-shrink-0">
-                    <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                    <AvatarImage src={botLogo} alt={config.bot_name} />
                     <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
                   </Avatar>
                 )}
@@ -198,7 +202,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({
             {loading && (
               <div className="flex gap-3 justify-start">
                 <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarImage src={config.logo_url} alt={config.bot_name} />
+                  <AvatarImage src={botLogo} alt={config.bot_name} />
                   <AvatarFallback>{config.bot_name?.[0] || 'A'}</AvatarFallback>
                 </Avatar>
                 <div className="bg-muted rounded-lg p-3">
