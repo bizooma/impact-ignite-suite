@@ -27,6 +27,7 @@ export const ALL_PRODUCTS: { id: ProductId; label: string }[] = [
   { id: 'crm', label: 'CRM' },
   { id: 'campaigns', label: 'Campaigns' },
   { id: 'accessibility', label: 'Accessibility' },
+  { id: 'accessnotify', label: 'AccessNotify' },
 ];
 
 export function useProductAccess() {
