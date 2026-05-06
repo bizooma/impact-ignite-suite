@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers, Sparkles, HelpCircle, Accessibility, Palette } from 'lucide-react';
+import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers, Sparkles, HelpCircle, Accessibility, Palette, Bell } from 'lucide-react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
 import {
   Sidebar,
