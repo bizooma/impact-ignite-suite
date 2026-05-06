@@ -45,6 +45,7 @@ const navigationItems: Array<{
   { title: 'Mobile App', url: '/dashboard/mobile-app', icon: Smartphone, productId: 'mobile_app' },
   { title: 'Mobile Content', url: '/dashboard/mobile-content', icon: Layers, productId: 'mobile_app' },
   { title: 'Accessibility', url: '/dashboard/accessibility', icon: Accessibility, productId: 'accessibility' },
+  { title: 'AccessNotify', url: '/dashboard/accessnotify', icon: Bell, productId: 'accessnotify' },
 ];
 
 const adminItems = [
