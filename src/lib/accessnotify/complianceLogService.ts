@@ -16,6 +16,6 @@ export interface ComplianceLogEntry {
 }
 
 export async function logSend(entry: ComplianceLogEntry) {
-  const { error } = await supabase.from('accessnotify_compliance_logs').insert(entry);
+  const { error } = await supabase.from('accessnotify_compliance_logs').insert([entry as any]);
   if (error) throw error;
 }
