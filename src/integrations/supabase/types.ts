@@ -277,6 +277,435 @@ export type Database = {
           },
         ]
       }
+      accessnotify_accessibility_checks: {
+        Row: {
+          campaign_id: string | null
+          check_key: string
+          checked_at: string
+          detail: string | null
+          id: string
+          organization_id: string
+          status: Database["public"]["Enums"]["accessnotify_check_status"]
+        }
+        Insert: {
+          campaign_id?: string | null
+          check_key: string
+          checked_at?: string
+          detail?: string | null
+          id?: string
+          organization_id: string
+          status: Database["public"]["Enums"]["accessnotify_check_status"]
+        }
+        Update: {
+          campaign_id?: string | null
+          check_key?: string
+          checked_at?: string
+          detail?: string | null
+          id?: string
+          organization_id?: string
+          status?: Database["public"]["Enums"]["accessnotify_check_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessnotify_accessibility_checks_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "accessnotify_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accessnotify_accommodation_requests: {
+        Row: {
+          assigned_to: string | null
+          contact_id: string | null
+          contact_name: string
+          created_at: string
+          id: string
+          notes: string | null
+          organization_id: string
+          preferred_accommodation: string | null
+          received_at: string
+          request_type: string | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["accessnotify_accommodation_status"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          contact_id?: string | null
+          contact_name: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          preferred_accommodation?: string | null
+          received_at?: string
+          request_type?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["accessnotify_accommodation_status"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          contact_id?: string | null
+          contact_name?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          preferred_accommodation?: string | null
+          received_at?: string
+          request_type?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["accessnotify_accommodation_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      accessnotify_campaigns: {
+        Row: {
+          accessibility_acknowledged: boolean
+          audience_list_id: string | null
+          channels: Database["public"]["Enums"]["accessnotify_channel"][]
+          created_at: string
+          created_by: string | null
+          cta_url: string | null
+          email_body: string | null
+          id: string
+          internal_notes: string | null
+          name: string
+          organization_id: string
+          plain_language_body: string | null
+          reminder_offset_minutes: number | null
+          send_at: string | null
+          sms_body: string | null
+          status: Database["public"]["Enums"]["accessnotify_campaign_status"]
+          subject: string | null
+          type: Database["public"]["Enums"]["accessnotify_campaign_type"]
+          updated_at: string
+          voice_script: string | null
+        }
+        Insert: {
+          accessibility_acknowledged?: boolean
+          audience_list_id?: string | null
+          channels?: Database["public"]["Enums"]["accessnotify_channel"][]
+          created_at?: string
+          created_by?: string | null
+          cta_url?: string | null
+          email_body?: string | null
+          id?: string
+          internal_notes?: string | null
+          name: string
+          organization_id: string
+          plain_language_body?: string | null
+          reminder_offset_minutes?: number | null
+          send_at?: string | null
+          sms_body?: string | null
+          status?: Database["public"]["Enums"]["accessnotify_campaign_status"]
+          subject?: string | null
+          type?: Database["public"]["Enums"]["accessnotify_campaign_type"]
+          updated_at?: string
+          voice_script?: string | null
+        }
+        Update: {
+          accessibility_acknowledged?: boolean
+          audience_list_id?: string | null
+          channels?: Database["public"]["Enums"]["accessnotify_channel"][]
+          created_at?: string
+          created_by?: string | null
+          cta_url?: string | null
+          email_body?: string | null
+          id?: string
+          internal_notes?: string | null
+          name?: string
+          organization_id?: string
+          plain_language_body?: string | null
+          reminder_offset_minutes?: number | null
+          send_at?: string | null
+          sms_body?: string | null
+          status?: Database["public"]["Enums"]["accessnotify_campaign_status"]
+          subject?: string | null
+          type?: Database["public"]["Enums"]["accessnotify_campaign_type"]
+          updated_at?: string
+          voice_script?: string | null
+        }
+        Relationships: []
+      }
+      accessnotify_compliance_logs: {
+        Row: {
+          accessibility_score: number | null
+          accommodation_applied: Json | null
+          campaign_id: string | null
+          campaign_name: string | null
+          channel: Database["public"]["Enums"]["accessnotify_channel"]
+          delivery_status: Database["public"]["Enums"]["accessnotify_delivery_status"]
+          id: string
+          message_id: string | null
+          organization_id: string
+          recipient_label: string | null
+          sent_at: string
+          sent_by: string | null
+          template_id: string | null
+          version_sent: string | null
+        }
+        Insert: {
+          accessibility_score?: number | null
+          accommodation_applied?: Json | null
+          campaign_id?: string | null
+          campaign_name?: string | null
+          channel: Database["public"]["Enums"]["accessnotify_channel"]
+          delivery_status: Database["public"]["Enums"]["accessnotify_delivery_status"]
+          id?: string
+          message_id?: string | null
+          organization_id: string
+          recipient_label?: string | null
+          sent_at?: string
+          sent_by?: string | null
+          template_id?: string | null
+          version_sent?: string | null
+        }
+        Update: {
+          accessibility_score?: number | null
+          accommodation_applied?: Json | null
+          campaign_id?: string | null
+          campaign_name?: string | null
+          channel?: Database["public"]["Enums"]["accessnotify_channel"]
+          delivery_status?: Database["public"]["Enums"]["accessnotify_delivery_status"]
+          id?: string
+          message_id?: string | null
+          organization_id?: string
+          recipient_label?: string | null
+          sent_at?: string
+          sent_by?: string | null
+          template_id?: string | null
+          version_sent?: string | null
+        }
+        Relationships: []
+      }
+      accessnotify_deliveries: {
+        Row: {
+          attempted_at: string
+          channel: Database["public"]["Enums"]["accessnotify_channel"]
+          delivered_at: string | null
+          error: string | null
+          id: string
+          message_id: string | null
+          organization_id: string
+          provider_id: string | null
+          status: Database["public"]["Enums"]["accessnotify_delivery_status"]
+        }
+        Insert: {
+          attempted_at?: string
+          channel: Database["public"]["Enums"]["accessnotify_channel"]
+          delivered_at?: string | null
+          error?: string | null
+          id?: string
+          message_id?: string | null
+          organization_id: string
+          provider_id?: string | null
+          status?: Database["public"]["Enums"]["accessnotify_delivery_status"]
+        }
+        Update: {
+          attempted_at?: string
+          channel?: Database["public"]["Enums"]["accessnotify_channel"]
+          delivered_at?: string | null
+          error?: string | null
+          id?: string
+          message_id?: string | null
+          organization_id?: string
+          provider_id?: string | null
+          status?: Database["public"]["Enums"]["accessnotify_delivery_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessnotify_deliveries_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "accessnotify_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accessnotify_messages: {
+        Row: {
+          body_version: string | null
+          campaign_id: string | null
+          channel: Database["public"]["Enums"]["accessnotify_channel"]
+          contact_id: string | null
+          created_at: string
+          id: string
+          organization_id: string
+          recipient_email: string | null
+          recipient_phone: string | null
+        }
+        Insert: {
+          body_version?: string | null
+          campaign_id?: string | null
+          channel: Database["public"]["Enums"]["accessnotify_channel"]
+          contact_id?: string | null
+          created_at?: string
+          id?: string
+          organization_id: string
+          recipient_email?: string | null
+          recipient_phone?: string | null
+        }
+        Update: {
+          body_version?: string | null
+          campaign_id?: string | null
+          channel?: Database["public"]["Enums"]["accessnotify_channel"]
+          contact_id?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string
+          recipient_email?: string | null
+          recipient_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessnotify_messages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "accessnotify_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accessnotify_preferences: {
+        Row: {
+          accommodation_notes: string | null
+          contact_id: string
+          created_at: string
+          do_not_call: boolean
+          do_not_text: boolean
+          id: string
+          large_text: boolean
+          organization_id: string
+          preferred_language: string
+          preferred_method: Database["public"]["Enums"]["accessnotify_preferred_method"]
+          simplified_language: boolean
+          updated_at: string
+          voice_first: boolean
+        }
+        Insert: {
+          accommodation_notes?: string | null
+          contact_id: string
+          created_at?: string
+          do_not_call?: boolean
+          do_not_text?: boolean
+          id?: string
+          large_text?: boolean
+          organization_id: string
+          preferred_language?: string
+          preferred_method?: Database["public"]["Enums"]["accessnotify_preferred_method"]
+          simplified_language?: boolean
+          updated_at?: string
+          voice_first?: boolean
+        }
+        Update: {
+          accommodation_notes?: string | null
+          contact_id?: string
+          created_at?: string
+          do_not_call?: boolean
+          do_not_text?: boolean
+          id?: string
+          large_text?: boolean
+          organization_id?: string
+          preferred_language?: string
+          preferred_method?: Database["public"]["Enums"]["accessnotify_preferred_method"]
+          simplified_language?: boolean
+          updated_at?: string
+          voice_first?: boolean
+        }
+        Relationships: []
+      }
+      accessnotify_settings: {
+        Row: {
+          accessibility_statement_url: string | null
+          accommodation_contact_email: string | null
+          channels_enabled: Json
+          created_at: string
+          default_from_email: string | null
+          default_language: string
+          default_sms_number: string | null
+          default_voice_caller_id: string | null
+          organization_id: string
+          require_approval: boolean
+          updated_at: string
+        }
+        Insert: {
+          accessibility_statement_url?: string | null
+          accommodation_contact_email?: string | null
+          channels_enabled?: Json
+          created_at?: string
+          default_from_email?: string | null
+          default_language?: string
+          default_sms_number?: string | null
+          default_voice_caller_id?: string | null
+          organization_id: string
+          require_approval?: boolean
+          updated_at?: string
+        }
+        Update: {
+          accessibility_statement_url?: string | null
+          accommodation_contact_email?: string | null
+          channels_enabled?: Json
+          created_at?: string
+          default_from_email?: string | null
+          default_language?: string
+          default_sms_number?: string | null
+          default_voice_caller_id?: string | null
+          organization_id?: string
+          require_approval?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      accessnotify_templates: {
+        Row: {
+          category: string
+          created_at: string
+          email_body: string | null
+          id: string
+          is_starter: boolean
+          name: string
+          organization_id: string | null
+          plain_language_body: string | null
+          sms_body: string | null
+          subject: string | null
+          updated_at: string
+          voice_script: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          email_body?: string | null
+          id?: string
+          is_starter?: boolean
+          name: string
+          organization_id?: string | null
+          plain_language_body?: string | null
+          sms_body?: string | null
+          subject?: string | null
+          updated_at?: string
+          voice_script?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email_body?: string | null
+          id?: string
+          is_starter?: boolean
+          name?: string
+          organization_id?: string | null
+          plain_language_body?: string | null
+          sms_body?: string | null
+          subject?: string | null
+          updated_at?: string
+          voice_script?: string | null
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -3790,6 +4219,31 @@ export type Database = {
         | "other"
       accessibility_issue_severity: "low" | "medium" | "high"
       accessibility_scan_status: "pending" | "running" | "completed" | "failed"
+      accessnotify_accommodation_status: "new" | "in_review" | "resolved"
+      accessnotify_campaign_status:
+        | "draft"
+        | "scheduled"
+        | "sending"
+        | "sent"
+        | "failed"
+      accessnotify_campaign_type:
+        | "event_reminder"
+        | "donation_reminder"
+        | "volunteer_shift"
+        | "program_update"
+        | "membership_renewal"
+        | "library_overdue"
+        | "library_hold"
+        | "emergency_alert"
+      accessnotify_channel: "email" | "sms" | "voice"
+      accessnotify_check_status: "pass" | "warning" | "needs_review"
+      accessnotify_delivery_status:
+        | "pending"
+        | "sent"
+        | "delivered"
+        | "failed"
+        | "skipped"
+      accessnotify_preferred_method: "email" | "sms" | "voice" | "multiple"
       app_role: "owner" | "admin" | "editor" | "viewer"
       approval_action: "approved" | "rejected" | "edited" | "posted"
       audit_severity: "low" | "medium" | "high" | "critical"
@@ -4003,6 +4457,34 @@ export const Constants = {
       ],
       accessibility_issue_severity: ["low", "medium", "high"],
       accessibility_scan_status: ["pending", "running", "completed", "failed"],
+      accessnotify_accommodation_status: ["new", "in_review", "resolved"],
+      accessnotify_campaign_status: [
+        "draft",
+        "scheduled",
+        "sending",
+        "sent",
+        "failed",
+      ],
+      accessnotify_campaign_type: [
+        "event_reminder",
+        "donation_reminder",
+        "volunteer_shift",
+        "program_update",
+        "membership_renewal",
+        "library_overdue",
+        "library_hold",
+        "emergency_alert",
+      ],
+      accessnotify_channel: ["email", "sms", "voice"],
+      accessnotify_check_status: ["pass", "warning", "needs_review"],
+      accessnotify_delivery_status: [
+        "pending",
+        "sent",
+        "delivered",
+        "failed",
+        "skipped",
+      ],
+      accessnotify_preferred_method: ["email", "sms", "voice", "multiple"],
       app_role: ["owner", "admin", "editor", "viewer"],
       approval_action: ["approved", "rejected", "edited", "posted"],
       audit_severity: ["low", "medium", "high", "critical"],
