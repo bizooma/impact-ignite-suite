@@ -12,7 +12,8 @@ export type ProductId =
   | 'analytics'
   | 'crm'
   | 'campaigns'
-  | 'accessibility';
+  | 'accessibility'
+  | 'accessnotify';
 
 export const ALL_PRODUCTS: { id: ProductId; label: string }[] = [
   { id: 'mobile_app', label: 'Mobile App' },
