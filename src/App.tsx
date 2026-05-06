@@ -264,6 +264,22 @@ const App = () => (
                                   <SiteDetailPage organizationId={organizationId} />
                                 </ProtectedProductRoute>
                               } />
+                              <Route path="/accessnotify" element={
+                                <ProtectedProductRoute
+                                  productId="accessnotify"
+                                  productName="AccessNotify"
+                                  description="ADA-aware multi-channel notifications with accessibility review and compliance logging"
+                                  features={[
+                                    "Send accessible Email, SMS, and Voice notifications",
+                                    "Pre-send accessibility checklist with AI-assisted rewrites",
+                                    "Per-contact preferences: do-not-call, voice-first, simplified language",
+                                    "Automatic compliance log for every message sent",
+                                    "Track accommodation requests through resolution"
+                                  ]}
+                                >
+                                  <AccessNotifyDashboard organizationId={organizationId} />
+                                </ProtectedProductRoute>
+                              } />
                               <Route path="/integrations" element={<IntegrationsDashboard organizationId={organizationId} />} />
                               <Route path="/mobile-app" element={
                                 <ProtectedProductRoute
