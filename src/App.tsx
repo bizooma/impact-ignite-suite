@@ -50,6 +50,7 @@ import { AccessibilityDashboard } from "./components/accessibility/Accessibility
 import { SiteDetailPage } from "./components/accessibility/SiteDetailPage";
 import AccessibilityStatement from "./pages/AccessibilityStatement";
 import BrandKit from "./pages/BrandKit";
+import { AccessNotifyDashboard } from "./components/accessnotify/AccessNotifyDashboard";
 
 const queryClient = new QueryClient();
 
