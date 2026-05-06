@@ -28,7 +28,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
  */
 export type ProductId =
   | 'mobile_app' | 'chatbots' | 'qr_codes' | 'social_media' | 'seo_audits'
-  | 'google_business' | 'tasks' | 'analytics' | 'crm' | 'campaigns' | 'accessibility';
+  | 'google_business' | 'tasks' | 'analytics' | 'crm' | 'campaigns' | 'accessibility' | 'accessnotify';
 
 export const TIER_PRODUCT_BUNDLES: Record<SubscriptionTier, ProductId[]> = {
   free: ['qr_codes', 'seo_audits', 'accessibility', 'tasks'],
@@ -36,7 +36,7 @@ export const TIER_PRODUCT_BUNDLES: Record<SubscriptionTier, ProductId[]> = {
   professional: ['qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots', 'social_media', 'crm', 'analytics'],
   enterprise: [
     'qr_codes', 'seo_audits', 'accessibility', 'tasks', 'chatbots',
-    'social_media', 'crm', 'analytics', 'campaigns', 'google_business', 'mobile_app',
+    'social_media', 'crm', 'analytics', 'campaigns', 'google_business', 'mobile_app', 'accessnotify',
   ],
 };
 
