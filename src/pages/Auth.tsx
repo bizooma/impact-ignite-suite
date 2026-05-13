@@ -13,11 +13,20 @@ import { toast } from 'sonner';
 import { Shield, Users, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-const signUpSchema = z.object({
+const baseSignUpFields = {
   displayName: z.string().trim().min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters'),
-  organizationName: z.string().trim().min(2, 'Organization name must be at least 2 characters').max(100, 'Organization name must be less than 100 characters'),
   email: z.string().trim().email('Please enter a valid email address').max(255, 'Email must be less than 255 characters'),
   password: z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password must be less than 128 characters'),
+};
+
+const signUpSchema = z.object({
+  ...baseSignUpFields,
+  organizationName: z.string().trim().min(2, 'Organization name must be at least 2 characters').max(100, 'Organization name must be less than 100 characters'),
+});
+
+const inviteSignUpSchema = z.object({
+  ...baseSignUpFields,
+  organizationName: z.string().optional(),
 });
 
 const signInSchema = z.object({
