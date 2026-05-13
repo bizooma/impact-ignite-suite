@@ -100,8 +100,9 @@ export default function Auth() {
     // were causing redundant invocations on auth flicker / state updates.
   }, [inviteToken, setSearchParams]);
 
+  const isInvite = !!inviteToken || !!inviteEmail;
   const signUpForm = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(isInvite ? inviteSignUpSchema : signUpSchema) as any,
     defaultValues: {
       displayName: '',
       organizationName: '',
@@ -124,7 +125,8 @@ export default function Auth() {
   }
 
   const handleSignUp = async (data: SignUpFormData) => {
-    const { error } = await signUp(data.email, data.password, data.displayName, data.organizationName);
+    const orgName = isInvite ? undefined : data.organizationName;
+    const { error } = await signUp(data.email, data.password, data.displayName, orgName);
     
     if (error) {
       if (error.message.includes('User already registered')) {
