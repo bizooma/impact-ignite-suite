@@ -246,20 +246,23 @@ export default function Auth() {
                   )}
                 </div>
 
-                <div className="space-y-2 text-center">
-                  <label className="text-sm font-medium block">Organization name <span className="text-destructive">*</span></label>
-                  <Input
-                    placeholder="Enter your nonprofit/organization name"
-                    autoComplete="organization"
-                    disabled={loading}
-                    {...signUpForm.register('organizationName')}
-                  />
-                  {signUpForm.formState.errors.organizationName && (
-                    <p className="text-sm text-destructive">
-                      {signUpForm.formState.errors.organizationName.message}
-                    </p>
-                  )}
-                </div>
+                {!isInvite && (
+                  <div className="space-y-2 text-center">
+                    <label className="text-sm font-medium block">Organization name <span className="text-destructive">*</span></label>
+                    <Input
+                      placeholder="Enter your nonprofit/organization name"
+                      autoComplete="organization"
+                      disabled={loading}
+                      {...signUpForm.register('organizationName')}
+                    />
+                    {signUpForm.formState.errors.organizationName && (
+                      <p className="text-sm text-destructive">
+                        {signUpForm.formState.errors.organizationName.message}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">You'll be the owner of this organization. Invite teammates later — they won't need to create one.</p>
+                  </div>
+                )}
 
                 <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Email <span className="text-destructive">*</span></label>
