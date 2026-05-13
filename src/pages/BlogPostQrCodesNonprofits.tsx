@@ -13,7 +13,24 @@ const BlogPostQrCodesNonprofits = () => {
         title="QR Codes for Nonprofits: Best Practices to Boost Donations, Events & Engagement in 2025 - Causeio Blog"
         description="Learn how nonprofits can use QR codes to drive donations, fill events, and engage supporters. 6 proven best practices for fundraising QR codes in 2025."
         canonical="/blog/qr-codes-nonprofits-2025"
+        ogType="article"
         keywords="QR codes for nonprofits, nonprofit QR code donations, fundraising QR codes 2025, dynamic QR codes, donation QR code, nonprofit marketing"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: "QR Codes for Nonprofits: Best Practices to Boost Donations, Events & Engagement in 2025",
+          description: "6 proven best practices for fundraising QR codes in 2025.",
+          image: `https://impact-ignite-suite.lovable.app${qrCodesImage}`,
+          datePublished: "2026-01-11",
+          dateModified: "2026-01-11",
+          author: { "@type": "Person", name: "Joseph Murphy" },
+          publisher: {
+            "@type": "Organization",
+            name: "Causeio",
+            logo: { "@type": "ImageObject", url: "https://impact-ignite-suite.lovable.app/causeio-logo.png" },
+          },
+          mainEntityOfPage: "https://impact-ignite-suite.lovable.app/blog/qr-codes-nonprofits-2025",
+        }}
       />
 
       {/* Navigation */}
