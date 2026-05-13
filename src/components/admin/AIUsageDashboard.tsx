@@ -118,6 +118,15 @@ export function AIUsageDashboard({ organizationId }: AIUsageDashboardProps) {
               <strong>{totalMessages.toLocaleString()}</strong>
             </AlertDescription>
           </Alert>
+        ) : cap === 0 ? (
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              AI chatbot messaging isn't included on the {tierInfo.label} tier.{' '}
+              <a href="/pricing" className="underline font-medium">Upgrade your plan</a> to enable
+              chatbots, or add your own OpenAI key below to use BYO billing.
+            </AlertDescription>
+          </Alert>
         ) : (
           <>
             <div className="space-y-2">
