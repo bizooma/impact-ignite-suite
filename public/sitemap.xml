@@ -1,64 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-  
-  <!-- Homepage -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://yourdomain.com/</loc>
-    <lastmod>2024-01-19</lastmod>
+    <loc>https://impact-ignite-suite.lovable.app/</loc>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Pricing Page -->
   <url>
-    <loc>https://yourdomain.com/pricing</loc>
-    <lastmod>2024-01-19</lastmod>
+    <loc>https://impact-ignite-suite.lovable.app/pricing</loc>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Auth Page -->
   <url>
-    <loc>https://yourdomain.com/auth</loc>
-    <lastmod>2024-01-19</lastmod>
+    <loc>https://impact-ignite-suite.lovable.app/auth</loc>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- Dashboard (Private - for logged in users) -->
-  <url>
-    <loc>https://yourdomain.com/dashboard</loc>
-    <lastmod>2024-01-19</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Profile Page (Private) -->
-  <url>
-    <loc>https://yourdomain.com/profile</loc>
-    <lastmod>2024-01-19</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
-
-  <!-- Blog Post: QR Codes for Nonprofits -->
   <url>
-    <loc>https://yourdomain.com/blog/qr-codes-nonprofits-2025</loc>
-    <lastmod>2025-11-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://impact-ignite-suite.lovable.app/privacy</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
-
-  <!-- WCAG Compliance / ADA Lawsuit Protection -->
   <url>
-    <loc>https://yourdomain.com/wcag-compliance</loc>
-    <lastmod>2026-04-22</lastmod>
+    <loc>https://impact-ignite-suite.lovable.app/wcag-compliance</loc>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
+  <url>
+    <loc>https://impact-ignite-suite.lovable.app/resources/google-ad-grants</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://impact-ignite-suite.lovable.app/resources/microsoft-grants</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://impact-ignite-suite.lovable.app/payment-success</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://impact-ignite-suite.lovable.app/blog</loc>
+    <lastmod>2026-05-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://impact-ignite-suite.lovable.app/blog/ai-video-multichannel-nonprofits-2025</loc>
+    <lastmod>2025-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://impact-ignite-suite.lovable.app/blog/google-ad-grants-nonprofits-2025</loc>
+    <lastmod>2025-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://impact-ignite-suite.lovable.app/blog/volunteer-recruitment-chatbots-2025</loc>
+    <lastmod>2025-10-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://impact-ignite-suite.lovable.app/blog/qr-codes-nonprofits-2025</loc>
+    <lastmod>2026-01-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
