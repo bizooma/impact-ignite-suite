@@ -10,7 +10,7 @@ Disallow: /profile
 Disallow: /admin
 
 # Sitemap location
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://impact-ignite-suite.lovable.app/sitemap.xml
 
 # Crawl delay (optional - adjust if needed)
 # Crawl-delay: 1
