@@ -13,7 +13,24 @@ const BlogPostGoogleGrants = () => {
         title="Making Google Ad Grants Work for You: How Nonprofits Can Turn Free Ad Dollars into Real Impact in 2025 - Causeio Blog"
         description="Google's Ad Grants program gives nonprofits up to $10,000 per month in free search ads. Learn how to maximize your grant, stay compliant, and boost your impact in 2025."
         canonical="/blog/google-ad-grants-nonprofits-2025"
+        ogType="article"
         keywords="Google Ad Grants, nonprofit advertising, free Google Ads, nonprofit marketing 2025, digital advertising for nonprofits"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: "Making Google Ad Grants Work for You: How Nonprofits Can Turn Free Ad Dollars into Real Impact in 2025",
+          description: "Google's Ad Grants program gives nonprofits up to $10,000 per month in free search ads.",
+          image: `https://impact-ignite-suite.lovable.app${googleAdGrantsImage}`,
+          datePublished: "2025-10-01",
+          dateModified: "2025-10-01",
+          author: { "@type": "Person", name: "Joseph Murphy" },
+          publisher: {
+            "@type": "Organization",
+            name: "Causeio",
+            logo: { "@type": "ImageObject", url: "https://impact-ignite-suite.lovable.app/causeio-logo.png" },
+          },
+          mainEntityOfPage: "https://impact-ignite-suite.lovable.app/blog/google-ad-grants-nonprofits-2025",
+        }}
       />
 
       {/* Navigation */}
