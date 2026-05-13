@@ -1,4 +1,5 @@
 import { useOrganization } from '@/hooks/useOrganization';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, Plus } from 'lucide-react';
@@ -13,6 +14,8 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { organization, organizations, loading, createOrganization } = useOrganization();
+  const { user } = useAuth();
+  const pendingOrgName = (user as any)?.user_metadata?.organization_name as string | undefined;
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newOrgName, setNewOrgName] = useState('');
   const [newOrgSlug, setNewOrgSlug] = useState('');
