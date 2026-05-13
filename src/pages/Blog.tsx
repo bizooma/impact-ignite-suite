@@ -63,6 +63,27 @@ export default function Blog() {
         title="Nonprofit Digital Marketing Blog | Causeio Resources"
         description="Expert insights, success stories, and proven strategies for nonprofit digital marketing, AI automation, volunteer recruitment, and donor engagement."
         keywords="nonprofit blog, digital marketing for nonprofits, volunteer recruitment, Google Ad Grants, AI chatbots, nonprofit technology"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          name: "Causeio Blog",
+          description: "Insights, strategies, and success stories for nonprofit digital marketing.",
+          url: "https://impact-ignite-suite.lovable.app/blog",
+          publisher: {
+            "@type": "Organization",
+            name: "Causeio",
+            url: "https://impact-ignite-suite.lovable.app",
+          },
+          blogPost: blogPosts.map((p) => ({
+            "@type": "BlogPosting",
+            headline: p.title,
+            description: p.excerpt,
+            image: `https://impact-ignite-suite.lovable.app${p.image}`,
+            url: `https://impact-ignite-suite.lovable.app${p.slug}`,
+            datePublished: p.date,
+            author: { "@type": "Person", name: p.author },
+          })),
+        }}
       />
       
       <div className="min-h-screen bg-background">

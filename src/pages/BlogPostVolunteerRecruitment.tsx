@@ -13,7 +13,24 @@ const BlogPostVolunteerRecruitment = () => {
         title="Recruit Volunteers Smarter: How Chatbots & Messaging Are Transforming Nonprofit Engagement in 2025 - Causeio Blog"
         description="Recruiting volunteers has always been a manual process — emails, forms, follow-ups — until now. Learn how AI chatbots and messaging are revolutionizing volunteer recruitment for nonprofits."
         canonical="/blog/volunteer-recruitment-chatbots-2025"
+        ogType="article"
         keywords="volunteer recruitment, nonprofit chatbots, volunteer management, AI messaging, nonprofit engagement 2025"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: "Recruit Volunteers Smarter: How Chatbots & Messaging Are Transforming Nonprofit Engagement in 2025",
+          description: "How AI chatbots and messaging are revolutionizing volunteer recruitment for nonprofits.",
+          image: `https://impact-ignite-suite.lovable.app${volunteerChatbotsImage}`,
+          datePublished: "2025-10-15",
+          dateModified: "2025-10-15",
+          author: { "@type": "Person", name: "Joseph Murphy" },
+          publisher: {
+            "@type": "Organization",
+            name: "Causeio",
+            logo: { "@type": "ImageObject", url: "https://impact-ignite-suite.lovable.app/causeio-logo.png" },
+          },
+          mainEntityOfPage: "https://impact-ignite-suite.lovable.app/blog/volunteer-recruitment-chatbots-2025",
+        }}
       />
 
       {/* Navigation */}

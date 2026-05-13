@@ -13,7 +13,24 @@ const BlogPost = () => {
         title="Harnessing AI, Video & the Multi-Channel Push: Big Digital Wins for Nonprofits in 2025 - Causeio Blog"
         description="2025 is shaping up to be a pivotal year for nonprofits that get serious about digital marketing. Learn about AI-driven personalization, short-form video, and multi-channel strategies."
         canonical="/blog/ai-video-multichannel-nonprofits-2025"
+        ogType="article"
         keywords="nonprofit digital marketing 2025, AI for nonprofits, video marketing nonprofits, multi-channel marketing, nonprofit fundraising"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: "Harnessing AI, Video & the Multi-Channel Push: Big Digital Wins for Nonprofits in 2025",
+          description: "2025 is shaping up to be a pivotal year for nonprofits that get serious about digital marketing.",
+          image: `https://impact-ignite-suite.lovable.app${aiVideoMultichannelImage}`,
+          datePublished: "2025-09-15",
+          dateModified: "2025-09-15",
+          author: { "@type": "Person", name: "Joseph Murphy" },
+          publisher: {
+            "@type": "Organization",
+            name: "Causeio",
+            logo: { "@type": "ImageObject", url: "https://impact-ignite-suite.lovable.app/causeio-logo.png" },
+          },
+          mainEntityOfPage: "https://impact-ignite-suite.lovable.app/blog/ai-video-multichannel-nonprofits-2025",
+        }}
       />
 
       {/* Navigation */}
