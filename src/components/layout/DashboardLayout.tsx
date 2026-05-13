@@ -21,12 +21,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [newOrgSlug, setNewOrgSlug] = useState('');
   const [mobileAppCode, setMobileAppCode] = useState('');
 
-  if (loading) {
+  if (loading || (!organization && pendingOrgName)) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your organization...</p>
+          <p className="text-muted-foreground">
+            {pendingOrgName ? `Setting up ${pendingOrgName}...` : 'Loading your organization...'}
+          </p>
         </div>
       </div>
     );
