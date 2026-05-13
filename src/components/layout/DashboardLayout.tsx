@@ -1,4 +1,5 @@
 import { useOrganization } from '@/hooks/useOrganization';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, Plus } from 'lucide-react';
@@ -13,17 +14,21 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { organization, organizations, loading, createOrganization } = useOrganization();
+  const { user } = useAuth();
+  const pendingOrgName = (user as any)?.user_metadata?.organization_name as string | undefined;
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newOrgName, setNewOrgName] = useState('');
   const [newOrgSlug, setNewOrgSlug] = useState('');
   const [mobileAppCode, setMobileAppCode] = useState('');
 
-  if (loading) {
+  if (loading || (!organization && pendingOrgName)) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your organization...</p>
+          <p className="text-muted-foreground">
+            {pendingOrgName ? `Setting up ${pendingOrgName}...` : 'Loading your organization...'}
+          </p>
         </div>
       </div>
     );

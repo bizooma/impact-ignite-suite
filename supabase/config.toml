@@ -133,3 +133,6 @@ verify_jwt = true
 
 [functions.import-brand-kit-from-pdf]
 verify_jwt = true
+
+[functions.provision-org]
+verify_jwt = true

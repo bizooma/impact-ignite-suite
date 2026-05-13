@@ -13,11 +13,20 @@ import { toast } from 'sonner';
 import { Shield, Users, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-const signUpSchema = z.object({
+const baseSignUpFields = {
   displayName: z.string().trim().min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters'),
-  organizationName: z.string().trim().min(2, 'Organization name must be at least 2 characters').max(100, 'Organization name must be less than 100 characters'),
   email: z.string().trim().email('Please enter a valid email address').max(255, 'Email must be less than 255 characters'),
   password: z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password must be less than 128 characters'),
+};
+
+const signUpSchema = z.object({
+  ...baseSignUpFields,
+  organizationName: z.string().trim().min(2, 'Organization name must be at least 2 characters').max(100, 'Organization name must be less than 100 characters'),
+});
+
+const inviteSignUpSchema = z.object({
+  ...baseSignUpFields,
+  organizationName: z.string().optional(),
 });
 
 const signInSchema = z.object({
@@ -91,8 +100,9 @@ export default function Auth() {
     // were causing redundant invocations on auth flicker / state updates.
   }, [inviteToken, setSearchParams]);
 
+  const isInvite = !!inviteToken || !!inviteEmail;
   const signUpForm = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(isInvite ? inviteSignUpSchema : signUpSchema) as any,
     defaultValues: {
       displayName: '',
       organizationName: '',
@@ -115,7 +125,8 @@ export default function Auth() {
   }
 
   const handleSignUp = async (data: SignUpFormData) => {
-    const { error } = await signUp(data.email, data.password, data.displayName, data.organizationName);
+    const orgName = isInvite ? undefined : data.organizationName;
+    const { error } = await signUp(data.email, data.password, data.displayName, orgName);
     
     if (error) {
       if (error.message.includes('User already registered')) {
@@ -235,20 +246,23 @@ export default function Auth() {
                   )}
                 </div>
 
-                <div className="space-y-2 text-center">
-                  <label className="text-sm font-medium block">Organization name <span className="text-destructive">*</span></label>
-                  <Input
-                    placeholder="Enter your nonprofit/organization name"
-                    autoComplete="organization"
-                    disabled={loading}
-                    {...signUpForm.register('organizationName')}
-                  />
-                  {signUpForm.formState.errors.organizationName && (
-                    <p className="text-sm text-destructive">
-                      {signUpForm.formState.errors.organizationName.message}
-                    </p>
-                  )}
-                </div>
+                {!isInvite && (
+                  <div className="space-y-2 text-center">
+                    <label className="text-sm font-medium block">Organization name <span className="text-destructive">*</span></label>
+                    <Input
+                      placeholder="Enter your nonprofit/organization name"
+                      autoComplete="organization"
+                      disabled={loading}
+                      {...signUpForm.register('organizationName')}
+                    />
+                    {signUpForm.formState.errors.organizationName && (
+                      <p className="text-sm text-destructive">
+                        {signUpForm.formState.errors.organizationName.message}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">You'll be the owner of this organization. Invite teammates later — they won't need to create one.</p>
+                  </div>
+                )}
 
                 <div className="space-y-2 text-center">
                   <label className="text-sm font-medium block">Email <span className="text-destructive">*</span></label>

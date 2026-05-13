@@ -105,44 +105,23 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
     }
   };
 
-  const slugify = (name: string) =>
-    name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'org';
-
   const autoProvisionOrg = async (name: string) => {
     if (!user) return;
     try {
-      const baseSlug = slugify(name);
-      const slug = `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
-
-      const { data: newOrg, error: orgError } = await supabase
-        .from('organizations')
-        .insert([{ name, slug }])
-        .select()
-        .single();
-
-      if (orgError) throw orgError;
-
-      const { error: membershipError } = await supabase
-        .from('memberships')
-        .insert([{ user_id: user.id, organization_id: newOrg.id, role: 'owner' }]);
-
-      if (membershipError) throw membershipError;
-
-      // Clear metadata so this only runs once
-      await supabase.auth.updateUser({ data: { organization_name: null } });
-
-      const org = {
-        ...newOrg,
-        purchased_products: Array.isArray(newOrg.purchased_products)
-          ? (newOrg.purchased_products as string[])
-          : [],
-      } as Organization;
-
-      setOrganizations([org]);
-      setOrganization(org);
-      toast.success(`Welcome! ${name} is ready to go.`);
+      const { data, error } = await supabase.functions.invoke('provision-org', {
+        body: { organizationName: name },
+      });
+      if (error) throw error;
+      // Refresh the user so user_metadata.organization_name is cleared locally too.
+      await supabase.auth.refreshSession();
+      // Re-fetch memberships to pick up the newly-created org.
+      await fetchOrganizations();
+      if (!data?.alreadyExisted) {
+        toast.success(`Welcome! ${name} is ready to go.`);
+      }
     } catch (error: any) {
       console.error('Auto-provision org failed:', error);
+      toast.error(error?.message || 'Could not set up your organization automatically.');
     }
   };
 
