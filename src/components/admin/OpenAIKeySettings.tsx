@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Key, CheckCircle2, AlertCircle, Trash2, Loader2 } from 'lucide-react';
+import { Key, CheckCircle2, AlertCircle, Trash2, Loader2, Eye, EyeOff } from 'lucide-react';
 
 interface OpenAIKeySettingsProps {
   organizationId: string;
@@ -25,6 +25,7 @@ export function OpenAIKeySettings({ organizationId }: OpenAIKeySettingsProps) {
   const queryClient = useQueryClient();
   const [keyInput, setKeyInput] = useState('');
   const [showInput, setShowInput] = useState(false);
+  const [showKey, setShowKey] = useState(false);
 
   const { data: status, isLoading } = useQuery({
     queryKey: ['openai-key-status', organizationId],
