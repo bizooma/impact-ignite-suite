@@ -147,14 +147,25 @@ export function OpenAIKeySettings({ organizationId }: OpenAIKeySettingsProps) {
           <div className="space-y-2">
             <Label htmlFor="openai-key">OpenAI API Key</Label>
             <div className="flex gap-2">
-              <Input
-                id="openai-key"
-                type="password"
-                placeholder="sk-..."
-                value={keyInput}
-                onChange={(e) => setKeyInput(e.target.value)}
-                className="font-mono"
-              />
+              <div className="relative flex-1">
+                <Input
+                  id="openai-key"
+                  type={showKey ? 'text' : 'password'}
+                  placeholder="sk-..."
+                  value={keyInput}
+                  onChange={(e) => setKeyInput(e.target.value)}
+                  className="font-mono pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowKey((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                  aria-label={showKey ? 'Hide key' : 'Show key'}
+                >
+                  {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               <Button
                 variant="outline"
                 onClick={() => testMutation.mutate(keyInput)}

@@ -215,18 +215,30 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="beta-password">Password *</Label>
-            <Input
-              id="beta-password"
-              type="password"
-              placeholder="At least 8 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              maxLength={72}
-              disabled={loading}
-              autoComplete="new-password"
-            />
+            <div className="relative">
+              <Input
+                id="beta-password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="At least 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+                maxLength={72}
+                disabled={loading}
+                autoComplete="new-password"
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
           <div className="pt-1">
             <Button type="submit" className="w-full bg-[hsl(217_91%_35%)] hover:bg-[hsl(217_91%_28%)] text-white" size={compact ? "default" : "lg"} disabled={loading}>

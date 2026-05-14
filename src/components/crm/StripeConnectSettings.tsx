@@ -35,6 +35,7 @@ export function StripeConnectSettings({ organizationId }: Props) {
   const [publishableKey, setPublishableKey] = useState('');
   const [webhookSecret, setWebhookSecret] = useState('');
   const [showSecret, setShowSecret] = useState(false);
+  const [showWebhookSecret, setShowWebhookSecret] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -240,14 +241,26 @@ export function StripeConnectSettings({ organizationId }: Props) {
 
             <div className="space-y-2">
               <Label htmlFor="ws">Webhook Signing Secret (optional)</Label>
-              <Input
-                id="ws"
-                type="password"
-                placeholder="whsec_..."
-                value={webhookSecret}
-                onChange={(e) => setWebhookSecret(e.target.value.trim())}
-                autoComplete="off"
-              />
+              <div className="relative">
+                <Input
+                  id="ws"
+                  type={showWebhookSecret ? 'text' : 'password'}
+                  placeholder="whsec_..."
+                  value={webhookSecret}
+                  onChange={(e) => setWebhookSecret(e.target.value.trim())}
+                  autoComplete="off"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowWebhookSecret((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                  aria-label={showWebhookSecret ? 'Hide webhook secret' : 'Show webhook secret'}
+                >
+                  {showWebhookSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               <p className="text-xs text-muted-foreground">
                 Required if you want to enable webhook-based donation sync. Find it in Stripe → Developers → Webhooks after creating an endpoint.
               </p>
