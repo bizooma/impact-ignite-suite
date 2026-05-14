@@ -565,7 +565,7 @@
           var btn = document.createElement('button');
           btn.className = 'lov-a11y-launcher';
           btn.setAttribute('aria-label', 'Open accessibility menu');
-          btn.innerHTML = '<img src="/accessibility-icon.png" alt="" aria-hidden="true" />';
+          btn.innerHTML = '<img src="https://impact-ignite-suite.lovable.app/accessibility-icon.png" alt="" aria-hidden="true" />';
           panel = document.createElement('div');
           panel.className = 'lov-a11y-panel';
           panel.setAttribute('role', 'dialog');
