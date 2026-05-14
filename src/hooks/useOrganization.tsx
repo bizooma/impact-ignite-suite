@@ -109,8 +109,7 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
     if (!user) return;
     try {
       const isBetaSignup = (user as any)?.user_metadata?.beta_signup === true;
-      const functionName = isBetaSignup ? 'provision-beta-org' : 'provision-org';
-      const { data, error } = await supabase.functions.invoke('provision-org', {
+      const { data, error } = await supabase.functions.invoke(isBetaSignup ? 'provision-beta-org' : 'provision-org', {
         body: isBetaSignup
           ? { organizationName: name, displayName: (user as any)?.user_metadata?.display_name }
           : { organizationName: name },
