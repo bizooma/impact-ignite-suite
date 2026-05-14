@@ -83,6 +83,7 @@ serve(async (req) => {
     const alreadyHasBeta = (existing || []).find((m: any) => m.organizations?.is_beta_org);
     if (alreadyHasBeta) {
       log("already has beta org", { orgId: alreadyHasBeta.organization_id });
+      await admin.auth.admin.updateUserById(userId, { user_metadata: { organization_name: null, beta_signup: null } });
       return new Response(JSON.stringify({ organizationId: alreadyHasBeta.organization_id, alreadyExisted: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -126,6 +127,9 @@ serve(async (req) => {
     });
     if (memErr) throw memErr;
     log("membership created");
+
+    // Clear pending metadata so dashboard auto-provisioning will not run again.
+    await admin.auth.admin.updateUserById(userId, { user_metadata: { organization_name: null, beta_signup: null } });
 
     return new Response(JSON.stringify({ organizationId: newOrg.id, alreadyExisted: false }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
