@@ -108,8 +108,12 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
   const autoProvisionOrg = async (name: string) => {
     if (!user) return;
     try {
+      const isBetaSignup = (user as any)?.user_metadata?.beta_signup === true;
+      const functionName = isBetaSignup ? 'provision-beta-org' : 'provision-org';
       const { data, error } = await supabase.functions.invoke('provision-org', {
-        body: { organizationName: name },
+        body: isBetaSignup
+          ? { organizationName: name, displayName: (user as any)?.user_metadata?.display_name }
+          : { organizationName: name },
       });
       if (error) throw error;
       // Refresh the user so user_metadata.organization_name is cleared locally too.
