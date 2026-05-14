@@ -25,6 +25,7 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
   const [name, setName] = useState("");
   const [organization, setOrganization] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
