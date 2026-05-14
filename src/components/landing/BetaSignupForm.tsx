@@ -44,7 +44,11 @@ export const BetaSignupForm = ({ compact = false }: BetaSignupFormProps) => {
         password: validated.password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: { display_name: validated.name },
+          data: {
+            display_name: validated.name,
+            organization_name: validated.organization,
+            beta_signup: true,
+          },
         },
       });
 
