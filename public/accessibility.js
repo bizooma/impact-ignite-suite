@@ -55,7 +55,8 @@
       s.id = 'lov-a11y-styles';
       var css = [
         // Launcher button
-        '.lov-a11y-launcher{position:fixed;bottom:20px;width:52px;height:52px;border-radius:50%;background:#1e3a8a;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:2147483646;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:system-ui,sans-serif}',
+        '.lov-a11y-launcher{position:fixed;bottom:20px;width:52px;height:52px;border-radius:50%;background:#1e3a8a;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:0;overflow:hidden}',
+        '.lov-a11y-launcher img{width:100%;height:100%;display:block;object-fit:cover}',
         posCss('.lov-a11y-launcher'),
         '.lov-a11y-launcher:focus{outline:3px solid #fbbf24;outline-offset:2px}',
         '.lov-a11y-launcher:hover{transform:scale(1.05);transition:transform .15s}',
@@ -564,7 +565,7 @@
           var btn = document.createElement('button');
           btn.className = 'lov-a11y-launcher';
           btn.setAttribute('aria-label', 'Open accessibility menu');
-          btn.innerHTML = '♿';
+          btn.innerHTML = '<img src="/accessibility-icon.png" alt="" aria-hidden="true" />';
           panel = document.createElement('div');
           panel.className = 'lov-a11y-panel';
           panel.setAttribute('role', 'dialog');
