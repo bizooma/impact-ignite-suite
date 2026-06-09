@@ -400,7 +400,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ organizationId 
                       { label: 'Chat Sessions', value: state.totalSessions },
                       { label: 'Chat Messages', value: state.totalMessages },
                       { label: 'QR Scans', value: state.totalQrScans },
-                      { label: 'SEO Audits Run', value: state.dailyChats.length ? null : null },
+                      { label: 'SEO Audits Run', value: state.seoAuditsCount },
                       { label: 'GBP Reviews Received', value: state.gbpReviewsCount },
                     ]
                       .filter((r) => r.value !== null)
