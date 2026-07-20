@@ -51,6 +51,7 @@ import { SiteDetailPage } from "./components/accessibility/SiteDetailPage";
 import AccessibilityStatement from "./pages/AccessibilityStatement";
 import BrandKit from "./pages/BrandKit";
 import { AccessNotifyDashboard } from "./components/accessnotify/AccessNotifyDashboard";
+import AiVisibility from "./pages/AiVisibility";
 
 const queryClient = new QueryClient();
 
@@ -329,6 +330,7 @@ const App = () => (
                                 </ProtectedProductRoute>
                               } />
                               <Route path="/brand-kit" element={<BrandKit />} />
+                              <Route path="/ai-visibility" element={<AiVisibility />} />
                               <Route path="/members" element={<MembershipManagement organizationId={organizationId} />} />
                               <Route path="/profile" element={<Profile />} />
                               <Route path="/pricing-beta" element={<PricingBeta />} />

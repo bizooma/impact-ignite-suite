@@ -136,3 +136,6 @@ verify_jwt = true
 
 [functions.provision-org]
 verify_jwt = true
+
+[functions.ai-visibility-check]
+verify_jwt = true

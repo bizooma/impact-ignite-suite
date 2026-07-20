@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers, Sparkles, HelpCircle, Accessibility, Palette, Bell } from 'lucide-react';
+import { Home, MessageCircle, QrCode, Calendar, BarChart3, Building, Users, CheckSquare, TrendingUp, Settings, Shield, Smartphone, User, LogOut, Lock, UserCircle, DollarSign, Megaphone, Layers, Sparkles, HelpCircle, Accessibility, Palette, Bell, Eye } from 'lucide-react';
 import causeioLogo from '@/assets/causeio-logo-full.png';
 import {
   Sidebar,
@@ -39,6 +39,7 @@ const navigationItems: Array<{
   { title: 'Campaigns', url: '/dashboard/campaigns', icon: Megaphone, productId: 'campaigns' },
   { title: 'Social Media', url: '/dashboard/social', icon: Calendar, productId: 'social_media' },
   { title: 'SEO Audits', url: '/dashboard/seo', icon: BarChart3, productId: 'seo_audits' },
+  { title: 'AI Visibility', url: '/dashboard/ai-visibility', icon: Eye, alwaysShow: true },
   { title: 'Google Business', url: '/dashboard/gbp', icon: Building, productId: 'google_business' },
   { title: 'Tasks', url: '/dashboard/tasks', icon: CheckSquare, productId: 'tasks' },
   { title: 'Analytics', url: '/dashboard/analytics', icon: TrendingUp, productId: 'analytics' },
