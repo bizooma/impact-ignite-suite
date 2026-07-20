@@ -781,6 +781,92 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_visibility_results: {
+        Row: {
+          competitors: string[]
+          confidence: number
+          created_at: string
+          has_mention: boolean
+          id: string
+          is_citation: boolean
+          mention_text: string | null
+          platform: string
+          prompt: string
+          run_id: string
+        }
+        Insert: {
+          competitors?: string[]
+          confidence?: number
+          created_at?: string
+          has_mention?: boolean
+          id?: string
+          is_citation?: boolean
+          mention_text?: string | null
+          platform: string
+          prompt: string
+          run_id: string
+        }
+        Update: {
+          competitors?: string[]
+          confidence?: number
+          created_at?: string
+          has_mention?: boolean
+          id?: string
+          is_citation?: boolean
+          mention_text?: string | null
+          platform?: string
+          prompt?: string
+          run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_visibility_results_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_visibility_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_visibility_runs: {
+        Row: {
+          citation_count: number
+          created_at: string
+          domain: string
+          id: string
+          mention_count: number
+          overall_score: number
+          platforms: string[]
+          prompts: Json
+          total_checks: number
+          user_id: string
+        }
+        Insert: {
+          citation_count?: number
+          created_at?: string
+          domain: string
+          id?: string
+          mention_count?: number
+          overall_score?: number
+          platforms?: string[]
+          prompts?: Json
+          total_checks?: number
+          user_id: string
+        }
+        Update: {
+          citation_count?: number
+          created_at?: string
+          domain?: string
+          id?: string
+          mention_count?: number
+          overall_score?: number
+          platforms?: string[]
+          prompts?: Json
+          total_checks?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_issues: {
         Row: {
           audit_id: string
